@@ -5,7 +5,7 @@
 #' @inheritParams e_bar
 #' @param color Color.
 #' @param type Map type.
-#' @param rm.x,rm.y Whether to remove x and y axis, defaults to \code{TRUE}.
+#' @param rm_x,rm_y Whether to remove x and y axis, defaults to \code{TRUE}.
 #' 
 #' @examples 
 #' choropleth <- data.frame(
@@ -21,11 +21,11 @@
 #'   e_geo_3d(height, color)
 #'   
 #' @seealso \code{\link{e_country_names}}, 
-#' \href{Additional arguments}{http://echarts.baidu.com/option-gl.html#geo3D}
+#' \href{http://echarts.baidu.com/option-gl.html#geo3D}{Additional arguments}
 #' 
 #' @rdname e_geo_3d
 #' @export
-e_geo_3d <- function(e, serie, color, type = "world", rm.x = TRUE, rm.y = TRUE, ...){
+e_geo_3d <- function(e, serie, color, type = "world", rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
@@ -39,17 +39,17 @@ e_geo_3d <- function(e, serie, color, type = "world", rm.x = TRUE, rm.y = TRUE, 
   else
     cl <- NULL
   
-  e_geo_3d_(e, sr, cl, type, rm.x, rm.y, ...)
+  e_geo_3d_(e, sr, cl, type, rm_x, rm_y, ...)
 }
 
 #' @rdname e_geo_3d
 #' @export
-e_geo_3d_ <- function(e, serie = NULL, color = NULL, type = "world", rm.x = TRUE, rm.y = TRUE, ...){
+e_geo_3d_ <- function(e, serie = NULL, color = NULL, type = "world", rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
-  e <- .rm_axis(e, rm.x, "x")
-  e <- .rm_axis(e, rm.y, "y")
+  e <- .rm_axis(e, rm_x, "x")
+  e <- .rm_axis(e, rm_y, "y")
   
   series <- list(
     map = type,
@@ -91,7 +91,7 @@ e_geo_3d_ <- function(e, serie = NULL, color = NULL, type = "world", rm.x = TRUE
 #'     lineStyle = list(normal = list(curveness = 0.3))
 #'    )
 #' 
-#' @seealso \href{Additional arguments}{https://ecomfe.github.io/echarts-doc/public/en/option.html#geo}
+#' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#geo}{Additional arguments}
 #' 
 #' @export
 e_geo <- function(e, map = "world", ...){

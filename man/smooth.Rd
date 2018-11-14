@@ -13,7 +13,7 @@ e_glm(e, formula, name = NULL, legend = TRUE, symbol = "none",
   smooth = TRUE, ...)
 
 e_loess(e, formula, name = NULL, legend = TRUE, symbol = "none",
-  smooth = TRUE, x.index = 0, y.index = 0, ...)
+  smooth = TRUE, x_index = 0, y_index = 0, ...)
 }
 \arguments{
 \item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
@@ -30,27 +30,27 @@ e_loess(e, formula, name = NULL, legend = TRUE, symbol = "none",
 
 \item{...}{Additional arguments to pass to \code{\link{e_line}}.}
 
-\item{x.index}{Indexes of x and y axis.}
+\item{x_index}{Indexes of x and y axis.}
 
-\item{y.index}{Indexes of x and y axis.}
+\item{y_index}{Indexes of x and y axis.}
 }
 \description{
-Aids the eye in seeing patterns in the presence of overplotting.
+Plot formulas.
 }
 \examples{
 mtcars \%>\% 
   e_charts(mpg) \%>\% 
-  e_scatter(qsec) \%>\% 
+  e_scatter(qsec, symbol_size = 10) \%>\% 
   e_lm(qsec ~ mpg, name = "y = ax + b")
   
 mtcars \%>\% 
   e_charts(disp) \%>\% 
-  e_scatter(mpg) \%>\% 
+  e_scatter(mpg, qsec) \%>\% 
   e_loess(mpg ~ disp)
   
 CO2 \%>\% 
   e_charts(conc) \%>\% 
-  e_scatter(uptake) \%>\% 
+  e_scatter(uptake, symbol_size = 10) \%>\% 
   e_glm(uptake ~ conc, name = "GLM")
 
 }

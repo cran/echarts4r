@@ -17,9 +17,20 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
   x$mapping$include_x <- FALSE
   cl <- x$mapping$x_class
   if(cl == "character" || cl == "factor"){
-    x$opts$xAxis <- list(list(data = unique(data[[x$mapping$x]]), type = "category", boundaryGap = TRUE))
+    labs <- unique(data[[x$mapping$x]])
+    
+    if(length(labs) == 1)
+      labs <- list(labs)
+    
+    x$opts$xAxis <- list(list(data = labs, type = "category", boundaryGap = TRUE))
   } else if(cl == "POSIXct" || cl == "POSIXlt" || cl == "Date") {
-    x$opts$xAxis <- list(list(data = unique(data[[x$mapping$x]]), type = "time", boundaryGap = TRUE))
+    
+    labs <- unique(data[[x$mapping$x]])
+    
+    if(length(labs) == 1)
+      labs <- list(labs)
+    
+    x$opts$xAxis <- list(list(data = labs, type = "time", boundaryGap = TRUE))
   } else {
     x$mapping$include_x <- TRUE
     x$opts$xAxis <- list(list(type = "value"))
@@ -27,8 +38,8 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
   x
 }
 
-.rm_axis <- function(e, rm.x, axis){
-  if(isTRUE(rm.x)){
+.rm_axis <- function(e, rm_x, axis){
+  if(isTRUE(rm_x)){
     axis <- .r2axis(axis)
     e$x$opts[[axis]] <- NULL
   }
@@ -44,6 +55,23 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
     list(value = unlist(x, use.names = FALSE))
   }) 
     
+}
+
+.build_data_size <- function(data, x, y, size, scale, symbol_size){
+  row.names(data) <- NULL
+  
+  data[, "sizeECHARTS"] <- data[, size]
+  
+  data[, "sizeECHARTS"] <- scale(data[, "sizeECHARTS"]) * symbol_size
+  
+  data %>% 
+    dplyr::select_(x, y, size, "sizeECHARTS") %>% 
+    unname(.) -> data
+  
+  apply(data, 1, function(x){
+    list(value = unlist(x, use.names = FALSE))
+  }) 
+  
 }
 
 .build_data2 <- function(data, ...){
@@ -86,7 +114,7 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
   if(isTRUE(vector))
     unlist(data)
   else
-      apply(data, 1, function(x){list(value = unlist(x, use.names = FALSE))}) 
+    apply(data, 1, function(x){list(value = unlist(x, use.names = FALSE))}) 
 }
 
 .build_sankey_nodes <- function(data, source, target){
@@ -219,14 +247,14 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
   x
 }
 
-.build_boxplot <- function(e, serie){
-  x <- .get_data(e, serie)
+.build_boxplot <- function(e, serie, i){
+  x <- .get_data(e, serie, i)
   
   boxplot.stats(x)$stats
 }
 
-.get_outliers <- function(e, serie){
-  x <- .get_data(e, serie)
+.get_outliers <- function(e, serie, i){
+  x <- .get_data(e, serie, i)
   
   boxplot.stats(x)$out
 }
@@ -238,9 +266,9 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
   apply(unname(matrix), 1, as.list)
 }
 
-.add_outliers <- function(e, serie){
+.add_outliers <- function(e, serie, i){
   
-  outliers <- .get_outliers(e, serie)
+  outliers <- .get_outliers(e, serie, i)
   outliers <- .build_outliers(e, outliers)
   
   scatter <- list(
@@ -256,11 +284,9 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
   e
 }
 
-.build_tree <- function(e, parent, child){
+.build_tree <- function(e, ...){
   e$x$data[[1]] %>%
-    dplyr::select(
-      !!parent,
-      !!child
+    dplyr::select(...
     ) -> df
   
   .tree_that(df)
@@ -303,7 +329,7 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
     })
   }
   
-  jsonlite::toJSON(x, auto_unbox = T, pretty = FALSE)
+  jsonlite::toJSON(x, auto_unbox = TRUE, pretty = FALSE)
 }
 
 .build_river <- function(e, serie, label, i){
@@ -353,7 +379,12 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
     axis <- list(type = type)
     
     if(type != "value"){
-      axis$data <- .get_data(e, serie, i)
+      axis_data <- .get_data(e, serie, i)
+      
+      if(length(axis_data) == 1)
+        axis_data <- list(axis_data)
+      
+      axis$data <- axis_data
     }
     
     e$x$opts[[raxis]][[index + 1]] <- axis
@@ -361,8 +392,8 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
   e
 }
 
-.set_x_axis <- function(e, x.index, i){
-  .set_any_axis(e, e$x$mapping$x, x.index, axis = "x", i)
+.set_x_axis <- function(e, x_index, i){
+  .set_any_axis(e, e$x$mapping$x, x_index, axis = "x", i)
 }
 
 .set_y_axis <- function(e, serie, y.index, i){
@@ -390,23 +421,6 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
   e
 }
 
-.keras_history <- function(e){
-
-  e$x$mapping <- list(
-    x = "epoch",
-    x_class = "numeric",
-    include_x = TRUE
-  )
-
-  data <- e$x$data[[1]]$metrics
-  data <- as.data.frame(data)
-  data$epoch <- seq(0, nrow(data) - 1)
-  data$size <- 1
-
-  e$x$data <- data
-  return(e)
-}
-
 .r2axis <- function(axis){
   paste0(axis, "Axis")
 }
@@ -428,13 +442,6 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
         c(x[3], x[4])
       )
     }) 
-}
-
-.get_file <- function(file, convert){
-  file <- system.file(file, package = "echarts4r")
-  if(isTRUE(convert))
-    e_convert_texture(file) -> file
-  file
 }
 
 .build_cartesian3D <- function(e, ..., i = 1){
@@ -486,6 +493,7 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
 }
 
 .get_index <- function(e, serie){
+  serie <- paste0(serie, collapse = "|")
   purrr::map(e$x$opts$series, "name") %>% 
     unlist() %>% 
     grep(serie, .)
@@ -557,3 +565,22 @@ globalVariables(c("e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss
     x
   else y
 }
+
+.list_depth <- function(this,thisdepth=0){
+  if(!is.list(this)){
+    return(thisdepth)
+  }else{
+    return(max(unlist(lapply(this,.list_depth,thisdepth=thisdepth+1))))    
+  }
+}
+
+.e_graphic_elem <- function(e, elem, ...){
+  if(length(e$x$opts$graphic) == 0)
+    e$x$opts$graphic <- list(...)
+  
+  opts <- list(type = elem, ...)
+  e$x$opts$graphic <- append(e$x$opts$graphic, opts)
+  e
+}
+
+

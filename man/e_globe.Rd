@@ -4,17 +4,17 @@
 \alias{e_globe}
 \title{Globe}
 \usage{
-e_globe(e, environment = NULL, base.texture = NULL,
-  height.texture = NULL, ...)
+e_globe(e, environment = NULL, base_texture = NULL,
+  height_texture = NULL, ...)
 }
 \arguments{
 \item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
 
 \item{environment}{Texture of background.}
 
-\item{base.texture}{Base texture of globe.}
+\item{base_texture}{Base texture of globe.}
 
-\item{height.texture}{Texture of height.}
+\item{height_texture}{Texture of height.}
 
 \item{...}{Any other option to pass, check See Also section.}
 }
@@ -32,9 +32,6 @@ names(data) <- c("lon", "lat", "value")
 data \%>\% 
   e_charts(lon) \%>\% 
   e_globe(
-    environment = e_stars_texture(),
-    base.texture = e_globe_texture(),
-    height.texture = e_globe_texture(),
     displacementScale = 0.04
   ) \%>\% 
   e_bar_3d(lat, value, "globe") \%>\% 
@@ -43,5 +40,5 @@ data \%>\%
 
 }
 \seealso{
-\code{\link{e_country_names}}, \href{Additional arguments}{http://echarts.baidu.com/option-gl.html#globe}
+\code{\link{e_country_names}}, \href{http://echarts.baidu.com/option-gl.html#globe}{Additional arguments}
 }

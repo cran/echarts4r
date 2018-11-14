@@ -1,69 +1,3 @@
-#' Textures
-#' 
-#' Path to textures.
-#' 
-#' @param file Path to file.
-#' @param convert Converts image to JSON formatted arrays. 
-#' 
-#' @section Functions:
-#' \itemize{
-#'   \item{\code{e_map_texture} globe texture}
-#'   \item{\code{e_stars_texture} starts texture}
-#'   \item{\code{e_mconvert_texture} convert file to JSON formatted array}
-#' }
-#' 
-#' @details
-#' Due to browser
-#' "same origin policy" security restrictions, loading textures
-#' from a file system in three.js may lead to a security exception,
-#' see
-#' \url{https://github.com/mrdoob/three.js/wiki/How-to-run-things-locally}.
-#' References to file locations work in Shiny apps, but not in stand-alone
-#' examples. The \code{*texture} functions facilitates transfer of image
-#' texture data from R into textures when \code{convert} is set to \code{TRUE}.
-#' 
-#' @examples 
-#' \dontrun{
-#' e_map_texture(FALSE) # returns path to file
-#' e_convert_texture("path/to/file.png") # converts file
-#' }
-#' 
-#' @rdname textures 
-#' @export
-e_map_texture <- function(convert = TRUE){
-  .get_file("assets/world.topo.bathy.200401.jpg", convert)
-}
-
-#' @rdname textures 
-#' @export
-e_globe_texture <- e_map_texture
-
-#' @rdname textures 
-#' @export
-e_composite_texture <- function(convert = TRUE){
-  .get_file("assets/bathymetry_bw_composite_4k.jpg", convert)
-}
-
-#' @rdname textures 
-#' @export
-e_globe_dark_texture <- function(convert = TRUE){
-  .get_file("assets/world_dark.jpg", convert)
-}
-
-#' @rdname textures 
-#' @export
-e_stars_texture <- function(convert = TRUE){
-  .get_file("assets/starfield.jpg", convert)
-}
-
-#' @rdname textures 
-#' @export
-e_convert_texture <- function(file){
-  if(missing(file))
-    stop("missing file", call. = FALSE)
-  paste0("data:image/png;base64,", base64enc::base64encode(file))
-}
-
 #' Country names
 #' 
 #' Convert country names to echarts format.
@@ -193,6 +127,9 @@ e_get_data <- function(e){
 #' @export
 e_format_axis <- function(e, axis = "y", suffix = NULL, prefix = NULL, ...){
   
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
   if(is.null(suffix) && is.null(prefix))
     stop("missing formatting")
   
@@ -247,6 +184,43 @@ e_format_y_axis <- function(e, suffix = NULL, prefix = NULL, ...){
 #' 
 #' @export
 e_clean <- function(e){
+  warning("There is no need for this function any longer.")
   e$x$data <- NULL
   e
+}
+
+#' Format labels
+#' 
+#' @inheritParams e_bar
+#' @param show Set to \code{TRUE} to show the labels.
+#' @param position Position of labels, see 
+#' \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-line.label.position}{official documentation}
+#'  for the full list of options.
+#' @param ... Any other options see 
+#' \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-line.label}{documentation} for other options.
+#' 
+#' @examples 
+#' mtcars %>% 
+#'   e_chart(wt) %>% 
+#'   e_scatter(qsec, cyl) %>% 
+#'   e_labels(fontSize = 9)
+#' 
+#' @export
+e_labels <- function(e, show = TRUE, position = "top", ...){
+  
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  opts <- list(
+    show = show,
+    position = position,
+    ...
+  )
+  
+  for(i in 1:length(e$x$opts$series)){
+    e$x$opts$series[[i]]$label <- opts
+  }
+  
+  return(e)
+  
 }

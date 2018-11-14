@@ -5,19 +5,23 @@
 \alias{e_map_}
 \alias{e_map_3d}
 \alias{e_map_3d_}
+\alias{e_map_3d_custom}
 \title{Choropleth}
 \usage{
-e_map(e, serie, map = "world", name = NULL, rm.x = TRUE,
-  rm.y = TRUE, ...)
+e_map(e, serie, map = "world", name = NULL, rm_x = TRUE,
+  rm_y = TRUE, ...)
 
-e_map_(e, serie, map = "world", name = NULL, rm.x = TRUE,
-  rm.y = TRUE, ...)
+e_map_(e, serie = NULL, map = "world", name = NULL, rm_x = TRUE,
+  rm_y = TRUE, ...)
 
-e_map_3d(e, serie, map = "world", name = NULL, rm.x = TRUE,
-  rm.y = TRUE, ...)
+e_map_3d(e, serie, map = "world", name = NULL, coord_system = NULL,
+  rm_x = TRUE, rm_y = TRUE, ...)
 
-e_map_3d_(e, serie, map = "world", name = NULL, rm.x = TRUE,
-  rm.y = TRUE, ...)
+e_map_3d_(e, serie = NULL, map = "world", name = NULL,
+  coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...)
+
+e_map_3d_custom(e, id, value, height, map = NULL, name = NULL,
+  rm_x = TRUE, rm_y = TRUE, ...)
 }
 \arguments{
 \item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
@@ -28,9 +32,13 @@ e_map_3d_(e, serie, map = "world", name = NULL, rm.x = TRUE,
 
 \item{name}{name of the serie.}
 
-\item{rm.x, rm.y}{Whether to remove x and y axis, defaults to \code{TRUE}.}
+\item{rm_x, rm_y}{Whether to remove x and y axis, defaults to \code{TRUE}.}
 
 \item{...}{Any other option to pass, check See Also section.}
+
+\item{coord_system}{Coordinate system to use, one of \code{cartesian3D}, \code{geo3D}, \code{globe}.}
+
+\item{id, value, height}{Columns corresponding to registered map.}
 }
 \description{
 Draw maps.
@@ -52,6 +60,37 @@ choropleth \%>\%
   e_charts(countries) \%>\% 
   e_map_3d(values, shading = "lambert") \%>\% 
   e_visual_map(min = 10, max = 30)
+  
+buildings <- jsonlite::read_json(
+  paste0(
+    "https://ecomfe.github.io/echarts-examples/",
+    "public/data-gl/asset/data/buildings.json"
+  )
+)
+
+heights <- purrr::map(buildings$features, "properties") \%>\% 
+  purrr::map("height") \%>\% 
+  unlist()
+  
+names <- purrr::map(buildings$features, "properties") \%>\% 
+  purrr::map("name") \%>\% 
+  unlist()
+  
+data <- dplyr::tibble(
+  name = names,
+  value = round(runif(length(names), 0, 1), 6),
+  height = heights / 10
+)
+
+data \%>\% 
+  e_charts() \%>\% 
+  e_map_register("buildings", buildings) \%>\%
+  e_map_3d_custom(name, value, height) \%>\% 
+  e_visual_map(
+    show = FALSE,
+    min = 0.4,
+    max = 1
+  ) 
 }
 
 }

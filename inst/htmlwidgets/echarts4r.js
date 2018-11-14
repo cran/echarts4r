@@ -31,9 +31,15 @@ HTMLWidgets.widget({
           }
         }
         
+        if(x.hasOwnProperty('mapboxToken')){
+          mapboxgl.accessToken = x.mapboxToken;
+        }
+        
         chart = echarts.init(document.getElementById(el.id), x.theme, {renderer: x.renderer});
         chart.setOption(x.opts);
         
+        
+        // shiny callbacks
         if (HTMLWidgets.shinyMode) {
           chart.on("brushselected", function(e){
             Shiny.onInputChange(el.id + '_brush' + ":echarts4rParse", e.batch[0].selected);
@@ -56,35 +62,93 @@ HTMLWidgets.widget({
             Shiny.onInputChange(el.id + '_mouseover_row' + ":echarts4rParse", e.dataIndex + 1);
             Shiny.onInputChange(el.id + '_mouseover_serie' + ":echarts4rParse", e.seriesName);
           });
-        }
-
-        $(document).on('shiny:recalculating', function() {
           
-          if(x.hideWhite === true){
-            var css = '.recalculating {opacity: 1.0 !important; }',
-                head = document.head || document.getElementsByTagName('head')[0],
-                style = document.createElement('style');
+          $(document).on('shiny:recalculating', function() {
             
-            style.type = 'text/css';
-            if (style.styleSheet){
-              style.styleSheet.cssText = css;
-            } else {
-              style.appendChild(document.createTextNode(css));
+            if(x.hideWhite === true){
+              var css = '.recalculating {opacity: 1.0 !important; }',
+                  head = document.head || document.getElementsByTagName('head')[0],
+                  style = document.createElement('style');
+              
+              style.type = 'text/css';
+              if (style.styleSheet){
+                style.styleSheet.cssText = css;
+              } else {
+                style.appendChild(document.createTextNode(css));
+              }
+              head.appendChild(style);
             }
-            head.appendChild(style);
-          }
+            
+            if(x.loading === true){
+              chart.showLoading('default', x.loadingOpts);
+            } else if(x.loading === false) {
+              chart.hideLoading();
+            }
+            
+          });
           
-          if(x.loading === true){
-            chart.showLoading('default', x.loadingOpts);
-          } else if(x.loading === false) {
+          $(document).on('shiny:value', function() {
             chart.hideLoading();
-          }
-          
-        });
+          });
+        }
         
-        $(document).on('shiny:value', function() {
-          chart.hideLoading();
+        if(x.hasOwnProperty('connect')){
+          var connections = [];
+          for(var c = 0; c < x.connect.length; c++){
+            connections.push(get_e_charts(x.connect[c]));
+          }
+          connections.push(chart);
+          echarts.connect(connections);
+        }
+        
+        // actions
+        if(x.events.length >= 1){
+          for(var i = 0; i < x.events.length; i++){
+            chart.dispatchAction(x.events[i].data);
+          }  
+        }
+        
+        // buttons
+        var buttons = x.buttons;
+        console.log(buttons);
+        Object.keys(buttons).map( function(buttonId){
+          console.log(buttonId);
+          document.getElementById(buttonId).addEventListener('click', 
+            (function(id) {
+              const scoped_id = id;
+              return function(e){
+                buttons[scoped_id].forEach(function(el){
+                  chart.dispatchAction(el.data);
+                });
+              };
+            }
+            )(buttonId)
+          );
         });
+          
+        if(x.hasOwnProperty('on')){
+          for(var e = 0; e < x.on.length; e++){
+            chart.on(x.on[e].event, x.on[e].query, x.on[e].handler);
+          }
+        }
+        
+        if(x.hasOwnProperty('off')){
+          for(var e = 0; e < x.off.length; e++){
+            chart.off(x.off[e].event, x.off[e].query, x.off[e].handler);
+          }
+        }
+        
+        if(x.hasOwnProperty('chartGroup')){
+          chart.group = x.chartGroup;
+        }
+        
+        if(x.hasOwnProperty('groupConnect')){
+          echarts.connect(x.groupConnect);
+        }
+        
+        if(x.hasOwnProperty('groupDisconnect')){
+          echarts.disconnect(x.groupDisconnect);
+        }
 
       },
       
@@ -149,14 +213,10 @@ if (HTMLWidgets.shinyMode) {
   
   Shiny.addCustomMessageHandler('e_showtip_p',
     function(data) {
+      console.log(data);
       var chart = get_e_charts(data.id);
       if (typeof chart != 'undefined') {
-        chart.dispatchAction({
-          type: 'showTip',
-          seriesIndex: data.seriesIndex,
-          name: data.name,
-          position: data.position
-        });
+        chart.dispatchAction(data.opts);
       }
   });
   
@@ -178,6 +238,30 @@ if (HTMLWidgets.shinyMode) {
           seriesIndex: opts.seriesIndex,
           data: opts.data
         });
+      }
+  });
+  
+  Shiny.addCustomMessageHandler('e_focus_node_adjacency_p',
+    function(data) {
+      var chart = get_e_charts(data.id);
+      if (typeof chart != 'undefined') {
+        chart.dispatchAction(data.opts);
+      }
+  });
+  
+  Shiny.addCustomMessageHandler('e_unfocus_node_adjacency_p',
+    function(data) {
+      var chart = get_e_charts(data.id);
+      if (typeof chart != 'undefined') {
+        chart.dispatchAction(data.opts);
+      }
+  });
+  
+  Shiny.addCustomMessageHandler('e_dispatch_action_p',
+    function(data) {
+      var chart = get_e_charts(data.id);
+      if (typeof chart != 'undefined') {
+        chart.dispatchAction(data.opts);
       }
   });
   

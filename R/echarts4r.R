@@ -1,5 +1,6 @@
 echarts_build <- function(e) {
   e$x$data <- NULL
+  e$x$mapping <- NULL
   e
 } 
 
@@ -33,29 +34,17 @@ echarts_build <- function(e) {
 #' @export
 e_charts <- function(data, x, width = NULL, height = NULL, elementId = NULL, dispose = TRUE, renderer = "canvas", ...) {
 
-  key <- NULL
-  group <- NULL
   xmap <- NULL
   if(!missing(x))
     xmap <- deparse(substitute(x))
-  
-  if(!missing(data)){
-    if(crosstalk::is.SharedData(data)) {
-      key <- data$key()
-      group <- data$groupName()
-      data <- data$origData()
-    } 
-  }
 
   # forward options using x
   x = list(
     theme = "",
     renderer = tolower(renderer),
     mapping = list(),
-    settings = list(
-      crosstalk_key = key,
-      crosstalk_group = group
-    ),
+    events = list(),
+    buttons = list(),
     opts = list(
       ...,
       yAxis = list(
@@ -88,7 +77,6 @@ e_charts <- function(data, x, width = NULL, height = NULL, elementId = NULL, dis
     x,
     width = width,
     height = height,
-    dependencies = crosstalk::crosstalkLibs(),
     package = 'echarts4r',
     elementId = elementId,
     preRenderHook = echarts_build,
@@ -111,6 +99,8 @@ e_charts_ <- function(data, x = NULL, width = NULL, height = NULL, elementId = N
     theme = "",
     renderer = tolower(renderer),
     mapping = list(),
+    events = list(),
+    buttons = list(),
     opts = list(
       ...,
       yAxis = list(
@@ -143,7 +133,6 @@ e_charts_ <- function(data, x = NULL, width = NULL, height = NULL, elementId = N
     x,
     width = width,
     height = height,
-    dependencies = crosstalk::crosstalkLibs(),
     package = 'echarts4r',
     elementId = elementId,
     sizingPolicy = htmlwidgets::sizingPolicy(
@@ -200,6 +189,30 @@ e_data <- function(e, data, x){
 #'   is useful if you want to save an expression in a variable.
 #' @param id Target chart id.
 #' @param session Shiny session.
+#' 
+#' @section Callbacks:
+#' \itemize{
+#'   \item{\code{id_brush}: returns data on brushed data points.}
+#'   \item{\code{id_legend_change}: returns series name of legend selected/unselected.}
+#'   \item{\code{id_clicked_data}: returns data of clicked data point.}
+#'   \item{\code{id_clicked_data_value}: returns value of clicked data point.}
+#'   \item{\code{id_clicked_row}: returns row number of clicked data point.}
+#'   \item{\code{id_clicked_serie}: returns name of serie of clicked data point.}
+#'   \item{\code{id_mouseover_data}: returns data on hovered data point.}
+#'   \item{\code{id_mouseover_data_value}: returns value of hovered data point.}
+#'   \item{\code{id_mouseover_row}: returns row o hovered data point.}
+#'   \item{\code{id_mouseover_serie}: returns name of serie of hovered data point.}
+#' }
+#' 
+#' @section Proxies:
+#' \itemize{
+#'   \item{\code{\link{e_append1_p}} & \code{\link{e_append2_p}}}
+#'   \item{\code{\link{e_showtip_p}} & \code{\link{e_hidetip_p}}}
+#'   \item{\code{\link{e_highlight_p}} & \code{\link{e_downplay_p}}}
+#'   \item{\code{\link{e_focus_adjacency}} & \code{\link{e_unfocus_adjacency}}}
+#'   \item{\code{\link{e_dispatch_action_p}}}
+#' }
+#' 
 #'
 #' @name echarts4r-shiny
 #'

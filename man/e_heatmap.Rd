@@ -5,11 +5,11 @@
 \alias{e_heatmap_}
 \title{Heatmap}
 \usage{
-e_heatmap(e, y, z, name = NULL, coord.system = "cartesian2d",
-  rm.x = TRUE, rm.y = TRUE, ...)
+e_heatmap(e, y, z, name = NULL, coord_system = "cartesian2d",
+  rm_x = TRUE, rm_y = TRUE, calendar = NULL, ...)
 
-e_heatmap_(e, y, z = NULL, name = NULL, coord.system = "cartesian2d",
-  rm.x = TRUE, rm.y = TRUE, ...)
+e_heatmap_(e, y, z = NULL, name = NULL, coord_system = "cartesian2d",
+  rm_x = TRUE, rm_y = TRUE, calendar = NULL, ...)
 }
 \arguments{
 \item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
@@ -18,11 +18,13 @@ e_heatmap_(e, y, z = NULL, name = NULL, coord.system = "cartesian2d",
 
 \item{name}{name of the serie.}
 
-\item{coord.system}{Coordinate system to plot against, takes 
+\item{coord_system}{Coordinate system to plot against, takes 
 \code{cartesian2d}, \code{geo} or \code{calendar}.}
 
-\item{rm.x, rm.y}{Whether to remove x and y axis, only applies if \code{coord.system} is not 
+\item{rm_x, rm_y}{Whether to remove x and y axis, only applies if \code{coord_system} is not 
 set to \code{cartesian2d}.}
+
+\item{calendar}{The index of the calendar to plot against.}
 
 \item{...}{Any other option to pass, check See Also section.}
 }
@@ -43,11 +45,11 @@ matrix <- data.frame(
 
 matrix \%>\% 
   e_charts(x) \%>\% 
-  e_heatmap(y, z) \%>\% 
+  e_heatmap(y, z, itemStyle = list(emphasis = list(shadowBlur = 10))) \%>\% 
   e_visual_map(z)
 
 # calendar   
-dates <- seq.Date(as.Date("2018-01-01"), as.Date("2018-12-31"), by = "day")
+dates <- seq.Date(as.Date("2017-01-01"), as.Date("2018-12-31"), by = "day")
 values <- rnorm(length(dates), 20, 6)
 
 year <- data.frame(date = dates, values = values)
@@ -55,10 +57,20 @@ year <- data.frame(date = dates, values = values)
 year \%>\% 
   e_charts(date) \%>\% 
   e_calendar(range = "2018") \%>\% 
-  e_heatmap(values, coord.system = "calendar") \%>\% 
+  e_heatmap(values, coord_system = "calendar") \%>\% 
+  e_visual_map(max = 30)
+  
+# multiple years
+year \%>\% 
+  dplyr::mutate(year = format(date, "\%Y")) \%>\% 
+  group_by(year) \%>\% 
+  e_charts(date) \%>\% 
+  e_calendar(range = "2017", top = 40) \%>\% 
+  e_calendar(range = "2018", top = 260) \%>\% 
+  e_heatmap(values, coord_system = "calendar") \%>\% 
   e_visual_map(max = 30)
 
 }
 \seealso{
-\href{Additional arguments}{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-heatmap}
+\href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-heatmap}{Additional arguments}
 }
