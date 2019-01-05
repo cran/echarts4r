@@ -31,7 +31,10 @@ Add a funnel.
 No \code{bind} argument here, with a funnel \code{bind} = \code{labels}.
 }
 \examples{
-funnel <- data.frame(stage = c("View", "Click", "Purchase"), value = c(80, 30, 20))
+funnel <- data.frame(
+  stage = c("View", "Click", "Purchase"), 
+  value = c(80, 30, 20)
+)
 
 funnel \%>\% 
   e_charts() \%>\% 

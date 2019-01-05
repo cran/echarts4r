@@ -84,7 +84,12 @@ e_color_range_ <- function(data, input, output, colors = c("#bf444c", "#d88273",
   
   serie <- data[[input]]
   
-  data[[output]] <- colorRampPalette(colors, ...)(length(serie))
+  if(inherits(serie, "factor") || inherits(serie, "character"))
+    col <- scales::col_numeric(colors, domain = range(serie))(serie)
+  else
+    col <- scales::col_numeric(colors, domain = range(serie))(serie)
+  
+  data[[output]] <- col
   data
 }
 
@@ -93,6 +98,18 @@ e_color_range_ <- function(data, input, output, colors = c("#bf444c", "#d88273",
 #' Get data passed to \code{\link{e_charts}}.
 #' 
 #' @inheritParams e_bar
+#' 
+#' @return A list of data.frames, one for each group.
+#' 
+#' @examples 
+#' echart <- cars %>% 
+#'   e_charts(speed) %>% 
+#'   e_scatter(dist) %>% 
+#'   e_lm(dist ~ speed) 
+#'   
+#' echart
+#' 
+#' e_get_data(echart)[[1]]
 #' 
 #' @export
 e_get_data <- function(e){
@@ -133,12 +150,12 @@ e_format_axis <- function(e, axis = "y", suffix = NULL, prefix = NULL, ...){
   if(is.null(suffix) && is.null(prefix))
     stop("missing formatting")
   
-  label <- paste(prefix, "{value}", suffix)
+  fmt <- paste(prefix, "{value}", suffix)
   
   e <- e %>% 
     e_axis(
       axis = axis, 
-      axisLabel = list(formatter = label),
+      axisLabel = list(formatter = fmt),
       ...
     )
   
@@ -159,36 +176,6 @@ e_format_y_axis <- function(e, suffix = NULL, prefix = NULL, ...){
   e_format_axis(e, "y", suffix, prefix, ...)
 }
 
-#' Clean
-#' 
-#' Removes base \code{data.frame}.
-#' 
-#' @inheritParams e_bar
-#' 
-#' @details Removes the core database after all operations are exectuted, lightens up the load on final visualisation.
-#' 
-#' @examples 
-#' df <- data.frame(
-#'   x = 1:10,
-#'   y = round(
-#'     runif(10, 1, 100), 2
-#'   ) 
-#' )
-#' 
-#' df %>% 
-#'   e_charts(x) %>% 
-#'   e_line(y) %>% 
-#'   e_format_y_axis(suffix = "%") %>%
-#'   e_format_x_axis(prefix = "A") %>% 
-#'   e_clean()
-#' 
-#' @export
-e_clean <- function(e){
-  warning("There is no need for this function any longer.")
-  e$x$data <- NULL
-  e
-}
-
 #' Format labels
 #' 
 #' @inheritParams e_bar
@@ -204,6 +191,19 @@ e_clean <- function(e){
 #'   e_chart(wt) %>% 
 #'   e_scatter(qsec, cyl) %>% 
 #'   e_labels(fontSize = 9)
+#'   
+#' mtcars %>% 
+#'   group_by(cyl) %>% 
+#'   e_chart(wt) %>% 
+#'   e_scatter(qsec, mpg) %>% 
+#'   e_labels(fontSize = 9)
+#' 
+#' # timeline  
+#' mtcars %>% 
+#'   group_by(cyl) %>% 
+#'   e_chart(wt) %>% 
+#'   e_scatter(qsec, mpg) %>% 
+#'   e_labels(fontSize = 9)
 #' 
 #' @export
 e_labels <- function(e, show = TRUE, position = "top", ...){
@@ -217,10 +217,88 @@ e_labels <- function(e, show = TRUE, position = "top", ...){
     ...
   )
   
-  for(i in 1:length(e$x$opts$series)){
-    e$x$opts$series[[i]]$label <- opts
+  if(!e$x$tl){
+    for(i in 1:length(e$x$opts$series)){
+      e$x$opts$series[[i]]$label <- opts
+    }
+  } else {
+    for(i in 1:length(e$x$opts$baseOption$series)){
+      e$x$opts$baseOption$series[[i]]$label <- opts
+    }
   }
   
   return(e)
   
+}
+
+#' List
+#' 
+#' simply pass a list of options, similar to a \code{JSON}.
+#' 
+#' @inheritParams e_bar
+#' @param list A \code{list} of options passed to \code{setOptions}.
+#' @param append if \code{TRUE} the \code{list} is appended to the options,
+#' otherwise it \emph{overwrites} everything. 
+#' 
+#' @examples 
+#' N <- 20 # data points
+#' 
+#' opts <- list(
+#'   xAxis = list(
+#'     type = "category",
+#'     data = LETTERS[1:N]
+#'   ),
+#'   yAxis = list(
+#'     type = "value"
+#'   ),
+#'   series = list(
+#'     list(
+#'       type = "line",
+#'       data = round(runif(N, 5, 20))
+#'     )
+#'   )
+#' )
+#' 
+#' e_charts() %>% 
+#'   e_list(opts)
+#' 
+#' @export
+e_list <- function(e, list, append = FALSE){
+  
+  if(missing(list))
+    stop("missing list", call. = FALSE)
+  
+  if(isTRUE(append))
+    e$x$opts <- append(e$x$opts, list)
+  else
+    e$x$opts <- list
+  
+  e
+  
+}
+
+#' Aria
+#' 
+#' W3C defined the Accessible Rich Internet Applications Suite (WAI-ARIA) 
+#' to make Web content and Web applications more accessible to the disabled. 
+#' From ECharts 4.0, echarts4r supports ARIA by generating description for 
+#' charts automatically.
+#' 
+#' @details There should be an aria-label attribute on the chart DOM, which 
+#' can help the disabled understand the content of charts with the help of certain devices.
+#' 
+#' @inheritParams e_bar
+#' @param show Whether to show aria helper text.
+#' 
+#' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#aria}{official documentation}
+#' 
+#' @export
+e_aria <- function(e, show = TRUE, ...){
+  
+  e$x$aria <- list(
+    show = show,
+    ...
+  )
+  
+  return(e)
 }

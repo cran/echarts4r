@@ -11,10 +11,24 @@
 #' between 1 and 20 for that makes for decent sized points on the chart.
 #' 
 #' @examples 
+#' # scaled data
 #' mtcars %>% 
 #'   e_charts(mpg) %>% 
 #'   e_scatter(wt, qsec, scale = e_scale) %>% 
 #'   e_visual_map(qsec, scale = e_scale)
+#'
+#' # dimension
+#' # color according to y axis
+#' mtcars %>% 
+#'   e_charts(mpg) %>% 
+#'   e_scatter(wt) %>% 
+#'   e_visual_map(wt, dimension = 1)
+#'   
+#' # color according to x axis
+#' mtcars %>% 
+#'   e_charts(mpg) %>% 
+#'   e_scatter(wt) %>% 
+#'   e_visual_map(mpg, dimension = 0)
 #' 
 #' v <- LETTERS[1:10]
 #' matrix <- data.frame(
@@ -88,7 +102,11 @@ e_visual_map_ <- function(e, serie = NULL, calculable = TRUE, type = c("continuo
     vm$max <- rng[2]
   }
   
-  e$x$opts$visualMap <- append(e$x$opts$visualMap, list(vm))
+  if(!e$x$tl)
+    e$x$opts$visualMap <- append(e$x$opts$visualMap, list(vm))
+  else
+    e$x$opts$baseOption$visualMap <- append(e$x$opts$visualMap, list(vm))
+  
   e
 }
 
@@ -98,26 +116,171 @@ e_visual_map_ <- function(e, serie = NULL, calculable = TRUE, type = c("continuo
 #' 
 #' @inheritParams e_bar
 #' @param trigger What triggers the tooltip, one of \code{item} or \code{item}.
+#' @param formatter Item and Pointer formatter as returned 
+#' by \code{\link{e_tooltip_item_formatter}}, \code{\link{e_tooltip_pointer_formatter}}, 
+#' \code{\link{e_tooltip_pie_formatter}}.
+#' @param style Formatter style, one of \code{decimal}, \code{percent}, or \code{currency}.
+#' @param currency Currency to to display.
+#' @param digits Number of decimals.
+#' @param locale Locale, if \code{NULL} then it is inferred from \code{Sys.getlocale}.
+#' 
+#' @section Formatters:
+#' \itemize{
+#'   \item{\code{\link{e_tooltip_pie_formatter}}: special helper for \code{\link{e_pie}}.}
+#'   \item{\code{\link{e_tooltip_item_formatter}}: general helper, this is passed to the \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#tooltip.formatter}{tooltip \code{formatter}}.}
+#'   \item{\code{\link{e_tooltip_pointer_formatter}}: helper for pointer, this is passed to the
+#'   \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#tooltip.axisPointer.label}{\code{label} parameter under \code{axisPointer}}.}
+#' }
 #' 
 #' @examples 
+#' # basic
 #' USArrests %>% 
 #'   e_charts(Assault) %>% 
-#'   e_bar(Murder) %>% 
+#'   e_scatter(Murder) %>% 
 #'   e_tooltip()
+#'   
+#' # formatter
+#' cars %>% 
+#'   dplyr::mutate(
+#'     dist = dist / 120
+#'   ) %>% 
+#'   e_charts(speed) %>% 
+#'   e_scatter(dist, symbol_size = 5) %>% 
+#'   e_tooltip(
+#'     formatter = e_tooltip_item_formatter("percent")
+#'   )
+#' 
+#' # axis pointer
+#' cars %>% 
+#'   e_charts(speed) %>% 
+#'   e_scatter(dist, symbol_size = 5) %>% 
+#'   e_tooltip(
+#'     formatter = e_tooltip_pointer_formatter("currency"), 
+#'     axisPointer = list(
+#'       type = "cross"
+#'     )
+#'   )
 #' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#tooltip}{Additional arguments}
 #' 
+#' @rdname e-tooltip
 #' @export
-e_tooltip <- function(e, trigger = c("item", "axis"), ...){
+e_tooltip <- function(e, trigger = c("item", "axis"), formatter = NULL, ...){
   
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
   tooltip <- list(trigger = trigger[1], ...)
   
-  e$x$opts$tooltip <- tooltip
+  if(!is.null(formatter)){
+    
+    if(inherits(formatter, "item_formatter") || inherits(formatter, "pie_formatter"))
+      tooltip$formatter <- formatter
+   
+    if(inherits(formatter, "pointer_formatter")){
+      tooltip$axisPointer$label <- formatter
+    }
+     
+  }
+  
+  if(!e$x$tl)
+    e$x$opts$tooltip <- tooltip
+  else
+    e$x$opts$baseOption$tooltip <- tooltip
   
   e
+}
+
+#' @rdname e-tooltip
+#' @export
+e_tooltip_item_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0, 
+                                     locale = NULL, currency = "USD") {
+  
+  if(is.null(locale))
+    locale <- .get_locale()
+  
+  style <- match.arg(style)
+  opts <- list(
+    style = style,
+    minimumFractionDigits = digits,
+    maximumFractionDigits = digits,
+    currency = currency
+  )
+  
+  tip <- htmlwidgets::JS(sprintf("function(params, ticket, callback) {
+        var fmt = new Intl.NumberFormat('%s', %s);
+        return params.value[0] + '<br>' +
+               params.marker + ' ' +
+               params.seriesName + ': ' + fmt.format(parseFloat(params.value[1]));
+    }", locale, jsonlite::toJSON(opts, auto_unbox = TRUE)))
+  
+  tip <- structure(tip, class = c("JS_EVAL", "item_formatter"))
+  return(tip)
+}
+
+#' @rdname e-tooltip
+#' @export
+e_tooltip_pie_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0, 
+                                     locale = NULL, currency = "USD", ...) {
+  
+  if(is.null(locale))
+    locale <- .get_locale()
+  
+  style <- match.arg(style)
+  
+  opts <- list(
+    style = style,
+    minimumFractionDigits = digits,
+    maximumFractionDigits = digits,
+    currency = currency
+  )
+  
+  fmt <- htmlwidgets::JS(sprintf("function(params, ticket, callback) {
+    var fmt = new Intl.NumberFormat('%s', %s);
+    return params.marker + ' ' +
+           params.name + ': ' +
+           fmt.format(params.value);
+    }", locale, jsonlite::toJSON(opts, auto_unbox = TRUE)))
+  
+  tip <- list(
+    formatter = fmt,
+    ...
+  )
+  
+  tip <- structure(tip, class = "pie_formatter")
+  
+  return(tip)
+}
+
+#' @rdname e-tooltip
+#' @export
+e_tooltip_pointer_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0, 
+                                        locale = NULL, currency = "USD") {
+  
+  if(is.null(locale))
+    locale <- .get_locale()
+  
+  style <- match.arg(style)
+  opts <- list(
+    style = style,
+    minimumFractionDigits = digits,
+    maximumFractionDigits = digits,
+    currency = currency
+  )
+  
+  tip <- htmlwidgets::JS(sprintf("function(params, ticket, callback) {
+        var fmt = new Intl.NumberFormat('%s', %s);
+        var res = params[0].value[0];
+        for (i = 0; i < params.length; i++) {
+            res += '<br />' +
+                   params[i].marker + ' ' +
+                   params[i].seriesName + ': ' +
+                   fmt.format(parseFloat(params[i].value[1]));
+        }
+        return res;
+    }", locale, jsonlite::toJSON(opts, auto_unbox = TRUE)))
+  tip <- structure(tip, class = c("JS_EVAL", "pointer_formatter"))
+  return(tip)
 }
 
 #' Legend
@@ -127,22 +290,57 @@ e_tooltip <- function(e, trigger = c("item", "axis"), ...){
 #' @inheritParams e_bar
 #' @param show Set to \code{FALSE} to hide the legend.
 #' @param type Type of legend, \code{plain} or \code{scroll}.
+#' @param icons A optional list of icons the same length as there are series, see example.
 #' 
 #' @examples 
-#' mtcars %>% 
-#'   head() %>% 
-#'   dplyr::mutate(model = row.names(.)) %>% 
-#'   e_charts(model) %>% 
-#'   e_pie(carb) %>% 
-#'   e_legend(FALSE)
+#' e <- cars %>% 
+#'   e_charts(speed) %>% 
+#'   e_scatter(dist, symbol_size = 5)
+#' 
+#' # with legend  
+#' e
+#' 
+#' # without legend
+#' e %>% 
+#'   e_legend(show = FALSE)
+#'   
+#' # with icon
+#' # path is taken from http://svgicons.sparkk.fr/
+#' path <- paste0(
+#'   "path://M11.344,5.71c0-0.73,0.074-1.122,1.199-1.122",
+#'   "h1.502V1.871h-2.404c-2.886,0-3.903,1.36-3.903,3.646",
+#'   "v1.765h-1.8V10h1.8v8.128h3.601V10h2.403l0.32-2.718h",
+#'   "-2.724L11.344,5.71z"
+#' )
+#' 
+#' e %>% 
+#'   e_legend(
+#'     icons = list(path)
+#'   )
 #' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#legend}{Additional arguments}
 #' 
 #' @export
-e_legend <- function(e, show = TRUE, type = c("plain", "scroll"), ...){
+e_legend <- function(e, show = TRUE, type = c("plain", "scroll"), icons = NULL, ...){
   
   if(missing(e))
     stop("must pass e", call. = FALSE)
+  
+  if(!is.null(icons)){
+    
+    if(length(icons) < length(e$x$opts$legend$data))
+      stop(
+        "invalid number of icons; ",
+        length(icons), " icons passed but ",
+        length(e$x$opts$legend$data), " legend items."
+      )
+    
+    for(i in 1:length(e$x$opts$legend$data)){
+      e$x$opts$legend$data[[i]] <- list(name = e$x$opts$legend$data[[i]])
+      e$x$opts$legend$data[[i]]$icon <- icons[[i]]
+    }
+    
+  }
   
   legend <- list(
     show = show,
@@ -150,7 +348,10 @@ e_legend <- function(e, show = TRUE, type = c("plain", "scroll"), ...){
     ...
   )
   
-  e$x$opts$legend <- append(e$x$opts$legend, legend)
+  if(!e$x$tl)
+    e$x$opts$legend <- append(e$x$opts$legend, legend)
+  else
+    e$x$opts$baseOption$legend <- append(e$x$opts$baseOption$legend, legend)
   
   e
   
@@ -202,18 +403,36 @@ e_toolbox_feature <- function(e, feature, ...){
   if(missing(feature))
     feature <- c("saveAsImage", "restore", "dataView", "dataView", "dataZoom", "magicType", "brush")
   
-  if(!length(e$x$opts$toolbox))
-    e$x$opts$toolbox <- list(feature = list())
-  
-  for(i in 1:length(feature)){
-    e$x$opts$toolbox$feature[[feature[i]]] <- list()
-  }
-  
   options <- list(...)
-  if(length(options)){
-    for(i in 1:length(options)){
-      e$x$opts$toolbox$feature[[feature]][[names(options)[i]]] <- options[[i]]
+  
+  if(!e$x$tl){
+    if(!length(e$x$opts$toolbox))
+      e$x$opts$toolbox <- list(feature = list())
+    
+    for(i in 1:length(feature)){
+      e$x$opts$toolbox$feature[[feature[i]]] <- list()
     }
+    
+    if(length(options)){
+      for(i in 1:length(options)){
+        e$x$opts$toolbox$feature[[feature]][[names(options)[i]]] <- options[[i]]
+      }
+    }
+  } else {
+    
+    if(!length(e$x$opts$baseOption$toolbox))
+      e$x$opts$baseOption$toolbox <- list(feature = list())
+    
+    for(i in 1:length(feature)){
+      e$x$opts$baseOption$toolbox$feature[[feature[i]]] <- list()
+    }
+    
+    if(length(options)){
+      for(i in 1:length(options)){
+        e$x$opts$baseOption$toolbox$feature[[feature]][[names(options)[i]]] <- options[[i]]
+      }
+    }
+    
   }
   
   e
@@ -223,9 +442,10 @@ e_toolbox_feature <- function(e, feature, ...){
 #' @export
 e_toolbox <- function(e, ...){
   
-  e$x$opts$toolbox <- list(
-    ...
-  )
+  if(!e$x$tl)
+    e$x$opts$toolbox <- list(...)
+  else
+    e$x$opts$baseOption$toolbox <- list(...)
   
   e
 }
@@ -260,17 +480,30 @@ e_datazoom <- function(e, x_index = NULL, y_index = NULL, toolbox = TRUE, ...){
   if(!is.null(x_index) && !is.null(y_index))
     stop("pass x_index or y_index, not both", call. = FALSE)
   
-  if(!length(e$x$opts$dataZoom)) # initiatilise if not existing
-    e$x$opts$dataZoom <- list()
+  if(!e$x$tl){
+    if(!length(e$x$opts$dataZoom)) # initiatilise if not existing
+      e$x$opts$dataZoom <- list()
+  } else {
+    if(!length(e$x$opts$baseOption$dataZoom)) # initiatilise if not existing
+      e$x$opts$baseOption$dataZoom <- list()
+  }
   
-  if(!length(e$x$opts$toolbox$feature$dataZoom) && isTRUE(toolbox))
-    e <- e_toolbox_feature(e, "dataZoom")
-  
+  if(!e$x$tl){
+    if(!length(e$x$opts$toolbox$feature$dataZoom) && isTRUE(toolbox))
+      e <- e_toolbox_feature(e, "dataZoom")
+  } else {
+    if(!length(e$x$opts$baseOption$toolbox$feature$dataZoom) && isTRUE(toolbox))
+      e <- e_toolbox_feature(e, "dataZoom")
+  }
+    
   opts <- list(...)
   if(!is.null(x_index)) opts$xAxisIndex <- x_index
   if(!is.null(y_index)) opts$yAxisIndex <- y_index
   
-  e$x$opts$dataZoom <- append(e$x$opts$dataZoom, list(opts))
+  if(!e$x$tl)
+    e$x$opts$dataZoom <- append(e$x$opts$dataZoom, list(opts))
+  else
+    e$x$opts$baseOption$dataZoom <- append(e$x$opts$baseOption$dataZoom, list(opts))
   
   e
 }
@@ -309,11 +542,21 @@ e_brush <- function(e, x_index = NULL, y_index = NULL, ...){
   if(!is.null(x_index) && !is.null(y_index))
     stop("pass x_index or y_index, not both", call. = FALSE)
   
-  if(!length(e$x$opts$brush)) # initiatilise if not existing
-    e$x$opts$brush <- list()
+  if(!e$x$tl){
+    if(!length(e$x$opts$brush)) # initiatilise if not existing
+      e$x$opts$brush <- list()
+  } else {
+    if(!length(e$x$opts$baseOption$brush)) # initiatilise if not existing
+      e$x$opts$baseOption$brush <- list()
+  }
   
-  if(!length(e$x$opts$toolbox$feature$brush))
-    e <- e_toolbox_feature(e, "brush")
+  if(!e$x$tl){
+    if(!length(e$x$opts$toolbox$feature$brush))
+      e <- e_toolbox_feature(e, "brush")
+  } else {
+    if(!length(e$x$opts$baseOption$toolbox$feature$brush))
+      e <- e_toolbox_feature(e, "brush")
+  }
   
   opts <- list(
     brushLink = "all",
@@ -322,7 +565,10 @@ e_brush <- function(e, x_index = NULL, y_index = NULL, ...){
   opts$xAxisIndex <- x_index
   opts$yAxisIndex <- y_index
   
-  e$x$opts$brush <- append(e$x$opts$brush, opts)
+  if(!e$x$tl)
+    e$x$opts$brush <- append(e$x$opts$brush, opts)
+  else
+    e$x$opts$baseOption$brush <- append(e$x$opts$baseOption$brush, opts)
   
   e
 }
@@ -357,7 +603,10 @@ e_title <- function(e, text, subtext = NULL, link = NULL, sublink = NULL, ...){
   title$link <- link
   title$sublink <- sublink
   
-  e$x$opts$title <- title
+  if(!e$x$tl)
+    e$x$opts$title <- title
+  else
+    e$x$opts$baseOption$title <- title
   
   e
   
@@ -388,10 +637,17 @@ e_polar <- function(e, show = TRUE, ...){
   if(missing(e))
     stop("missing e", call. = FALSE)
   
-  e$x$opts$yAxis <- NULL
-  e$x$opts$xAxis <- NULL
-  
-  e$x$opts$polar <- list(show = show, ...)
+  if(!e$x$tl){
+    e$x$opts$yAxis <- NULL
+    e$x$opts$xAxis <- NULL
+    
+    e$x$opts$polar <- list(show = show, ...)
+  } else {
+    e$x$opts$baseOption$yAxis <- NULL
+    e$x$opts$baseOption$xAxis <- NULL
+    
+    e$x$opts$baseOption$polar <- list(show = show, ...)
+  }
   
   e
 }
@@ -410,7 +666,10 @@ e_axis_pointer <- function(e, ...){
   if(missing(e))
     stop("missing e", call. = FALSE)
   
-  e$x$opts$axisPointer <- list(...)
+  if(!e$x$tl)
+    e$x$opts$axisPointer <- list(...)
+  else
+    e$x$opts$baseOption$axisPointer <- list(...)
   
   e
 }
@@ -443,14 +702,25 @@ e_axis_pointer <- function(e, ...){
 e_animation <- function(e, show = TRUE, threshold = NULL, duration = NULL, easing = NULL, delay = NULL,
                         duration.update = NULL, easing.update = NULL, delay.update = NULL){
   
-  e$x$opts$animation <- show
-  e$x$opts$animationThreshold <- threshold
-  e$x$opts$animationDuration <- duration
-  e$x$opts$animationEasing <- easing
-  e$x$opts$animationDelay <- delay
-  e$x$opts$animationDurationUpdate <- duration.update
-  e$x$opts$animationEasingUpdate <- easing.update
-  e$x$opts$animationDelayUpdate <- delay.update
+  if(!e$x$tl){
+    e$x$opts$animation <- show
+    e$x$opts$animationThreshold <- threshold
+    e$x$opts$animationDuration <- duration
+    e$x$opts$animationEasing <- easing
+    e$x$opts$animationDelay <- delay
+    e$x$opts$animationDurationUpdate <- duration.update
+    e$x$opts$animationEasingUpdate <- easing.update
+    e$x$opts$animationDelayUpdate <- delay.update
+  } else {
+    e$x$opts$baseOption$animation <- show
+    e$x$opts$baseOption$animationThreshold <- threshold
+    e$x$opts$baseOption$animationDuration <- duration
+    e$x$opts$baseOption$animationEasing <- easing
+    e$x$opts$baseOption$animationDelay <- delay
+    e$x$opts$baseOption$animationDurationUpdate <- duration.update
+    e$x$opts$baseOption$animationEasingUpdate <- easing.update
+    e$x$opts$baseOption$animationDelayUpdate <- delay.update
+  }
   
   e
   
@@ -464,7 +734,12 @@ e_animation <- function(e, show = TRUE, threshold = NULL, duration = NULL, easin
 #' 
 #' @export
 e_utc <- function(e){
-  e$useUTC <- TRUE
+  
+  if(!e$x$tl)
+    e$x$opts$useUTC <- TRUE
+  else
+    e$x$opts$baseOption$useUTC <- TRUE
+  
   e
 }
 
@@ -530,7 +805,12 @@ e_flip_coords <- function(e){
 #' 
 #' @export
 e_text_style <- function(e, ...){
-  e$x$opts$textStyle <- list(...)
+  
+  if(!e$x$tl)
+    e$x$opts$textStyle <- list(...)
+  else
+    e$x$opts$baseOption$textStyle <- list(...)
+  
   e
 }
 
@@ -542,6 +822,7 @@ e_text_style <- function(e, ...){
 #' @param ids Scalar, vector or list of ids of chart to connect with.
 #' @param rows,cols Number of rows and columns.
 #' @param ... Any \code{echarts} objects.
+#' @param width Wdith of columns, one of \code{xs}, \code{md}, \code{lg}.
 #' @param group Group name.
 #' @param title Title of charts.
 #' 
@@ -629,7 +910,7 @@ e_disconnect_group <- function(e, group = NULL){
 
 #' @rdname connections
 #' @export
-e_arrange <- function(..., rows = NULL, cols = NULL, title = NULL){
+e_arrange <- function(..., rows = NULL, cols = NULL, width = "xs", title = NULL){
   
   plots <- list(...)
   
@@ -639,6 +920,10 @@ e_arrange <- function(..., rows = NULL, cols = NULL, title = NULL){
   if(is.null(cols))
     cols <- 1
   
+  w <- "-xs"
+  if(!isTRUE(getOption('knitr.in.progress')))
+    w <- ""
+  
   x <- 0
   tg <- htmltools::tagList()
   for(i in 1:rows){
@@ -646,7 +931,7 @@ e_arrange <- function(..., rows = NULL, cols = NULL, title = NULL){
     
     for(j in 1:cols){
       x <- x + 1
-      cl <- paste0("col-xs-", 12 / cols)
+      cl <- paste0("col", w, "-", 12 / cols)
       if(x <= length(plots))
         c <- htmltools::div(class = cl, plots[[x]])
       else 

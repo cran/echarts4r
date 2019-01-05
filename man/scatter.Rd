@@ -8,24 +8,29 @@
 \alias{e_effect_scatter_}
 \title{Scatter}
 \usage{
-e_scatter(e, serie, size, bind, symbol_size = 1, scale = e_scale,
+e_scatter(e, serie, size, bind, symbol = NULL, symbol_size = 1,
+  scale = e_scale, scale_js = "function(data){ return data[3];}",
+  name = NULL, coord_system = "cartesian2d", jitter_factor = 0,
+  jitter_amount = NULL, legend = TRUE, y_index = 0, x_index = 0,
+  rm_x = TRUE, rm_y = TRUE, ...)
+
+e_effect_scatter(e, serie, size, bind, symbol = NULL, symbol_size = 1,
+  scale = e_scale, scale_js = "function(data){ return data[3];}",
   name = NULL, coord_system = "cartesian2d", legend = TRUE,
   y_index = 0, x_index = 0, rm_x = TRUE, rm_y = TRUE, ...)
 
-e_effect_scatter(e, serie, size, bind, symbol_size = 1,
-  scale = e_scale, name = NULL, coord_system = "cartesian2d",
-  legend = TRUE, y_index = 0, x_index = 0, rm_x = TRUE,
-  rm_y = TRUE, ...)
-
 e_scale(x)
 
-e_scatter_(e, serie, size = NULL, bind = NULL, symbol_size = 1,
-  scale = e_scale, name = NULL, coord_system = "cartesian2d",
-  legend = TRUE, y_index = 0, x_index = 0, rm_x = TRUE,
-  rm_y = TRUE, ...)
+e_scatter_(e, serie, size = NULL, bind = NULL, symbol = NULL,
+  symbol_size = 1, scale = e_scale,
+  scale_js = "function(data){ return data[3];}", name = NULL,
+  coord_system = "cartesian2d", jitter_factor = 0,
+  jitter_amount = NULL, legend = TRUE, y_index = 0, x_index = 0,
+  rm_x = TRUE, rm_y = TRUE, ...)
 
-e_effect_scatter_(e, serie, size = NULL, bind = NULL,
-  symbol_size = 1, scale = e_scale, name = NULL,
+e_effect_scatter_(e, serie, size = NULL, bind = NULL, symbol = NULL,
+  symbol_size = 1, scale = e_scale,
+  scale_js = "function(data){ return data[3];}", name = NULL,
   coord_system = "cartesian2d", legend = TRUE, y_index = 0,
   x_index = 0, rm_x = TRUE, rm_y = TRUE, ...)
 }
@@ -38,15 +43,22 @@ e_effect_scatter_(e, serie, size = NULL, bind = NULL,
 
 \item{bind}{Binding between datasets, namely for use of \code{\link{e_brush}}.}
 
+\item{symbol}{The symbol to use, default to \code{NULL}, can also be \code{circle}, \code{rect},
+\code{roundRect}, \code{triangle}, \code{diamond}, \code{pin}, \code{arrow}, or \code{none}.}
+
 \item{symbol_size}{Size of points, either an integer or a vector of length 2, 
 if \code{size} is \emph{not} \code{NULL} or missing it is applied as a multiplier to \code{scale}.}
 
 \item{scale}{A function that takes a vector of \code{numeric} and returns a vector of \code{numeric}
-of the same length.}
+of the same length. You can disable the scaling by setting it to \code{NULL}.}
+
+\item{scale_js}{the JavaScript scaling function.}
 
 \item{name}{name of the serie.}
 
 \item{coord_system}{Coordinate system to plot against, see examples.}
+
+\item{jitter_factor, jitter_amount}{Jitter points, passed to \code{jitter}.}
 
 \item{legend}{Whether to add serie to legend.}
 
@@ -76,7 +88,8 @@ e_scale(c(1, 1000))
 mtcars \%>\% 
   e_charts(mpg) \%>\% 
   e_scatter(wt, qsec)
-  
+
+# custom function
 my_scale <- function(x) scales::rescale(x, to = c(2, 50))
   
 echart <- mtcars \%>\% 
@@ -92,8 +105,19 @@ echart \%>\%
 # or
 echart \%>\% 
   e_visual_map(min = 2, max = 50)
+  
+# disable scaling
+mtcars \%>\% 
+  e_charts(qsec) \%>\% 
+  e_scatter(wt, mpg, scale = NULL)
+  
+# jitter point
+mtcars \%>\% 
+  e_charts(cyl) \%>\% 
+  e_scatter(wt, symbol_size = 5) \%>\% 
+  e_scatter(wt, jitter_factor = 2, legend = FALSE)
 
-# applications
+# examples
 USArrests \%>\% 
   e_charts(Assault) \%>\% 
   e_scatter(Murder, Rape) \%>\% 
@@ -121,6 +145,13 @@ quakes \%>\%
   ) \%>\% 
   e_scatter(lat, mag, coord_system = "geo") \%>\% 
   e_visual_map(min = 4, max = 6.5)
+  
+# timeline  
+iris \%>\% 
+  group_by(Species) \%>\% 
+  e_charts(Petal.Width, timeline = TRUE) \%>\% 
+  e_scatter(Sepal.Width, Sepal.Length) \%>\% 
+  e_tooltip(trigger = "axis")
   
 }
 \seealso{

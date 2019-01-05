@@ -20,6 +20,7 @@ Add a theme.
 \section{Themes}{
  
 \itemize{
+   \item{\code{default}}
   \item{\code{dark}}
   \item{\code{vintage}}
   \item{\code{westeros}}
@@ -33,6 +34,8 @@ Add a theme.
   \item{\code{shine}}
   \item{\code{purple-passion}}
   \item{\code{halloween}}
+  \item{\code{auritus}}
+  
 }
 }
 

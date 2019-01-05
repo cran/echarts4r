@@ -26,7 +26,8 @@
 #'   e_charts(countries) %>% 
 #'   e_map_3d(values, shading = "lambert") %>% 
 #'   e_visual_map(min = 10, max = 30)
-#'   
+#'         
+#' # custom
 #' buildings <- jsonlite::read_json(
 #'   paste0(
 #'     "https://ecomfe.github.io/echarts-examples/",
@@ -57,6 +58,31 @@
 #'     min = 0.4,
 #'     max = 1
 #'   ) 
+#'   
+#' # timeline
+#' choropleth <- data.frame(
+#'     countries = rep(choropleth$countries, 3)
+#'   ) %>% 
+#'   dplyr::mutate(
+#'     grp = c(
+#'       rep(2016, nrow(choropleth)),
+#'       rep(2017, nrow(choropleth)),
+#'       rep(2018, nrow(choropleth))
+#'     ),
+#'     values = runif(27, 1, 10)
+#'   )
+#'   
+#' choropleth %>% 
+#'   group_by(grp) %>% 
+#'   e_charts(countries, timeline = TRUE) %>% 
+#'   e_map(values) %>% 
+#'   e_visual_map(min = 1, max = 10)
+#'   
+#' choropleth %>% 
+#'   group_by(grp) %>% 
+#'   e_charts(countries, timeline = TRUE) %>% 
+#'   e_map_3d(values) %>% 
+#'   e_visual_map(min = 1, max = 10)
 #' }
 #' 
 #' @seealso \code{\link{e_country_names}}, 
@@ -88,22 +114,38 @@ e_map_ <- function(e, serie = NULL, map = "world", name = NULL, rm_x = TRUE, rm_
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
   
-  app <- list(
-    type = "map",
-    map = map,
-    ...
-  )
-  
-  if(is.null(name) && !is.null(serie))
-    app$name <- serie
-  
-  if(!is.null(serie)){
-    data <- .build_data(e, serie)
-    data <- .add_bind(e, data, e$x$mapping$x)
-    app$data <- data
+  for(i in 1:length(e$x$data)){
+    
+    app <- list(
+      type = "map",
+      map = map,
+      name = name,
+      ...
+    )
+    
+    if(!is.null(serie)){
+      data <- .build_data2(e$x$data[[i]], serie)
+      data <- .add_bind2(e, data, e$x$mapping$x, i = i)
+      app_data <- list(data = data)
+    } else {
+      app_data <- list()
+    }
+    
+    if(!e$x$tl){
+      
+      if(is.null(name) && !is.null(serie))
+        app$name <- serie
+      
+      app <- append(app, app_data)
+      
+      e$x$opts$series <- append(e$x$opts$series, list(app))
+    } else
+      e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(app_data))
+    
   }
   
-  e$x$opts$series <- append(e$x$opts$series, list(app))
+  if(isTRUE(e$x$tl))
+    e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(app))
   
   e
 }
@@ -132,25 +174,41 @@ e_map_3d_ <- function(e, serie = NULL, map = "world", name = NULL, coord_system 
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
   
-  app <- list(
-    type = "map3D",
-    map = map,
-    ...
-  )
-  
-  if(is.null(name) && !is.null(serie))
-    app$name <- serie
-  
-  if(!is.null(coord_system))
-    app$coordinateSystem <- coord_system
-  
-  if(!is.null(serie)){
-    data <- .build_data(e, serie)
-    data <- .add_bind(e, data, e$x$mapping$x)
-    app$data <- data
+  for(i in 1:length(e$x$data)){
+    
+    if(!is.null(serie)){
+      data <- .build_data2(e$x$data[[i]], serie)
+      data <- .add_bind2(e, data, e$x$mapping$x, i = i)
+      dat <- data
+    }
+    
+    app <- list(
+      type = "map3D",
+      map = map,
+      coordinateSystem = coord_system,
+      name = name,
+      ...
+    )
+    
+    app_data <- list(data = data)
+    
+    if(!e$x$tl){
+      
+      if(is.null(name) && !is.null(serie))
+        app$name <- serie
+      
+      app <- append(app, app_data)
+      
+      e$x$opts$series <- append(e$x$opts$series, list(app))
+      
+    } else {
+      e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(app_data))
+    }
+    
   }
   
-  e$x$opts$series <- append(e$x$opts$series, list(app))
+  if(isTRUE(e$x$tl))
+    e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(app))
   
   e
 }
@@ -165,8 +223,8 @@ e_map_3d_custom <- function(e, id, value, height, map = NULL, name = NULL, rm_x 
   if(missing(id) || missing(value) || missing(height))
     stop("must pass id, value, and height", call. = FALSE)
   
-  if(is.null(map) && length(e$x$mapName))
-    map <- unlist(e$x$mapName)
+  if(is.null(map) && length(e$x$registerMap[[1]]$mapName))
+    map <- unlist(e$x$registerMap[[1]]$mapName)
   else
     stop("not map registered, see e_map_register", call. = FALSE)
   
@@ -220,14 +278,21 @@ e_map_3d_custom <- function(e, id, value, height, map = NULL, name = NULL, rm_x 
 #'   e_charts(states) %>%
 #'   e_map_register("USA", json) %>%
 #'   e_map(Murder, map = "USA") %>% 
-#'   e_visual_map(min = 0, max = 18)
+#'   e_visual_map(Murder)
 #' }
 #' 
 #' @export
 e_map_register <- function(e, name, json){
-  e$x$registerMap <- TRUE
-  e$x$mapName <- name
-  e$x$geoJSON <- json
+  
+  if(!length(e$x$registerMap))
+    e$x$registerMap <- list()
+  
+  opts <- list(
+    mapName = name,
+    geoJSON = json
+  )
+  
+  e$x$registerMap <- append(e$x$registerMap, list(opts))
   e
 }
 
@@ -269,7 +334,12 @@ e_mapbox <- function(e, token, ...){
   if(missing(token))
     stop("missing token", call. = FALSE)
   
-  e$x$opts$mapbox <- list(...)
   e$x$mapboxToken <- token
+  
+  if(!e$x$tl)
+    e$x$opts$mapbox <- list(...)
+  else
+    e$x$opts$baseOption$mapbox <- list(...)
+  
   e
 }

@@ -1,6 +1,16 @@
 echarts_build <- function(e) {
   e$x$data <- NULL
   e$x$mapping <- NULL
+  
+  ff <- getOption("ECHARTS4R_FONT_FAMILY")
+  theme <- getOption("ECHARTS4R_THEME")
+  
+  if(!is.null(theme))
+    e <- e_theme(e, theme)
+  
+  if(!is.null(ff))
+    e <- e_text_style(e, fontFamily = ff)
+  
   e
 } 
 
@@ -17,11 +27,43 @@ echarts_build <- function(e) {
 #' @param elementId Id of element.
 #' @param dispose Set to \code{TRUE} to force redraw of chart, set to \code{FALSE} to update.
 #' @param renderer Renderer, takes \code{canvas} (default) or \code{svg}.
+#' @param timeline Set to \code{TRUE} to build a timeline, see timeline section.
 #' @param ... Any other argument.
+#' 
+#' @section Timeline:
+#' The timeline feature currently supports the following chart types.
+#' \itemize{
+#'   \item{\code{\link{e_bar}}}
+#'   \item{\code{\link{e_line}}}
+#'   \item{\code{\link{e_step}}}
+#'   \item{\code{\link{e_area}}}
+#'   \item{\code{\link{e_scatter}}}
+#'   \item{\code{\link{e_effect_scatter}}}
+#'   \item{\code{\link{e_candle}}}
+#'   \item{\code{\link{e_heatmap}}}
+#'   \item{\code{\link{e_pie}}}
+#'   \item{\code{\link{e_line_3d}}}
+#'   \item{\code{\link{e_lines_3d}}}
+#'   \item{\code{\link{e_bar_3d}}}
+#'   \item{\code{\link{e_lines}}}
+#'   \item{\code{\link{e_scatter_3d}}}
+#'   \item{\code{\link{e_scatter_gl}}}
+#'   \item{\code{\link{e_histogram}}}
+#'   \item{\code{\link{e_lm}}}
+#'   \item{\code{\link{e_loess}}}
+#'   \item{\code{\link{e_glm}}}
+#'   \item{\code{\link{e_density}}}
+#'   \item{\code{\link{e_pictorial}}}
+#'   \item{\code{\link{e_boxplot}}}
+#'   \item{\code{\link{e_map}}}
+#'   \item{\code{\link{e_map_3d}}}
+#'   \item{\code{\link{e_line_3d}}}
+#'   \item{\code{\link{e_gauge}}}
+#' }
 #' 
 #' @examples 
 #' mtcars %>% 
-#'   e_charts_("qsec") %>%
+#'   e_charts(qsec) %>%
 #'   e_line(mpg)
 #'
 #' @import htmlwidgets
@@ -30,17 +72,20 @@ echarts_build <- function(e) {
 #' @importFrom stats as.formula lm glm loess predict
 #' @importFrom graphics hist
 #' 
-#' @rdname init
+#' @name init
 #' @export
-e_charts <- function(data, x, width = NULL, height = NULL, elementId = NULL, dispose = TRUE, renderer = "canvas", ...) {
+e_charts <- function(data, x, width = NULL, height = NULL, elementId = NULL, dispose = TRUE, 
+                     renderer = "canvas", timeline = FALSE, ...) {
 
   xmap <- NULL
+  
   if(!missing(x))
     xmap <- deparse(substitute(x))
 
   # forward options using x
   x = list(
     theme = "",
+    tl = timeline,
     renderer = tolower(renderer),
     mapping = list(),
     events = list(),
@@ -57,7 +102,7 @@ e_charts <- function(data, x, width = NULL, height = NULL, elementId = NULL, dis
     
     row.names(data) <- NULL
     
-    if(!is.null(xmap))
+    if(!is.null(xmap) && !isTRUE(timeline))
       data <- .arrange_data_x(data, xmap)
     
     x$data <- map_grps_(data)
@@ -67,6 +112,62 @@ e_charts <- function(data, x, width = NULL, height = NULL, elementId = NULL, dis
     x$mapping$x <- xmap[1]
     x$mapping$x_class <- class(data[[xmap]])
     x <- .assign_axis(x, data)
+  }
+  
+  if(isTRUE(timeline)){
+    
+    if(missing(data))
+      stop("timeline expects data", call. = FALSE)
+    
+    if(!dplyr::is_grouped_df(data))
+      stop("must pass grouped data when timeline = TRUE", call. = FALSE)
+    
+    if(!is.null(xmap))
+      x$data <- .arrange_data_by_group(x$data, xmap)
+    
+    tl <- list(
+      baseOption = list(
+        yAxis = list(
+          list(show = TRUE)
+        )
+      ),
+      options = purrr::map(1:dplyr::n_groups(data), function(x) list())      
+    )
+    
+    x$opts <- tl
+    
+    x$opts$baseOption$timeline <- list(
+      data = as.list(names(x$data)),
+      axisType = "category",
+      ...
+    )
+    
+    if(!is.null(xmap)){
+      x$mapping$x <- xmap[1]
+      x$mapping$x_class <- class(data[[xmap]])
+      
+      x$mapping$include_x <- FALSE
+      cl <- x$mapping$x_class
+      if(cl == "character" || cl == "factor"){
+        labs <- unique(data[[x$mapping$x]])
+        
+        if(length(labs) == 1)
+          labs <- list(labs)
+        
+        x$opts$baseOption$xAxis <- list(list(data = labs, type = "category", boundaryGap = TRUE))
+      } else if(cl == "POSIXct" || cl == "POSIXlt" || cl == "Date") {
+        
+        labs <- unique(data[[x$mapping$x]])
+        
+        if(length(labs) == 1)
+          labs <- list(labs)
+        
+        x$opts$baseOption$xAxis <- list(list(data = labs, type = "time", boundaryGap = TRUE))
+      } else {
+        x$mapping$include_x <- TRUE
+        x$opts$baseOption$xAxis <- list(list(type = "value"))
+      }
+    }
   }
   
   x$dispose <- dispose
@@ -83,20 +184,23 @@ e_charts <- function(data, x, width = NULL, height = NULL, elementId = NULL, dis
     sizingPolicy = htmlwidgets::sizingPolicy(
       defaultWidth = "100%",
       knitr.figure = FALSE,
-      browser.fill = TRUE
+      browser.fill = TRUE,
+      padding = 0
     )
   )
 }
 
 #' @rdname init
 #' @export
-e_charts_ <- function(data, x = NULL, width = NULL, height = NULL, elementId = NULL, dispose = TRUE, renderer = "canvas", ...) {
+e_charts_ <- function(data, x = NULL, width = NULL, height = NULL, elementId = NULL, dispose = TRUE, 
+                      renderer = "canvas", timeline = FALSE, ...) {
   
   xmap <- x
   
   # forward options using x
   x = list(
     theme = "",
+    tl = timeline,
     renderer = tolower(renderer),
     mapping = list(),
     events = list(),
@@ -147,12 +251,24 @@ e_charts_ <- function(data, x = NULL, width = NULL, height = NULL, elementId = N
 #' @export
 e_chart <- e_charts
 
+
+#' Add a dataset 
+#' This function can add one or more dataset into a echarts object. 
+#' 
+#' @examples 
+#' points <- mtcars[1:3,]
+#' mtcars %>% 
+#'   e_charts_("qsec") %>%
+#'   e_line(mpg) %>%
+#'   e_data(points, qsec) %>%
+#'   e_scatter(mpg, color = "blue")
+#'
 #' @rdname init
 #' @export
 e_data <- function(e, data, x){
   
   if(missing(data))
-    stop("must pass data")
+    data <- e$x$data[[1]]
   
   if(!missing(x))
     xmap <- deparse(substitute(x))

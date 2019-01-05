@@ -349,6 +349,40 @@ e_unfocus_adjacency_p <- function(proxy, ...){
 #' @param type Type of action to dispatch, i.e.: \code{highlight}.
 #' @param ... Named options.
 #' 
+#' @examples 
+#' \dontrun{
+#' 
+#'   library(shiny)
+#' 
+#'   ui <- fluidPage(
+#'     fluidRow(
+#'       column(8, echarts4rOutput("chart")),
+#'       column(4, actionButton("zoom", "Zoom"))
+#'     )
+#'   )
+#'   
+#'   server <- function(input, output, session){
+#'   
+#'     output$chart <- renderEcharts4r({
+#'       cars %>% 
+#'         e_charts(speed) %>% 
+#'         e_scatter(dist) %>% 
+#'         e_datazoom()
+#'     })
+#'     
+#'     observe({
+#'       req(input$zoom)
+#'       
+#'       echarts4rProxy("chart") %>% 
+#'         e_dispatch_action_p("dataZoom", startValue = 1, endValue = 10)
+#'     })
+#'   
+#'   }
+#'   
+#'   shinyApp(ui, server)
+#' 
+#' }
+#' 
 #' @export
 e_dispatch_action_p <- function(proxy, type, ...){
   
@@ -361,4 +395,47 @@ e_dispatch_action_p <- function(proxy, type, ...){
   data <- list(id = proxy$id, opts = list(type = type, ...))
   
   proxy$session$sendCustomMessage("e_dispatch_action_p", data)
+}
+
+
+#' Capture event
+#' 
+#' Add an event capture.
+#' 
+#' @inheritParams e_bar
+#' @param event An event name from the \href{https://ecomfe.github.io/echarts-doc/public/en/api.html#events}{event documentation}.
+#' 
+#' @details Many events can be capture, however not all are integrated, you can pass one that is not implemented with this function.
+#' 
+#' @examples 
+#' \dontrun{
+#' # add datazoom
+#' library(shiny)
+#' 
+#' ui <- fluidPage(
+#'   echarts4rOutput("chart"),
+#'   verbatimTextOutput("zoom")
+#' )
+#' 
+#' server <- function(input, output){
+#'   output$chart <- renderEcharts4r({
+#'     mtcars %>% 
+#'       e_charts(mpg) %>% 
+#'       e_scatter(qsec) %>% 
+#'       e_datazoom() %>% 
+#'       e_capture("datazoom")
+#'   })
+#'   
+#'   output$zoom <- renderPrint({
+#'     input$chart_datazoom
+#'   })
+#' }
+#' 
+#' shinyApp(ui, server)
+#' }
+#' 
+#' @export
+e_capture <- function(e, event){
+  e$x$capture <- event
+  e
 }

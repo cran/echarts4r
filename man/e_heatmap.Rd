@@ -60,7 +60,7 @@ year \%>\%
   e_heatmap(values, coord_system = "calendar") \%>\% 
   e_visual_map(max = 30)
   
-# multiple years
+# calendar multiple years
 year \%>\% 
   dplyr::mutate(year = format(date, "\%Y")) \%>\% 
   group_by(year) \%>\% 
@@ -69,6 +69,43 @@ year \%>\%
   e_calendar(range = "2018", top = 260) \%>\% 
   e_heatmap(values, coord_system = "calendar") \%>\% 
   e_visual_map(max = 30)
+  
+# map
+quakes \%>\%
+  e_charts(long) \%>\% 
+  e_geo(
+    boundingCoords = list(
+      c(190, -10),
+      c(180, -40)
+   )
+  ) \%>\% 
+  e_heatmap(
+    lat, 
+    mag, 
+    coord_system = "geo", 
+    blurSize = 5, 
+    pointSize = 3
+  ) \%>\% 
+  e_visual_map(mag)
+
+# timeline
+library(dplyr)
+
+axis <- LETTERS[1:10]
+df <- expand.grid(axis, axis)
+
+bind_rows(df, df) \%>\% 
+  mutate(
+    values = runif(n(), 1, 10),
+    grp = c(
+      rep("A", 100),
+      rep("B", 100)
+    )
+  ) \%>\% 
+  group_by(grp) \%>\% 
+  e_charts(Var1, timeline = TRUE) \%>\% 
+  e_heatmap(Var2, values) \%>\% 
+  e_visual_map(values)
 
 }
 \seealso{

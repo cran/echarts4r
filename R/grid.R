@@ -5,6 +5,11 @@
 #' @inheritParams e_bar
 #' @param axis Axis to customise.
 #' @param index Index of axis to customise.
+#' @param formatter An axis formatter as returned by \code{\link{e_axis_formatter}}.
+#' @param style Formatter style, one of \code{decimal}, \code{percent}, or \code{currency}.
+#' @param currency Currency to to display.
+#' @param digits Number of decimals.
+#' @param locale Locale, if \code{NULL} then it is inferred from \code{Sys.getlocale}.
 #' 
 #' @section Functions:
 #' \itemize{
@@ -13,11 +18,26 @@
 #' }
 #' 
 #' @examples 
+#' # hide axis
 #' USArrests %>% 
 #'   e_charts(Assault) %>% 
 #'   e_line(Murder, smooth = TRUE) %>% 
 #'   e_line(Rape, y.index = 1) %>% # add secondary axis
 #'   e_y_axis(index = 1, show = FALSE) # hide secondary axis
+#'   
+#' # use formatter
+#' cars %>% 
+#'   dplyr::mutate(
+#'     speed = speed / 25
+#'   ) %>% 
+#'   e_charts(speed) %>% 
+#'   e_scatter(dist) %>% 
+#'   e_y_axis(
+#'     formatter = e_axis_formatter("currency")
+#'   ) %>% 
+#'   e_x_axis(
+#'     formatter = e_axis_formatter("percent", digits = 0)
+#'   )
 #' 
 #' # plot all labels & rotate
 #' USArrests %>% 
@@ -27,12 +47,13 @@
 #'   e_area(Murder) %>% 
 #'   e_x_axis(axisLabel = list(interval = 0, rotate = 45)) # rotate
 #'   
+#'   
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#xAxis}{Additional x arguments}, 
 #' \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#yAxis}{Additional y arguments}
 #' 
 #' @rdname axis
 #' @export
-e_axis <- function(e, axis = c("x", "y", "z"), index = 0, ...){
+e_axis <- function(e, axis = c("x", "y", "z"), index = 0, formatter = NULL, ...){
   
   if(missing(e))
     stop("missing e", call. = FALSE)
@@ -44,6 +65,9 @@ e_axis <- function(e, axis = c("x", "y", "z"), index = 0, ...){
   
   attrs <- list(...)
   
+  if(!is.null(formatter))
+    attrs$axisLabel$formatter <- formatter
+  
   if(!length(attrs))
     stop("no attribute", call. = FALSE)
   
@@ -52,17 +76,26 @@ e_axis <- function(e, axis = c("x", "y", "z"), index = 0, ...){
     r.index <- 1
   }
   
-  dp <- .list_depth(e$x$opts[[axis]])
+  if(!e$x$tl)
+    dp <- .list_depth(e$x$opts[[axis]])
+  else
+    dp <- .list_depth(e$x$opts$baseOption[[axis]])
   
   if(dp >= 2){
     for(i in 1:length(attrs)){
       arg <- names(attrs)[i]
-      e$x$opts[[axis]][[r.index]][[arg]] <- attrs[[i]]
+      if(!e$x$tl)
+        e$x$opts[[axis]][[r.index]][[arg]] <- attrs[[i]]
+      else
+        e$x$opts$baseOption[[axis]][[r.index]][[arg]] <- attrs[[i]]
     }
   } else {
     for(i in 1:length(attrs)){
       arg <- names(attrs)[i]
-      e$x$opts[[axis]][[arg]] <- attrs[[i]]
+      if(!e$x$tl)
+        e$x$opts[[axis]][[arg]] <- attrs[[i]]
+      else
+        e$x$opts$baseOption[[axis]][[arg]] <- attrs[[i]]
     }
   }
   
@@ -71,19 +104,19 @@ e_axis <- function(e, axis = c("x", "y", "z"), index = 0, ...){
 
 #' @rdname axis
 #' @export
-e_x_axis <- function(e, index = 0, ...){
+e_x_axis <- function(e, index = 0, formatter = NULL, ...){
   if(missing(e))
     stop("missing e", call. = FALSE)
-  e <- e_axis(e, "x", index, ...)
+  e <- e_axis(e, "x", index, formatter, ...)
   e
 }
 
 #' @rdname axis
 #' @export
-e_y_axis<- function(e, index = 0, ...){
+e_y_axis<- function(e, index = 0, formatter = NULL, ...){
   if(missing(e))
     stop("missing e", call. = FALSE)
-  e <- e_axis(e = e, axis = "y",index =  index, ...)
+  e <- e_axis(e = e, axis = "y",index =  index, formatter,...)
   e
 }
 
@@ -104,6 +137,27 @@ e_rm_axis <- function(e, axis = c("x", "y", "z")){
   e$x$opts[[axis]] <- NULL
   
   return(e)
+}
+
+#' @rdname axis
+#' @export
+e_axis_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0, 
+                             locale = NULL, currency = "USD") {
+  
+  if(is.null(locale))
+    locale <- .get_locale()
+  
+  style <- match.arg(style)
+  opts <- list(
+    style = style,
+    minimumFractionDigits = digits,
+    maximumFractionDigits = digits,
+    currency = currency
+  )
+  htmlwidgets::JS(sprintf("function(value, index) {
+        var fmt = new Intl.NumberFormat('%s', %s);
+        return fmt.format(value);
+    }", locale, jsonlite::toJSON(opts, auto_unbox = TRUE)))
 }
 
 #' Grid
@@ -134,12 +188,20 @@ e_grid <- function(e, index = NULL, ...){
   if(is.null(index))
     index <- length(e$x$opts[["grid"]]) + 1
   
-  # initialise of not existing
-  if(!length(e$x$opts[["grid"]]))
-    e$x$opts$grid  <- list()
-  
   attrs <- list(...)
-  e$x$opts$grid <- append(e$x$opts$grid, list(attrs))
+  
+  # initialise of not existing
+  if(!e$x$tl){
+    if(!length(e$x$opts[["grid"]]))
+      e$x$opts$grid  <- list()
+    
+    e$x$opts$grid <- append(e$x$opts$grid, list(attrs))
+  } else {
+    if(!length(e$x$opts$baseOption[["grid"]]))
+      e$x$opts$baseOption$grid  <- list()
+    
+    e$x$opts$baseOption$grid <- append(e$x$opts$baseOption$grid, list(attrs))
+  }
   
   e
 }
@@ -179,7 +241,10 @@ e_radius_axis <- function(e, serie, show = TRUE, ...){
   if(!missing(serie))
     opts$data <- e$x$data %>% purrr::map(sr) %>% unlist %>% unname %>% unique %>% as.list
   
-  e$x$opts$radiusAxis <- opts
+  if(!e$x$tl)
+    e$x$opts$radiusAxis <- opts
+  else
+    e$x$opts$baseOption$radiusAxis <- opts
   
   e
 }
@@ -196,7 +261,10 @@ e_radius_axis_ <- function(e, serie = NULL, show = TRUE, ...){
   if(!is.null(serie))
     opts$data <- e$x$data %>% purrr::map(serie) %>% unlist %>% unname %>% unique %>%  as.list
   
-  e$x$opts$radiusAxis <- opts
+  if(e$x$tl)
+    e$x$opts$radiusAxis <- opts
+  else
+    e$x$opts$baseOption$radiusAxis <- opts
   
   e
 }
@@ -246,7 +314,10 @@ e_angle_axis <- function(e, serie, show = TRUE, ...){
   if(!missing(serie))
     opts$data <- e$x$data %>% purrr::map(sr) %>% unlist %>% unname %>% unique %>% as.list
   
-  e$x$opts$angleAxis <- opts
+  if(!e$x$tl)
+    e$x$opts$angleAxis <- opts
+  else
+    e$x$opts$baseOption$angleAxis <- opts
   
   e
 }
@@ -263,7 +334,10 @@ e_angle_axis_ <- function(e, serie = NULL, show = TRUE, ...){
   if(!is.null(serie))
     opts$data <- e$x$data %>% purrr::map(serie) %>% unlist %>% unname %>% unique %>%  as.list
   
-  e$x$opts$angleAxis <- opts
+  if(!e$x$tl)
+    e$x$opts$angleAxis <- opts
+  else
+    e$x$opts$baseOption$angleAxis <- opts
   
   e
 }
@@ -292,12 +366,18 @@ e_radar_opts <- function(e, index = 0, ...){
   # initiatlise if wrong index
   if(r.index > max){
     r.index <- 1
-    e$x$opts$radar <- list(list())
+    if(!e$xtl)
+      e$x$opts$radar <- list(list())
+    else
+      e$x$opts$baseOption$radar <- list(list())
   }
   
   for(i in 1:length(attrs)){
     arg <- names(attrs)[i]
-    e$x$opts$radar[[r.index]][[arg]] <- attrs[[i]]
+    if(!e$x$tl)
+      e$x$opts$radar[[r.index]][[arg]] <- attrs[[i]]
+    else
+      e$x$opts$baseOption$radar[[r.index]][[arg]] <- attrs[[i]]
   }
   
   e
@@ -338,16 +418,26 @@ e_single_axis <- function(e, index = 0, ...){
   e$x$opts$xAxis <- NULL
   e$x$opts$yAxis <- NULL
   
-  if(!length(e$x$opts$singleAxis))
-    e$x$opts$singleAxis <- list(...)
-  else
-    e$x$opts$singleAxis <- append(e$x$opts$singleAxis, list(...))
+  if(!e$x$tl){
+    if(!length(e$x$opts$singleAxis))
+      e$x$opts$singleAxis <- list(...)
+    else
+      e$x$opts$singleAxis <- append(e$x$opts$singleAxis, list(...))
+  } else {
+    if(!length(e$x$opts$baseOption$singleAxis))
+      e$x$opts$baseOption$singleAxis <- list(...)
+    else
+      e$x$opts$baseOption$singleAxis <- append(e$x$opts$baseOption$singleAxis, list(...))
+  }
   
   if(!is.null(e$x$mapping$x)){
     
     type <- .get_type(e, e$x$mapping$x)
     
-    e$x$opts$singleAxis$type <- type
+    if(!e$x$tl)
+      e$x$opts$singleAxis$type <- type
+    else
+      e$x$opts$baseOption$singleAxis$type <- type
     
     if(type == "category" || type == "time"){
       
@@ -361,7 +451,12 @@ e_single_axis <- function(e, index = 0, ...){
       }
       
       vect <- unique(vect)
-      e$x$opts$singleAxis$data <- vect
+      
+      if(!e$x$tl)
+        e$x$opts$singleAxis$data <- vect
+      else
+        e$x$opts$baseOption$singleAxis$data <- vect
+      
     }
   } else {
     warning("x not pass to e_charts", call. = FALSE)

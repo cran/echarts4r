@@ -12,10 +12,17 @@
 #' @param coord_system Coordinate system to plot against.
 #' 
 #' @examples 
-#' iris %>% 
-#'   group_by(Species) %>% 
-#'   e_charts(Sepal.Length) %>% 
-#'   e_line(Sepal.Width)
+#' library(dplyr)
+#' 
+#' mtcars %>% 
+#'   mutate(
+#'     model = row.names(.),
+#'     total = mpg + qsec
+#'   ) %>% 
+#'   arrange(desc(total)) %>% 
+#'   e_charts(model) %>% 
+#'   e_bar(mpg, stack = "grp") %>% 
+#'   e_bar(qsec, stack = "grp")
 #' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-bar}{Additional arguments}
 #' 
@@ -50,6 +57,13 @@ e_bar <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_ind
 #' iris %>% 
 #'   group_by(Species) %>% 
 #'   e_charts(Sepal.Length) %>% 
+#'   e_line(Sepal.Width) %>% 
+#'   e_tooltip(trigger = "axis")
+#'   
+#' # timeline  
+#' iris %>% 
+#'   group_by(Species) %>% 
+#'   e_charts(Sepal.Length, timeline = TRUE) %>% 
 #'   e_line(Sepal.Width) %>% 
 #'   e_tooltip(trigger = "axis")
 #' 
@@ -88,11 +102,19 @@ e_line <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_in
 #'   e_area(uptake) %>% 
 #'   e_tooltip(trigger = "axis")
 #' 
+#' # timeline  
+#' iris %>% 
+#'   group_by(Species) %>% 
+#'   e_charts(Sepal.Length, timeline = TRUE) %>% 
+#'   e_area(Sepal.Width) %>% 
+#'   e_tooltip(trigger = "axis")
+#' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-line}{Additional arguments}
 #' 
 #' @rdname e_area
 #' @export
-e_area <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, ...){
+e_area <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
+                   coord_system = "cartesian2d", ...){
   
   if(missing(e))
     stop("must pass e", call. = FALSE)
@@ -107,7 +129,7 @@ e_area <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_in
   else
     bd <- deparse(substitute(bind))
   
-  e_area_(e, serie, bd, name, legend, y_index, x_index, ...)
+  e_area_(e, serie, bd, name, legend, y_index, x_index, coord_system,...)
 }
 
 #' Step 
@@ -126,13 +148,21 @@ e_area <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_in
 #'   e_step(Rape, name = "Middle", step = "middle") %>% 
 #'   e_step(Assault, name = "End", step = "end") %>% 
 #'   e_tooltip(trigger = "axis")
+#'   
+#' # timeline  
+#' iris %>% 
+#'   group_by(Species) %>% 
+#'   e_charts(Sepal.Length, timeline = TRUE) %>% 
+#'   e_step(Sepal.Width) %>% 
+#'   e_tooltip(trigger = "axis")
 #' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-line}{Additional arguments}
 #' 
 #' @rdname e_step
 #' @export
 e_step <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FALSE, 
-                   name = NULL, legend = TRUE, y_index = 0, x_index = 0, ...){
+                   name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", 
+                   ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
@@ -146,7 +176,7 @@ e_step <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FA
   else
     bd <- deparse(substitute(bind))
   
-  e_step_(e, serie, bd, step, fill, name, legend, y_index, x_index, ...)
+  e_step_(e, serie, bd, step, fill, name, legend, y_index, x_index, coord_system = "cartesian2d", ...)
 }
 
 #' Scatter
@@ -155,14 +185,18 @@ e_step <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FA
 #' 
 #' @inheritParams e_bar
 #' @param size Column name containing size of points.
+#' @param symbol The symbol to use, default to \code{NULL}, can also be \code{circle}, \code{rect},
+#' \code{roundRect}, \code{triangle}, \code{diamond}, \code{pin}, \code{arrow}, or \code{none}.
 #' @param symbol_size Size of points, either an integer or a vector of length 2, 
 #' if \code{size} is \emph{not} \code{NULL} or missing it is applied as a multiplier to \code{scale}. 
 #' @param scale A function that takes a vector of \code{numeric} and returns a vector of \code{numeric}
-#' of the same length.
+#' of the same length. You can disable the scaling by setting it to \code{NULL}.
 #' @param coord_system Coordinate system to plot against, see examples.
 #' @param rm_x,rm_y Whether to remove x and y axis, only applies if \code{coord_system} is not 
 #' set to \code{cartesian2d}.
 #' @param x A vector of integers or numeric.
+#' @param jitter_factor,jitter_amount Jitter points, passed to \code{jitter}.
+#' @param scale_js the JavaScript scaling function.
 #' 
 #' @section Scaling function: defaults to \code{e_scale} which is a basic function that rescales \code{size}
 #' between 1 and 20 for that makes for decent sized points on the chart.
@@ -174,7 +208,8 @@ e_step <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FA
 #' mtcars %>% 
 #'   e_charts(mpg) %>% 
 #'   e_scatter(wt, qsec)
-#'   
+#' 
+#' # custom function
 #' my_scale <- function(x) scales::rescale(x, to = c(2, 50))
 #'   
 #' echart <- mtcars %>% 
@@ -190,8 +225,19 @@ e_step <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FA
 #' # or
 #' echart %>% 
 #'   e_visual_map(min = 2, max = 50)
+#'   
+#' # disable scaling
+#' mtcars %>% 
+#'   e_charts(qsec) %>% 
+#'   e_scatter(wt, mpg, scale = NULL)
+#'   
+#' # jitter point
+#' mtcars %>% 
+#'   e_charts(cyl) %>% 
+#'   e_scatter(wt, symbol_size = 5) %>% 
+#'   e_scatter(wt, jitter_factor = 2, legend = FALSE)
 #' 
-#' # applications
+#' # examples
 #' USArrests %>% 
 #'   e_charts(Assault) %>% 
 #'   e_scatter(Murder, Rape) %>% 
@@ -220,13 +266,22 @@ e_step <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FA
 #'   e_scatter(lat, mag, coord_system = "geo") %>% 
 #'   e_visual_map(min = 4, max = 6.5)
 #'   
+#' # timeline  
+#' iris %>% 
+#'   group_by(Species) %>% 
+#'   e_charts(Petal.Width, timeline = TRUE) %>% 
+#'   e_scatter(Sepal.Width, Sepal.Length) %>% 
+#'   e_tooltip(trigger = "axis")
+#'   
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-scatter}{Additional arguments scatter},
 #'  \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-effectScatter}{Additional arguments for effect scatter}
 #' 
 #' @rdname scatter
 #' @export
-e_scatter <- function(e, serie, size, bind, symbol_size = 1, scale = e_scale, name = NULL, 
-                      coord_system = "cartesian2d", legend = TRUE, y_index = 0, 
+e_scatter <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scale = e_scale, 
+                      scale_js = "function(data){ return data[3];}", name = NULL, 
+                      coord_system = "cartesian2d", jitter_factor = 0,
+                      jitter_amount = NULL, legend = TRUE, y_index = 0, 
                       x_index = 0, rm_x = TRUE, rm_y = TRUE, ...){
   
   if(missing(serie))
@@ -244,8 +299,9 @@ e_scatter <- function(e, serie, size, bind, symbol_size = 1, scale = e_scale, na
   else
     bd <- deparse(substitute(bind))
   
-  e_scatter_(e = e, serie = serie, size = size, bind = bd, symbol_size = symbol_size, 
-             scale = scale, name = name, coord_system = coord_system, 
+  e_scatter_(e = e, serie = serie, size = size, bind = bd, symbol = symbol, symbol_size = symbol_size, 
+             scale = scale, scale_js = scale_js, name = name, coord_system = coord_system,
+             jitter_factor = jitter_factor, jitter_amount = jitter_amount,
              legend = legend, y_index = y_index, x_index = x_index, rm_x = rm_x, 
              rm_y = rm_y, ...)
  
@@ -253,7 +309,8 @@ e_scatter <- function(e, serie, size, bind, symbol_size = 1, scale = e_scale, na
 
 #' @rdname scatter
 #' @export
-e_effect_scatter <- function(e, serie, size, bind, symbol_size = 1, scale = e_scale, name = NULL, 
+e_effect_scatter <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scale = e_scale, 
+                             scale_js = "function(data){ return data[3];}", name = NULL, 
                              coord_system = "cartesian2d", legend = TRUE, 
                              y_index = 0, x_index = 0, rm_x = TRUE, rm_y = TRUE, ...){
   
@@ -272,9 +329,9 @@ e_effect_scatter <- function(e, serie, size, bind, symbol_size = 1, scale = e_sc
   else
     bd <- deparse(substitute(bind))
   
-  e_effect_scatter_(e, serie = serie, size = size, bind = bd, 
-                    symbol_size = symbol_size, scale = scale, name = name, 
-                    coord_system, legend, 
+  e_effect_scatter_(e, serie = serie, size = size, bind = bd, symbol = symbol, 
+                    symbol_size = symbol_size, scale = scale, scale_js = scale_js,
+                    name = name, coord_system, legend, 
                     y_index, x_index, rm_x, rm_y, ...)
 }
 
@@ -376,7 +433,10 @@ e_radar <- function(e, serie, max = 100, name = NULL, legend = TRUE,
 #' @details No \code{bind} argument here, with a funnel \code{bind} = \code{labels}.
 #' 
 #' @examples 
-#' funnel <- data.frame(stage = c("View", "Click", "Purchase"), value = c(80, 30, 20))
+#' funnel <- data.frame(
+#'   stage = c("View", "Click", "Purchase"), 
+#'   value = c(80, 30, 20)
+#' )
 #' 
 #' funnel %>% 
 #'   e_charts() %>% 
@@ -650,7 +710,7 @@ e_graph_edges <- function(e, edges, source, target){
 #'   e_heatmap(values, coord_system = "calendar") %>% 
 #'   e_visual_map(max = 30)
 #'   
-#' # multiple years
+#' # calendar multiple years
 #' year %>% 
 #'   dplyr::mutate(year = format(date, "%Y")) %>% 
 #'   group_by(year) %>% 
@@ -659,6 +719,43 @@ e_graph_edges <- function(e, edges, source, target){
 #'   e_calendar(range = "2018", top = 260) %>% 
 #'   e_heatmap(values, coord_system = "calendar") %>% 
 #'   e_visual_map(max = 30)
+#'   
+#' # map
+#' quakes %>%
+#'   e_charts(long) %>% 
+#'   e_geo(
+#'     boundingCoords = list(
+#'       c(190, -10),
+#'       c(180, -40)
+#'    )
+#'   ) %>% 
+#'   e_heatmap(
+#'     lat, 
+#'     mag, 
+#'     coord_system = "geo", 
+#'     blurSize = 5, 
+#'     pointSize = 3
+#'   ) %>% 
+#'   e_visual_map(mag)
+#' 
+#' # timeline
+#' library(dplyr)
+#' 
+#' axis <- LETTERS[1:10]
+#' df <- expand.grid(axis, axis)
+#' 
+#' bind_rows(df, df) %>% 
+#'   mutate(
+#'     values = runif(n(), 1, 10),
+#'     grp = c(
+#'       rep("A", 100),
+#'       rep("B", 100)
+#'     )
+#'   ) %>% 
+#'   group_by(grp) %>% 
+#'   e_charts(Var1, timeline = TRUE) %>% 
+#'   e_heatmap(Var2, values) %>% 
+#'   e_visual_map(values)
 #' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-heatmap}{Additional arguments}
 #' 
@@ -753,6 +850,18 @@ e_parallel <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE){
 #'   dplyr::mutate(model = row.names(.)) %>% 
 #'   e_charts(model) %>% 
 #'   e_pie(carb)
+#'   
+#' # timeline
+#' df <- data.frame(
+#'   grp = c("A", "A", "A", "B", "B", "B"),
+#'   labels = rep(LETTERS[1:3], 2),
+#'   values = runif(6, 1, 5)
+#' )
+#' 
+#' df %>% 
+#'   group_by(grp) %>% 
+#'   e_charts(labels, timeline = TRUE) %>% 
+#'   e_pie(values)
 #'   
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-pie}{Additional arguments}
 #' 
@@ -869,19 +978,18 @@ e_treemap <- function(e, parent, child, value, rm_x = TRUE, rm_y = TRUE, ...){
 #' 
 #' @examples 
 #' dates <- seq.Date(Sys.Date() - 30, Sys.Date(), by = "day")
+#' grps <- lapply(LETTERS[1:3], rep, 31) %>% unlist
 #' 
 #' df <- data.frame(
-#'   dates = dates,
-#'   apples = runif(length(dates)),
-#'   bananas = runif(length(dates)),
-#'   pears = runif(length(dates))
+#'   dates = rep(dates, 3),
+#'   groups = grps,
+#'   values = runif(length(grps), 1, 50)
 #' )
 #' 
 #' df %>% 
-#'   e_charts(dates) %>% 
-#'   e_river(apples) %>% 
-#'   e_river(bananas) %>% 
-#'   e_river(pears) %>% 
+#'   group_by(groups) %>% 
+#'   e_charts(dates) %>%
+#'   e_river(values) %>%  
 #'   e_tooltip(trigger = "axis")
 #' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-themeRiver}{Additional arguments}
@@ -993,12 +1101,25 @@ e_gauge <- function(e, value, name, rm_x = TRUE, rm_y = TRUE, ...){
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
   
-  e$x$opts$series <- list(
-    list(
-      type = "gauge",
-      data = list(list(value = value, name = name))
+  for(i in 1:length(value)){
+    
+    serie <- list(
+      data = list(list(value = value[i], name = name[i]))
     )
-  )
+    
+    opts <- list(
+      type = "gauge",
+      ...
+    )
+    
+    if(!e$x$tl){
+      lst <- append(serie, opts)
+      e$x$opts$series <- append(e$x$opts$series, list(lst))
+    } else {
+      e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(serie))
+      e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(opts))
+    }
+  }
   e
 }
 
@@ -1014,6 +1135,8 @@ e_gauge_ <- e_gauge
 #' @param coord_system Coordinate system to use, such as \code{cartesian3D}, or \code{globe}.
 #' @param y,z Coordinates of lines.
 #' @param source_lon,source_lat,target_lon,target_lat coordinates.
+#' @param source_name,target_name Names of source and target.
+#' @param value Value of edges.
 #' @param rm_x,rm_y Whether to remove x and y axis, defaults to \code{TRUE}.
 #' 
 #' @examples 
@@ -1025,9 +1148,10 @@ e_gauge_ <- e_gauge
 #' 
 #' # Lines 3D
 #' # Globe
+#' # get tetures: echarts4r-assets.john-coene.com
 #' flights %>% 
 #'   e_charts() %>% 
-#'   e_globe(
+#'   e_globe( 
 #'     displacementScale = 0.05
 #'   ) %>% 
 #'   e_lines_3d(
@@ -1051,6 +1175,21 @@ e_gauge_ <- e_gauge
 #'     end_lat,
 #'     coord_system = "geo3D"
 #'   )
+#'   
+#' # groups
+#' flights$grp <- rep(LETTERS[1:2], 89)
+#' 
+#' flights %>% 
+#'   group_by(grp) %>% 
+#'   e_charts() %>% 
+#'   e_geo_3d() %>% 
+#'   e_lines_3d(
+#'     start_lon, 
+#'     start_lat, 
+#'     end_lon, 
+#'     end_lat,
+#'     coord_system = "geo3D"
+#'   )
 #'  
 #' # line 3D 
 #' df <- data.frame(
@@ -1064,22 +1203,44 @@ e_gauge_ <- e_gauge
 #'   e_line_3d(y, z) %>% 
 #'   e_visual_map() %>% 
 #'   e_title("nonsense")
+#'   
+#' # timeline
+#' df$grp <- rep(LETTERS[1:5], 20)
+#' 
+#' df %>% 
+#'   group_by(grp) %>% 
+#'   e_charts(x) %>% 
+#'   e_line_3d(y, z) %>% 
+#'   e_visual_map() %>% 
+#'   e_title("nonsense")
 #' 
 #' @seealso \href{http://echarts.baidu.com/option-gl.html#series-lines3D}{Additional arguments for lines 3D},
 #'  \href{http://echarts.baidu.com/option-gl.html#series-line3D}{Additional arguments for line 3D}
 #' 
+#' @seealso \url{https//echarts4r-assets.john-coene.com}
+#' 
 #' @rdname line3D
 #' @export
-e_lines_3d <- function(e, source_lon, source_lat, target_lon, target_lat, name = NULL, 
+e_lines_3d <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name, value, name = NULL, 
                        coord_system = "globe", rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
   if(missing(source_lat) || missing(source_lon) || missing(target_lat) || missing(target_lon))
     stop("missing coordinates", call. = FALSE)
+  if(missing(source_name))
+    source_name <- NULL
+  
+  if(missing(target_name))
+    target_name <- NULL
+  
+  if(missing(value))
+    value <- NULL
   
   e_lines_3d_(e, deparse(substitute(source_lon)), deparse(substitute(source_lat)), 
               deparse(substitute(target_lon)), deparse(substitute(target_lat)), 
+              deparse(substitute(source_name)), deparse(substitute(target_name)),
+              deparse(substitute(value)),
               name, coord_system, rm_x, rm_y, ...)
 }
 
@@ -1108,24 +1269,39 @@ e_line_3d <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, rm
 #' 
 #' @examples 
 #' \dontrun{
+#' # volcano
+#' volcano %>% 
+#'   as.table() %>% 
+#'   as.data.frame() %>% 
+#'   dplyr::mutate(
+#'     Var1 = as.integer(Var1),
+#'     Var2 = as.integer(Var2)
+#'   ) %>% 
+#'   e_charts(Var1) %>% 
+#'   e_bar_3d(Var2, Freq) %>% 
+#'   e_visual_map(Freq)
+#' 
 #' url <- paste0("https://ecomfe.github.io/echarts-examples/",
 #'               "public/data-gl/asset/data/population.json")
 #' data <- jsonlite::fromJSON(url)
 #' data <- as.data.frame(data)
 #' names(data) <- c("lon", "lat", "value")
 #' 
+#' # globe
 #' data %>% 
 #'   e_charts(lon) %>% 
 #'   e_globe() %>% 
 #'   e_bar_3d(lat, value, coord_system = "globe") %>% 
 #'   e_visual_map()
-#'   
+#' 
+#' # get3d
 #' data %>% 
 #'   e_charts(lon) %>% 
 #'   e_geo_3d() %>% 
 #'   e_bar_3d(lat, value, coord_system = "geo3D") %>% 
 #'   e_visual_map()
-#'   
+#' 
+#' # stacked
 #' v <- LETTERS[1:10]
 #' matrix <- data.frame(
 #'   x = sample(v, 300, replace = TRUE), 
@@ -1149,6 +1325,13 @@ e_line_3d <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, rm
 #'   e_bar_3d(y, z1, stack = "stack", name = "Serie 1", itemStyle = trans, emphasis = emphasis) %>%
 #'   e_bar_3d(y, z2, stack = "stack", name = "Serie 2", itemStyle = trans, emphasis = emphasis) %>% 
 #'   e_legend()
+#'   
+#' # timeline
+#' matrix %>% 
+#'   group_by(x) %>% 
+#'   e_charts(y, timeline = TRUE) %>% 
+#'   e_bar_3d(z1, z2) %>% 
+#'   e_visual_map(z2)
 #' }
 #' 
 #' @seealso \href{http://echarts.baidu.com/option-gl.html#series-bar3D}{Additional arguments}
@@ -1172,12 +1355,54 @@ e_bar_3d <- function(e, y, z, bind, coord_system = "cartesian3D", name = NULL,
             coord_system, name, rm_x, rm_y, ...)
 }
 
+#' Surface
+#' 
+#' Add a surface plot.
+#' 
+#' @inheritParams e_bar
+#' @param y,z Coordinates.
+#' @param bind Binding.
+#' @param rm_x,rm_y Whether to remove x and y axis, defaults to \code{TRUE}.
+#' 
+#' @examples
+#' data("volcano")
+#' 
+#' surface <- as.data.frame(as.table(volcano))
+#' surface$Var1 <- as.numeric(surface$Var1)
+#' surface$Var2 <- as.numeric(surface$Var2)
+#' 
+#' surface %>% 
+#'   e_charts(Var1) %>% 
+#'   e_surface(Var2, Freq) %>% 
+#'   e_visual_map(Freq)
+#' 
+#' @rdname e_surface
+#' @export
+e_surface <- function(e, y, z, bind, name = NULL, 
+                     rm_x = TRUE, rm_y = TRUE, ...){
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(y) || missing(z))
+    stop("must pass y and z", call. = FALSE)
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  e_surface_(e, deparse(substitute(y)), deparse(substitute(z)), bd, 
+            name, rm_x, rm_y, ...)
+}
+
 #' Lines
 #' 
 #' Add lines.
 #' 
 #' @inheritParams e_bar
 #' @param source_lon,source_lat,target_lon,target_lat coordinates.
+#' @param source_name,target_name Names of source and target.
+#' @param value Value of edges.
 #' @param coord_system Coordinate system to use, one of \code{geo}, or \code{cartesian2d}.
 #' @param rm_x,rm_y Whether to remove x and y axis, defaults to \code{TRUE}.
 #' 
@@ -1195,15 +1420,45 @@ e_bar_3d <- function(e, y, z, bind, coord_system = "cartesian3D", name = NULL,
 #'     start_lat, 
 #'     end_lon, 
 #'     end_lat,
+#'     airport1,
+#'     airport2,
+#'     cnt,
 #'     name = "flights",
 #'     lineStyle = list(normal = list(curveness = 0.3))
-#'    )
+#'   ) %>% 
+#'   e_tooltip(trigger="item",
+#'     formatter = htmlwidgets::JS("
+#'       function(params){
+#'         return(
+#'           params.seriesName +'<br />' + 
+#'           params.data.source_name + ' -> ' + 
+#'           params.data.target_name + ':'+ params.value
+#'         )
+#'       }
+#'    ")
+#'   )
+#'   
+#' # timeline
+#' flights$grp <- rep(LETTERS[1:2], 89)
+#' 
+#' flights %>% 
+#'   group_by(grp) %>% 
+#'   e_charts(timeline = TRUE) %>% 
+#'   e_geo() %>% 
+#'   e_lines(
+#'     start_lon, 
+#'     start_lat, 
+#'     end_lon, 
+#'     end_lat,
+#'     cnt,
+#'     coord_system = "geo"
+#'   )
 #' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-lines}{Additional arguments}
 #' 
 #' @rdname e_lines
 #' @export
-e_lines <- function(e, source_lon, source_lat, target_lon, target_lat, coord_system = "geo", name = NULL, 
+e_lines <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name ,value, coord_system = "geo", name = NULL, 
                     rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
@@ -1211,8 +1466,19 @@ e_lines <- function(e, source_lon, source_lat, target_lon, target_lat, coord_sys
   if(missing(source_lat) || missing(source_lon) || missing(target_lat) || missing(target_lon))
     stop("missing coordinates", call. = FALSE)
   
+  if(missing(source_name))
+    source_name <- NULL
+  
+  if(missing(target_name))
+    target_name <- NULL
+  
+  if(missing(value))
+    value <- NULL
+  
   e_lines_(e, deparse(substitute(source_lon)), deparse(substitute(source_lat)), 
-           deparse(substitute(target_lon)), deparse(substitute(target_lat)), 
+           deparse(substitute(target_lon)), deparse(substitute(target_lat)),
+           deparse(substitute(source_name)), deparse(substitute(target_name)),
+           deparse(substitute(value)),
            coord_system, name, rm_x, rm_y, ...)
 }
 
@@ -1267,6 +1533,16 @@ e_lines <- function(e, source_lon, source_lat, target_lon, target_lat, coord_sys
 #' 
 #' airports %>% 
 #'   e_charts(long) %>% 
+#'   e_globe(
+#'     globeOuterRadius = 100
+#'   ) %>% 
+#'   e_scatter_3d(lat, cnt, coord_system = "globe", blendMode = 'lighter') %>% 
+#'   e_visual_map(inRange = list(symbolSize = c(1, 10)))
+#'   
+#' # timeline
+#' airports %>% 
+#'   group_by(state) %>% 
+#'   e_charts(long, timeline = TRUE) %>% 
 #'   e_globe(
 #'     globeOuterRadius = 100
 #'   ) %>% 
@@ -1391,8 +1667,13 @@ e_flow_gl <- function(e, y, sx, sy, color, name = NULL, coord_system = NULL, rm_
   else
     colour <- NULL
   
-  e_flow_gl_(e, deparse(substitute(y)), deparse(substitute(sx)), deparse(substitute(sy)), colour, 
-             name, coord_system, rm_x, rm_y, ...)
+  e_flow_gl_(
+    e = e, 
+    y = deparse(substitute(y)), 
+    sx = deparse(substitute(sx)), 
+    sy = deparse(substitute(sy)), 
+    color = colour, 
+    name, coord_system, rm_x, rm_y, ...)
 }
 
 #' Scatter GL
@@ -1407,6 +1688,21 @@ e_flow_gl <- function(e, y, sx, sy, color, name = NULL, coord_system = NULL, rm_
 #' @examples 
 #' quakes %>% 
 #'   e_charts(long) %>% 
+#'   e_geo(
+#'     roam = TRUE,
+#'     boundingCoords = list(
+#'       c(185, - 10),
+#'       c(165, -40)
+#'      )
+#'   ) %>% 
+#'   e_scatter_gl(lat, depth)
+#'   
+#' # timeline
+#' quakes$year <- rep(c("2017", "2018"), 500)
+#' 
+#' quakes %>%
+#'   group_by(year) %>%  
+#'   e_charts(long, timeline = TRUE) %>% 
 #'   e_geo(
 #'     roam = TRUE,
 #'     boundingCoords = list(
@@ -1499,6 +1795,25 @@ e_scatter_gl <- function(e, y, z, name = NULL, coord_system = "geo", rm_x = TRUE
 #'   e_charts(x) %>% 
 #'   e_pictorial(value, symbol) %>% 
 #'   e_legend(FALSE) 
+#'  
+#' # timeline
+#' df <- data.frame(
+#'   x = rep(1:5, 2),
+#'   y = runif(10, 1, 10),
+#'   year = c(
+#'     rep(2017, 5),
+#'     rep(2018, 5)
+#'   )
+#' )
+#' 
+#' df %>% 
+#'   group_by(year) %>% 
+#'   e_charts(x, timeline = TRUE) %>% 
+#'   e_pictorial(
+#'     y, symbol = "rect", 
+#'     symbolRepeat = TRUE, z = -1,
+#'     symbolSize = c(10, 4)
+#'   )
 #' 
 #' @seealso \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-pictorialBar}{Additional arguments}
 #' 
@@ -1535,48 +1850,162 @@ e_pictorial <- function(e, serie, symbol, bind, name = NULL, legend = TRUE, y_in
 #' @param ... Additional arguments to pass to \code{\link{e_line}}.
 #' 
 #' @examples 
-#' mtcars %>% 
-#'   e_charts(mpg) %>% 
-#'   e_scatter(qsec, symbol_size = 10) %>% 
-#'   e_lm(qsec ~ mpg, name = "y = ax + b")
+#' iris %>% 
+#'   group_by(Species) %>% 
+#'   e_charts(Sepal.Length) %>% 
+#'   e_scatter(Sepal.Width) %>% 
+#'   e_lm(Sepal.Width ~ Sepal.Length) %>% 
+#'   e_x_axis(min = 4)
 #'   
 #' mtcars %>% 
 #'   e_charts(disp) %>% 
 #'   e_scatter(mpg, qsec) %>% 
-#'   e_loess(mpg ~ disp)
-#'   
-#' CO2 %>% 
-#'   e_charts(conc) %>% 
-#'   e_scatter(uptake, symbol_size = 10) %>% 
-#'   e_glm(uptake ~ conc, name = "GLM")
+#'   e_loess(mpg ~ disp, smooth = TRUE, showSymbol = FALSE)
+#'
+#' # timeline   
+#' iris %>% 
+#'   group_by(Species) %>% 
+#'   e_charts(Sepal.Length, timeline = TRUE) %>% 
+#'   e_scatter(Sepal.Width) %>% 
+#'   e_lm(Sepal.Width ~ Sepal.Length) %>% 
+#'   e_x_axis(min = 4, max = 8) %>% 
+#'   e_y_axis(max = 5)
 #' 
 #' @rdname smooth
 #' @export
 e_lm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...){
+  
   form <- as.formula(formula)
-  model <- eval(
-    lm(form, data = e$x$data[[1]])
-  )
   
-  e <- .build_model(e, model, name, symbol, smooth, ...)
+  for(i in 1:length(e$x$data)){
+    
+    model <- tryCatch(
+      eval(
+        lm(form, data = e$x$data[[i]])
+      ),
+      error = function(e) e
+    )
+    
+    if(!inherits(model, "error")){
+      
+      data <- broom::augment(model)
+      data <- data %>% dplyr::select(-dplyr::one_of(names(model$model)))
+      
+      e$x$data[[i]] <- dplyr::bind_cols(e$x$data[[i]], data)
+      
+      vector <- .build_data2(e$x$data[[i]], e$x$mapping$x, ".fitted")
+      
+      l_data <- list(data = vector)
+      
+      l <- list(
+        name = name,
+        type = "line",
+        symbol = symbol,
+        smooth = smooth,
+        ...
+      )
+      
+      if(!e$x$tl){
+        
+        if(is.null(name)) 
+          nm <- paste0(names(e$x$data)[i],"-lm")
+        else
+          nm <- name
+        
+        l$name <- nm
+        
+        l <- append(l, l_data)
+        
+        e$x$opts$series <- append(e$x$opts$series, list(l))
+        
+        if(isTRUE(legend))
+          e$x$opts$legend$data <- append(e$x$opts$legend$data, list(nm))
+        
+      } else {
+        e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(l_data))
+      }
+      
+    }
+    
+  }
   
-  if(isTRUE(legend))
-    e$x$opts$legend$data <- append(e$x$opts$legend$data, list(name))
+  if(isTRUE(e$x$tl) && !inherits(model, "error")){
+    
+    if(isTRUE(legend) && !is.null(name))
+      e$x$opts$baseOption$legend$data <- append(e$x$opts$baseOption$legend$data, list(name))
+    
+    e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(l))
+  }
+  
   e 
 }
 
 #' @rdname smooth
 #' @export
 e_glm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...){
+  
   form <- as.formula(formula)
-  model <- eval(
-    glm(form, data = e$x$data[[1]])
-  )
   
-  e <- .build_model(e, model, name, symbol, smooth, ...)
+  for(i in 1:length(e$x$data)){
+    
+    model <- tryCatch(
+      eval(
+        glm(form, data = e$x$data[[i]])
+      ),
+      error = function(e) e
+    )
+    
+    if(!inherits(model, "error")){
+      
+      data <- broom::augment(model)
+      data <- data %>% dplyr::select(-dplyr::one_of(names(model$model)))
+      
+      e$x$data[[i]] <- dplyr::bind_cols(e$x$data[[i]], data)
+      
+      vector <- .build_data2(e$x$data[[i]], e$x$mapping$x, ".fitted")
+      
+      l_data <- list(data = vector)
+      
+      l_opts <- list(
+        name = name,
+        type = "line",
+        symbol = symbol,
+        smooth = smooth,
+        ...
+      )
+      
+      if(!e$x$tl){
+        
+        if(is.null(name)) 
+          nm <- paste0(names(e$x$data)[i],"-glm")
+        else
+          nm <- name
+        
+        l_opts$name <- nm
+        
+        l <- append(l, l_opts)
+        
+        e$x$opts$series <- append(e$x$opts$series, list(l))
+        
+        if(isTRUE(legend))
+          e$x$opts$legend$data <- append(e$x$opts$legend$data, list(nm))
+        
+      } else {
+        e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(l_data))
+      }
+      
+    }
+    
+  }
   
-  if(isTRUE(legend))
-    e$x$opts$legend$data <- append(e$x$opts$legend$data, list(name))
+  if(isTRUE(e$x$tl) && !inherits(model, "error")){
+    
+    if(isTRUE(legend) && !is.null(name))
+      e$x$opts$baseOption$legend$data <- append(e$x$opts$baseOption$legend$data, list(name))
+    
+    e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(l))
+  }
+  
   e 
 }
 
@@ -1584,42 +2013,74 @@ e_glm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smoot
 #' @export
 e_loess <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, 
                     x_index = 0, y_index = 0, ...){
-  mod <- eval(
-    loess(as.formula(formula), data = e$x$data[[1]])
-  )
-  
-  if(is.null(name))
-    name <- "ECHARTS4RLOESS"
-  
-  e$x$data[[1]][,name] <- predict(mod)
-  
-  vector <- .build_data(
-    e, 
-    e$x$mapping$x,
-    name
-  )
 
-  l <- list(
-    name = name,
-    type = "line",
-    data = vector,
-    ...
-  )
+  for(i in 1:length(e$x$data)){
+    
+    mod <- tryCatch(
+      eval(
+        loess(as.formula(formula), data = e$x$data[[i]])
+      ),
+      error = function(e) e
+    )
+    
+    if(!inherits(mod, "error")){
+      
+      ser <- "ECHARTS4RLOESS"
+      
+      e$x$data[[i]][, ser] <- predict(mod)
+      
+      vector <- .build_data2(
+        e$x$data[[i]], 
+        e$x$mapping$x,
+        ser
+      )
+      
+      l_data <- list(data = vector)
+      
+      l_opts <- list(
+        type = "line",
+        yAxisIndex = y_index,
+        xAxisIndex = x_index,
+        name = name,
+        ...
+      )
+      
+      if(y_index != 0)
+        e <- .set_y_axis(e, name, y_index)
+      
+      if(x_index != 0)
+        e <- .set_x_axis(e, x_index)
+      
+      if(!e$x$tl){
+        
+        if(is.null(name))
+          nm <- paste0(names(e$x$data)[i],"-loess")
+        else
+          nm <- name
+        
+        l_opts$name <- nm
+        
+        l_data <- append(l_data, l_opts)
+        
+        if(isTRUE(legend) && !is.null(nm))
+          e$x$opts$legend$data <- append(e$x$opts$legend$data, list(nm))
+        
+        e$x$opts$series <- append(e$x$opts$series, list(l_data))
+      } else {
+        e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(l_data))
+      }
+      
+    }
+    
+  }
   
-  if(y_index != 0)
-    e <- .set_y_axis(e, name, y_index)
-  
-  if(x_index != 0)
-    e <- .set_x_axis(e, x_index)
-  
-  l$yAxisIndex <- y_index
-  l$xAxisIndex <- x_index
-  
-  if(isTRUE(legend) && !is.null(name))
-    e$x$opts$legend$data <- append(e$x$opts$legend$data, list(name))
-  
-  e$x$opts$series <- append(e$x$opts$series, list(l))
-  e
+  if(isTRUE(e$x$tl) && !inherits(mod, "error")){
+    
+    if(isTRUE(legend) && !is.null(name))
+      e$x$opts$baseOption$legend$data <- append(e$x$opts$baseOption$legend$data, list(name))
+    
+    e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(l_opts))
+  }
   
   e
 }
@@ -1629,8 +2090,9 @@ e_loess <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smo
 #' Add a histogram or density plots.
 #' 
 #' @inheritParams e_bar
-#' @param bar.width Width of bars.
+#' @param bar_width Width of bars.
 #' @param breaks Passed to \code{\link{hist}}.
+#' @param smooth Wether to use smoothed lines, passed to \code{\link{e_line}}.
 #' 
 #' @examples 
 #' mtcars %>% 
@@ -1638,11 +2100,18 @@ e_loess <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smo
 #'   e_histogram(mpg, name = "histogram") %>% 
 #'   e_density(mpg, areaStyle = list(opacity = .4), smooth = TRUE, name = "density", y_index = 1) %>% 
 #'   e_tooltip(trigger = "axis")
+#'   
+#' # timeline
+#' mtcars %>%
+#'   group_by(cyl) %>%  
+#'   e_charts(timeline = TRUE) %>% 
+#'   e_histogram(mpg, name = "histogram") %>% 
+#'   e_density(mpg, name = "density", y_index = 1)
 #' 
 #' @rdname histogram
 #' @export
 e_histogram <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
-                        bar.width = "99%", x_index = 0, y_index = 0, ...){
+                        bar_width = "99%", x_index = 0, y_index = 0, ...){
   
   if(missing(e))
     stop("must pass e", call. = FALSE)
@@ -1650,13 +2119,13 @@ e_histogram <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
   
-  e_histogram_(e, deparse(substitute(serie)), breaks, name, legend, bar.width, x_index, y_index, ...)
+  e_histogram_(e, deparse(substitute(serie)), breaks, name, legend, bar_width, x_index, y_index, ...)
 }
 
 #' @rdname histogram
 #' @export
 e_density <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE, 
-                      x_index = 0, y_index = 0, ...){
+                      x_index = 0, y_index = 0, smooth = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
@@ -1666,3 +2135,180 @@ e_density <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
   e_density_(e, deparse(substitute(serie)), breaks, name, legend, x_index, y_index, ...)
 }
 
+
+#' Lines WebGL
+#' 
+#' Draw WebGL lines.
+#' 
+#' @inheritParams e_bar
+#' @param data A list.
+#' @param ... Any other options, see this \href{https://ecomfe.github.io/echarts-examples/public/editor.html?c=linesGL-ny&gl=1}{example}
+#' for possible options, as this series type is mostly undocumented.
+#' 
+#' @export
+e_lines_gl <- function(e, data, coord_system = "geo", ...){
+  
+  if(missing(data) || missing(e))
+    stop("missing e or data", call. = FALSE)
+  
+  serie <- list(
+    type = "linesGL",
+    coordinateSystem = coord_system,
+    data = data,
+    ...
+  )
+  
+  e$x$opts$series <- append(e$x$opts$series, list(serie))
+  e
+}
+
+#' Confidence bands
+#' 
+#' Add confidence bands
+#' 
+#' @inheritParams e_bar
+#' @param min,max series.
+#' @param stack Name of stack.
+#' @param symbol Whether to show symbols on lower and upper band lines.
+#' @param areaStyle The style of lower and upper bands, i.e.: color.
+#' @param legend Whether to show \code{min} and \code{max} in legend. 
+#' @param ... All options must be of vectors or lists of length 2 where the first argument is 
+#' for the lower bound and the second for the upper bound, see examples.
+#' 
+#' @examples 
+#' df <- data.frame(
+#'   x = 1:10,
+#'   y = runif(10, 5, 10)
+#' ) %>% 
+#'   dplyr::mutate(
+#'     lwr = y - runif(10, 1, 3),
+#'     upr = y + runif(10, 2, 4)
+#'   )
+#' 
+#' df %>% 
+#'   e_charts(x) %>% 
+#'   e_line(y) %>% 
+#'   e_band(lwr, upr)
+#' 
+#' @name band
+#' @export
+e_band <- function(e, min, max, stack = "confidence-band", symbol = c("none", "none"),
+                   areaStyle = list(list(color = "rgba(0,0,0,0)"), list()), 
+                   legend = list(FALSE, FALSE), ...){
+  
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(min) || missing(max))
+    stop("must pass min and max", call. = FALSE)
+  
+  e_band_(
+    e,  
+    deparse(substitute(min)), 
+    deparse(substitute(max)), 
+    stack = "confidence-band", 
+    symbol = symbol,
+    areaStyle = areaStyle,
+    legend = legend,
+    ...
+  )
+  
+}
+
+#' Correlation
+#' 
+#' @inheritParams e_bar
+#' @param visual_map Whether to add the visual map.
+#' @param order Ordering method, passed to \link[corrplot]{corrMatOrder}.
+#' 
+#' @param ... Any argument to pass to \code{\link{e_heatmap}} and \code{\link{e_visual_map}}.
+#' 
+#' @examples 
+#' cor(mtcars) %>% 
+#'   e_charts() %>% 
+#'   e_correlations(
+#'     order = "hclust",
+#'     visual_map = FALSE
+#'   ) %>% 
+#'   e_visual_map(
+#'    min = -1, 
+#'    max = 1
+#'   )
+#'
+#' @export
+e_correlations <- function(e, order = NULL, visual_map = TRUE, ...){
+  
+  if(missing(e))
+    stop("missing e", call. = FALSE)
+  
+  mat <- e$x$data[[1]]
+  
+  if(!is.null(order)){
+    order <- corrplot::corrMatOrder(mat, order = order)
+    mat <- mat[order, order]
+  }
+  
+  row.names(mat) <- colnames(mat)
+  mat <- as.data.frame(as.table(mat))
+  names(mat) <- c("x", "y", "correlation")
+  
+  e <- e %>% 
+    e_data(mat, x) %>% 
+    e_heatmap_("y", "correlation", ...) 
+  
+  if(isTRUE(visual_map))
+    e <- e %>% e_visual_map_(min = -1, max = 1, ...)
+    
+  return(e)
+}
+
+#' Error bar
+#' 
+#' Add error bars.
+#' 
+#' @inheritParams e_bar
+#' @param lower,upper Lower and upper error bands.
+#' 
+#' @examples 
+#' df <- data.frame(
+#'   x = factor(c(1, 2)),
+#'   y = c(1, 5),
+#'   upper = c(1.1, 5.3),
+#'   lower = c(0.8, 4.6)
+#' )
+#' 
+#' df %>% 
+#'   e_charts(x) %>% 
+#'   e_bar(y) %>% 
+#'   e_error_bar(lower, upper)
+#'   
+#' # timeline
+#' df <- data.frame(
+#'   x = factor(c(1, 1, 2, 2)),
+#'   y = c(1, 5, 3, 4),
+#'   step = factor(c(1, 2, 1, 2)),
+#'   upper = c(1.1, 5.3, 3.3, 4.2),
+#'   lower = c(0.8, 4.6, 2.4, 3.6)
+#' )
+#' 
+#' df %>% 
+#'   group_by(step) %>% 
+#'   e_charts(x, timeline = TRUE) %>% 
+#'   e_bar(y) %>% 
+#'   e_error_bar(lower, upper)
+#' 
+#' @rdname errorbar
+#' @export
+e_error_bar <- function(e, lower, upper, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
+                        coord_system = "cartesian2d", ...){
+  
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(lower) || missing(upper))
+    stop("must pass lower, or upper", call. = FALSE)
+  
+  e_error_bar_(e, deparse(substitute(lower)), deparse(substitute(upper)), name = name, 
+               legend = legend, y_index = y_index, x_index = x_index, 
+               coord_system = coord_system, ...)
+}

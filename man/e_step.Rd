@@ -7,11 +7,11 @@
 \usage{
 e_step(e, serie, bind, step = c("start", "middle", "end"),
   fill = FALSE, name = NULL, legend = TRUE, y_index = 0,
-  x_index = 0, ...)
+  x_index = 0, coord_system = "cartesian2d", ...)
 
 e_step_(e, serie, bind = NULL, step = c("start", "middle", "end"),
   fill = FALSE, name = NULL, legend = TRUE, y_index = 0,
-  x_index = 0, ...)
+  x_index = 0, coord_system = "cartesian2d", ...)
 }
 \arguments{
 \item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
@@ -32,6 +32,8 @@ e_step_(e, serie, bind = NULL, step = c("start", "middle", "end"),
 
 \item{x_index}{Indexes of x and y axis.}
 
+\item{coord_system}{Coordinate system to plot against.}
+
 \item{...}{Any other option to pass, check See Also section.}
 }
 \description{
@@ -44,6 +46,13 @@ USArrests \%>\%
   e_step(Murder, name = "Start", step = "start", fill = TRUE) \%>\% 
   e_step(Rape, name = "Middle", step = "middle") \%>\% 
   e_step(Assault, name = "End", step = "end") \%>\% 
+  e_tooltip(trigger = "axis")
+  
+# timeline  
+iris \%>\% 
+  group_by(Species) \%>\% 
+  e_charts(Sepal.Length, timeline = TRUE) \%>\% 
+  e_step(Sepal.Width) \%>\% 
   e_tooltip(trigger = "axis")
 
 }

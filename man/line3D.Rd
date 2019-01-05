@@ -7,14 +7,15 @@
 \alias{e_line_3d_}
 \title{Lines 3D}
 \usage{
-e_lines_3d(e, source_lon, source_lat, target_lon, target_lat,
-  name = NULL, coord_system = "globe", rm_x = TRUE, rm_y = TRUE,
-  ...)
+e_lines_3d(e, source_lon, source_lat, target_lon, target_lat, source_name,
+  target_name, value, name = NULL, coord_system = "globe",
+  rm_x = TRUE, rm_y = TRUE, ...)
 
 e_line_3d(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE,
   rm_y = TRUE, ...)
 
 e_lines_3d_(e, source_lon, source_lat, target_lon, target_lat,
+  source_name = NULL, target_name = NULL, value = NULL,
   name = NULL, coord_system = "globe", rm_x = TRUE, rm_y = TRUE,
   ...)
 
@@ -25,6 +26,10 @@ e_line_3d_(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE,
 \item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
 
 \item{source_lon, source_lat, target_lon, target_lat}{coordinates.}
+
+\item{source_name, target_name}{Names of source and target.}
+
+\item{value}{Value of edges.}
 
 \item{name}{name of the serie.}
 
@@ -48,9 +53,10 @@ flights <- read.csv(
 
 # Lines 3D
 # Globe
+# get tetures: echarts4r-assets.john-coene.com
 flights \%>\% 
   e_charts() \%>\% 
-  e_globe(
+  e_globe( 
     displacementScale = 0.05
   ) \%>\% 
   e_lines_3d(
@@ -74,6 +80,21 @@ flights \%>\%
     end_lat,
     coord_system = "geo3D"
   )
+  
+# groups
+flights$grp <- rep(LETTERS[1:2], 89)
+
+flights \%>\% 
+  group_by(grp) \%>\% 
+  e_charts() \%>\% 
+  e_geo_3d() \%>\% 
+  e_lines_3d(
+    start_lon, 
+    start_lat, 
+    end_lon, 
+    end_lat,
+    coord_system = "geo3D"
+  )
  
 # line 3D 
 df <- data.frame(
@@ -87,9 +108,21 @@ df \%>\%
   e_line_3d(y, z) \%>\% 
   e_visual_map() \%>\% 
   e_title("nonsense")
+  
+# timeline
+df$grp <- rep(LETTERS[1:5], 20)
+
+df \%>\% 
+  group_by(grp) \%>\% 
+  e_charts(x) \%>\% 
+  e_line_3d(y, z) \%>\% 
+  e_visual_map() \%>\% 
+  e_title("nonsense")
 
 }
 \seealso{
 \href{http://echarts.baidu.com/option-gl.html#series-lines3D}{Additional arguments for lines 3D},
  \href{http://echarts.baidu.com/option-gl.html#series-line3D}{Additional arguments for line 3D}
+
+\url{https//echarts4r-assets.john-coene.com}
 }

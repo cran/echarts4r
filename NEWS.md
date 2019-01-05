@@ -1,3 +1,34 @@
+# echarts4r 0.2.1
+
+__Support for timeline added__
+
+- `e_clean` removed as it was not of use anymore.
+- `e_list` added to pas raw list of options.
+- Improved `e_color_range` helper.
+- `e_lm` & `e_loess` now support `group_by`.
+- `e_scattter` scaling much more robust with new arguments. Also not takes an optional `symbol` argument.
+- Jitter points with `e_scatter`
+- `e_append` adapated to work with new scatter-family of function (scaling).
+- `e_lines_gl` added.
+- Improved examples.
+- Can now register multiple maps with `e_map_regiter`.
+- Error handling in `e_loess` and `e_lm` to better work with groups.
+- `e_capture` to capture events not implemented.
+- `e_bands` to add confidence bands.
+- Added example of heatmap with geo.
+- Fixed bug where the background color was not applied with `e_color`.
+- `e_scatter` size forced to numeric to avoid buggy character vector caused by `apply` function.
+- Forces `webgl` rendering for `e_globe`, `e_scatter_gl` and `e_flow_gl`.
+- Groups are now ordered in order to ensure match across series when using `timeline = TRUE`.
+- `e_theme` now also accepts `default`.
+- `auritus` theme added.
+- `bar.width` argument renamed to `bar_width` in `e_histogram`.
+- `e_map_3d` and `e_map` correctly assign `name` argument.
+- Axis and tooltip formatters helpers added `e_tooltip_item_formatter` & `e_axis_formatter`, thanks to [Artem Klevtsov](https://github.com/artemklevtsov).
+- `e_error_bar` added to plot error bars.
+- Ability to specify `icons` in `e_legend`.
+- `e_aria` added to enable generating Accessible Rich Internet Applications.
+
 # echarts4r 0.2.0
 
 Arguments containing `.` have been replaced by `_` for clarity. I.e.: `coord.system` => `coord_system`.
@@ -11,7 +42,7 @@ Deprecated functions from `0.1.2` have been removed, they can be found in the [e
 - `e_map_texture`
 
 The `scatter` family of function has been reworked: the `scale` argument now takes a scaling function. To accomodate to this, the `e_visual_map` function also takes, optionally, a `scaling` function.
-Retired `e_keras_history` due to 
+Retired `e_keras_history` due to its uselessness.
 
 # echarts4r 0.1.2
 
@@ -28,6 +59,7 @@ Retired `e_keras_history` due to
 * `e_text_style` added, to customise global fonts.
 * `e_angle_axis` now takes `serie` argument, see example.
 * Improved documentation of many functions.
+* `e_common` to pass options that will apply to all subsequent charts.
 
 First iteration of the graphic low-level API:
 
@@ -68,7 +100,7 @@ First iteration of the graphic low-level API:
 
 * `e_clean` to remove original data from visualisation and lighten up end product.
 
-# echarts4r 0.0.2.9000
+# echarts4r 0.0.2
 
 * `e_keras_history` added - plot `keras` history (loss & acc).
 * `e_format_axis`, `e_format_x_axis`, `e_format_y_axis` added - format axis labels & pointers.
