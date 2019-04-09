@@ -1,5 +1,5 @@
 # group2series
-map_grps_ <- function(data){
+map_grps_ <- function(data, timeline = FALSE){
   
   row.names(data) <- NULL
   
@@ -24,10 +24,14 @@ map_grps_ <- function(data){
     names(data) <- grps
     
     # order groups for timeline consistency using timeline
-    data <- data[order(names(data))] 
+    if(isTRUE(timeline))
+      data <- data[order(names(data))] 
     
   } else {
-    row.names(data) <- NULL
+    
+    if(inherits(data, "data.frame"))
+      data <- as.data.frame(data) # force data frame
+    
     data <- list(data)
   }
   

@@ -8,7 +8,7 @@ HTMLWidgets.widget({
     
     var initialized = false;
 
-    var chart;
+    var chart,opts;
     
     return {
 
@@ -38,7 +38,11 @@ HTMLWidgets.widget({
         }
         
         chart = echarts.init(document.getElementById(el.id), x.theme, {renderer: x.renderer});
-        chart.setOption(x.opts);
+        
+        opts = x.opts;
+        
+        if(x.draw === true)
+          chart.setOption(opts);
         
         
         // shiny callbacks
@@ -50,6 +54,11 @@ HTMLWidgets.widget({
           
           chart.on("legendselectchanged", function(e){
             Shiny.onInputChange(el.id + '_legend_change' + ":echarts4rParse", e.name);
+            Shiny.onInputChange(el.id + '_legend_selected' + ":echarts4rParse", e.selected);
+          });
+          
+          chart.on("globalout", function(e){
+            Shiny.onInputChange(el.id + '_global_out' + ":echarts4rParse", e);
           });
           
           if(x.hasOwnProperty('capture')){
@@ -162,6 +171,10 @@ HTMLWidgets.widget({
       getChart: function(){
         return chart;
       },
+      
+      getOpts: function(){
+        return opts;
+      },
 
       resize: function(width, height) {
 
@@ -188,7 +201,30 @@ function get_e_charts(id){
   return(echarts);
 }
 
+function get_e_charts_opts(id){
+
+  var htmlWidgetsObj = HTMLWidgets.find("#" + id);
+
+  var echarts;
+
+  if (typeof htmlWidgetsObj != 'undefined') {
+    echarts = htmlWidgetsObj.getOpts();
+  }
+
+  return(echarts);
+}
+
 if (HTMLWidgets.shinyMode) {
+  
+  // DRAW
+  Shiny.addCustomMessageHandler('e_draw_p',
+    function(data) {
+      var chart = get_e_charts(data.id);
+      var opts = get_e_charts_opts(data.id);
+      if (typeof chart != 'undefined') {
+        chart.setOption(opts);
+      }
+  });
   
   // HIGHLIGHT AND DOWNPLAY
   

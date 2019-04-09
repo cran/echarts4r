@@ -1,3 +1,14 @@
+# echarts4r 0.2.2
+
+- Ability to add multiple `e_title`.
+- `draw` argument added to `e_charts`, to set whether to draw the chart, see bullet below.
+- `e_draw_p` added to choose draw chart.
+- `e_inspect` to inspect the output of echarts4r.
+- `echarts_from_json` to create an echarts4r object from JSON options.
+- `e_axis` family of functions (e.g.: `e_x_axis`) now accepts a column name as first argument to easily adapt the range of the axes, in a similar fashion as with `e_visual_map`.
+- `e_charts` family forces data.frame conversion to avoid jsonlite bug.
+- Fixed bug in the `formatter` argument of `e_tooltip` where passing custom function was not working.
+
 # echarts4r 0.2.1
 
 __Support for timeline added__
