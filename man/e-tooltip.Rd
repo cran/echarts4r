@@ -3,6 +3,7 @@
 \name{e_tooltip}
 \alias{e_tooltip}
 \alias{e_tooltip_item_formatter}
+\alias{e_tooltip_choro_formatter}
 \alias{e_tooltip_pie_formatter}
 \alias{e_tooltip_pointer_formatter}
 \title{Tooltip}
@@ -10,6 +11,9 @@
 e_tooltip(e, trigger = c("item", "axis"), formatter = NULL, ...)
 
 e_tooltip_item_formatter(style = c("decimal", "percent", "currency"),
+  digits = 0, locale = NULL, currency = "USD")
+
+e_tooltip_choro_formatter(style = c("decimal", "percent", "currency"),
   digits = 0, locale = NULL, currency = "USD")
 
 e_tooltip_pie_formatter(style = c("decimal", "percent", "currency"),
@@ -44,9 +48,9 @@ Customise tooltip
 
 \itemize{
   \item{\code{\link{e_tooltip_pie_formatter}}: special helper for \code{\link{e_pie}}.}
-  \item{\code{\link{e_tooltip_item_formatter}}: general helper, this is passed to the \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#tooltip.formatter}{tooltip \code{formatter}}.}
+  \item{\code{\link{e_tooltip_item_formatter}}: general helper, this is passed to the \href{https://echarts.apache.org/en/option.html#tooltip.formatter}{tooltip \code{formatter}}.}
   \item{\code{\link{e_tooltip_pointer_formatter}}: helper for pointer, this is passed to the
-  \href{https://ecomfe.github.io/echarts-doc/public/en/option.html#tooltip.axisPointer.label}{\code{label} parameter under \code{axisPointer}}.}
+  \href{https://echarts.apache.org/en/option.html#tooltip.axisPointer.label}{\code{label} parameter under \code{axisPointer}}.}
 }
 }
 
@@ -81,5 +85,5 @@ cars \%>\%
 
 }
 \seealso{
-\href{https://ecomfe.github.io/echarts-doc/public/en/option.html#tooltip}{Additional arguments}
+\href{https://echarts.apache.org/en/option.html#tooltip}{Additional arguments}
 }

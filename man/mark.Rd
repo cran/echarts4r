@@ -15,7 +15,7 @@ e_mark_area(e, serie = NULL, data = NULL, ...)
 \arguments{
 \item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
 
-\item{serie}{Serie or vector of series to mark on passed to \code{\link{grep}}, defaults to all series.}
+\item{serie}{Serie or vector of series to mark on, defaults to all series.}
 
 \item{data}{Placement.}
 
@@ -55,6 +55,6 @@ mtcars \%>\%
 
 }
 \seealso{
-\href{Additional point arguments}{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-line.markPoint},
-\href{Additional line arguments}{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-line.markLine}
+\href{https://echarts.apache.org/en/option.html#series-line.markPoint}{Additional point arguments},
+\href{https://echarts.apache.org/en/option.html#series-line.markLine}{Additional line arguments}
 }

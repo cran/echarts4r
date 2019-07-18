@@ -3,7 +3,7 @@
 #' Mark points and lines.
 #' 
 #' @inheritParams e_bar
-#' @param serie Serie or vector of series to mark on passed to \code{\link{grep}}, defaults to all series.
+#' @param serie Serie or vector of series to mark on, defaults to all series.
 #' @param data Placement.
 #' 
 #' @examples 
@@ -35,8 +35,8 @@
 #'     list(xAxis = "max", yAxis = "max"))
 #'  )
 #' 
-#' @seealso \href{Additional point arguments}{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-line.markPoint},
-#' \href{Additional line arguments}{https://ecomfe.github.io/echarts-doc/public/en/option.html#series-line.markLine}
+#' @seealso \href{https://echarts.apache.org/en/option.html#series-line.markPoint}{Additional point arguments},
+#' \href{https://echarts.apache.org/en/option.html#series-line.markLine}{Additional line arguments}
 #' 
 #' @rdname mark
 #' @export

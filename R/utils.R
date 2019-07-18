@@ -548,10 +548,8 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 }
 
 .get_index <- function(e, serie){
-  serie <- paste0(serie, collapse = "|")
-  purrr::map(e$x$opts$series, "name") %>% 
-    unlist() %>% 
-    grep(serie, .)
+  series <- purrr::map(e$x$opts$series, "name") %>% unlist()
+  purrr::map(serie, ~which(series == .)) %>% unlist() %>% unique()
 }
 
 .add_indicators <- function(e, r.index, max){
@@ -621,6 +619,5 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 }
 
 .get_locale <- function(){
-  locale <- Sys.getlocale()
-  substr(locale, 1, 2)
+  stringi::stri_locale_info()$Language
 }
