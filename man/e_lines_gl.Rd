@@ -7,14 +7,14 @@
 e_lines_gl(e, data, coord_system = "geo", ...)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{data}{A list.}
 
 \item{coord_system}{Coordinate system to plot against.}
 
-\item{...}{Any other options, see this \href{https://ecomfe.github.io/echarts-examples/public/editor.html?c=linesGL-ny&gl=1}{example}
-for possible options, as this series type is mostly undocumented.}
+\item{...}{Any other options (this series type is mostly undocumented).}
 }
 \description{
 Draw WebGL lines.

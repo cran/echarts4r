@@ -80,7 +80,7 @@ e_append1_p_ <- function(proxy, series_index = NULL, data, x, y){
     stop("must pass echarts4rProxy object", call. = FALSE)
   
   dlist <- data %>% 
-    dplyr::select_(x, y) %>% 
+    dplyr::select(x, y) %>% 
     unname() %>% 
     apply(1, as.list)
   
@@ -118,7 +118,7 @@ e_append2_p_ <- function(proxy, series_index = NULL, data, x, y, z, scale = NULL
     stop("must pass echarts4rProxy object", call. = FALSE)
   
   data %>% 
-    dplyr::select_(x, y, z) -> data
+    dplyr::select(x, y, z) -> data
   
   if(!is.null(scale))
     data[[4]] <- scale(data[[3]]) * symbol_size
@@ -135,3 +135,85 @@ e_append2_p_ <- function(proxy, series_index = NULL, data, x, y, z, scale = NULL
   
   return(proxy)
 }
+
+#' Remove Serie
+#' 
+#' Remove a serie by name or precising its index.
+#' 
+#' @inheritParams e_highlight_p
+#' @param serie_index Index of serie to append to (starts from 0).
+#' @param serie_name Name of serie to remove.
+#' 
+#' @examples 
+#' library(shiny)
+#' 
+#' ui <- fluidPage(
+#'   actionButton("rm", "Remove z serie"),
+#'   echarts4rOutput("plot")
+#' )
+#' 
+#' server <- function(input, output, session){
+#' 
+#'   data <- data.frame(
+#'     x = rnorm(10, 5, 3), 
+#'     y = rnorm(10, 50, 12), 
+#'     z = rnorm(10, 50, 5)
+#'   )
+#' 
+#'   output$plot <- renderEcharts4r({
+#'     data %>% 
+#'      e_charts(x) %>% 
+#'      e_scatter(y) %>%
+#'      e_scatter(z)
+#'   })
+#' 
+#'   observeEvent(input$rm, {
+#'     echarts4rProxy("plot") %>% 
+#'       e_remove_serie_p(serie_name = "z")
+#'   })
+#'  
+#' }
+#' 
+#' \dontrun{shinyApp(ui, server)}
+#' 
+#' @name e_remove
+#' @export
+e_remove_serie_p <- function(proxy, serie_name = NULL, serie_index = NULL){
+
+  if(is.null(serie_index) && is.null(serie_name))
+    stop("Must define `serie_index` or `serie_name`")
+
+  opts <- list(id = proxy$id, serie_index = serie_index, serie_name = serie_name)
+
+  proxy$session$sendCustomMessage("e_remove_serie_p", opts)
+  
+  return(proxy)
+}
+
+#' @rdname e_remove
+#' @export
+e_remove_serie <- e_remove_serie_p 
+
+#' Send
+#' 
+#' Send new series to chart.
+#' 
+#' @inheritParams e_highlight_p
+#' 
+#' @name e_execute
+#' @export
+e_execute <- function(proxy){
+
+  if(missing(proxy))
+    stop("missing proxy", call. = FALSE)
+
+  proxy$session$sendCustomMessage(
+    "e_send_p", 
+    list(id = proxy$id, opts = proxy$chart$x$opts)
+  )
+  return(proxy)
+}
+
+#' @rdname e_execute
+#' @export
+e_execute_p <- e_execute

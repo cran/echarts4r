@@ -5,14 +5,33 @@
 \alias{e_radar_}
 \title{Radar}
 \usage{
-e_radar(e, serie, max = 100, name = NULL, legend = TRUE,
-  rm_x = TRUE, rm_y = TRUE, ...)
+e_radar(
+  e,
+  serie,
+  max = 100,
+  name = NULL,
+  legend = TRUE,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...,
+  radar = list()
+)
 
-e_radar_(e, serie, max = 100, name = NULL, legend = TRUE,
-  rm_x = TRUE, rm_y = TRUE, ...)
+e_radar_(
+  e,
+  serie,
+  max = 100,
+  name = NULL,
+  legend = TRUE,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...,
+  radar = list()
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{serie}{Column name of serie to plot.}
 
@@ -25,6 +44,10 @@ e_radar_(e, serie, max = 100, name = NULL, legend = TRUE,
 \item{rm_x, rm_y}{Whether to remove x and y axis, defaults to \code{TRUE}.}
 
 \item{...}{Any other option to pass, check See Also section.}
+
+\item{radar}{A \code{list} of options to pass to the \code{radar} 
+rather than the serie, see \href{https://echarts.apache.org/en/option.html#radar}{official documentation}
+alternatively, use the \code{\link{e_radar_opts}}.}
 }
 \description{
 Add a radar chart

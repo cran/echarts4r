@@ -97,7 +97,7 @@ e_visual_map_ <- function(e, serie = NULL, calculable = TRUE, type = c("continuo
     dat <- .get_data(e, serie)
     if(!is.null(scale))
       dat <- scale(dat)
-    rng <- range(dat)
+    rng <- range(dat, na.rm = TRUE)
     vm$min <- rng[1]
     vm$max <- rng[2]
   }
@@ -540,6 +540,14 @@ e_datazoom <- function(e, x_index = NULL, y_index = NULL, toolbox = TRUE, ...){
 #' Add a brush.
 #' 
 #' @inheritParams e_bar
+#' @param brush_link Links interaction between selected items in different series.
+#' 
+#' @section \code{brush_link}:$
+#' \itemize{
+#'   \item{\code{c(3, 4, 5)}, for interacting series with seriesIndex as 3, 4, or 5.}
+#'   \item{\code{all}, for interacting all series.}
+#'   \item{\code{none} for disabling.}  
+#' }
 #' 
 #' @examples 
 #' quakes %>% 
@@ -561,7 +569,7 @@ e_datazoom <- function(e, x_index = NULL, y_index = NULL, toolbox = TRUE, ...){
 #' @seealso \href{https://echarts.apache.org/en/option.html#brush}{Additional arguments}
 #' 
 #' @export
-e_brush <- function(e, x_index = NULL, y_index = NULL, ...){
+e_brush <- function(e, x_index = NULL, y_index = NULL, brush_link = "all", ...){
   
   if(missing(e))
     stop("must pass e", call. = FALSE)
@@ -585,10 +593,7 @@ e_brush <- function(e, x_index = NULL, y_index = NULL, ...){
       e <- e_toolbox_feature(e, "brush")
   }
   
-  opts <- list(
-    brushLink = "all",
-    ...
-  )
+  opts <- list(brushLink = brush_link, ...)
   opts$xAxisIndex <- x_index
   opts$yAxisIndex <- y_index
   
@@ -633,7 +638,7 @@ e_title <- function(e, text = NULL, subtext = NULL, link = NULL, sublink = NULL,
   if(!e$x$tl)
     e$x$opts$title <- append(e$x$opts$title, list(title))
   else
-    e$x$opts$baseOption$title <- append(e$x$opts$baseOption$title, title)
+    e$x$opts$baseOption$title <- append(e$x$opts$baseOption$title, list(title))
   
   e
   
@@ -862,8 +867,8 @@ e_text_style <- function(e, ...){
 #'   \item{\code{e_arrange}: arrange charts.}
 #' }
 #' 
-#' @return \code{e_arrange}: in an interactive session, returns a \link[htmltools]{browsable}, in \code{rmarkdown} returns a 
-#' container (\link[htmltools]{div}).
+#' @return \code{e_arrange}: in an interactive session, returns a \code{htmltools::browsable}, in \code{rmarkdown} returns a 
+#' container (\code{htmltools::div}).
 #' 
 #' @examples
 #' # linked datazoom
@@ -886,7 +891,8 @@ e_text_style <- function(e, ...){
 #'   e_group("grp") %>%  # assign group
 #'   e_connect_group("grp") # connect
 #' 
-#' e_arrange(e1, e2, title = "Linked datazoom")
+#' if(interactive())
+#'  e_arrange(e1, e2, title = "Linked datazoom")
 #' 
 #' @note \code{e_arrange} may not work properly in the RStudio viewer.
 #' 
@@ -925,9 +931,6 @@ e_connect_group <- function(e, group){
 #' @rdname connections
 #' @export
 e_disconnect_group <- function(e, group = NULL){
-  
-  if(missing(group))
-    stop("missing group", call. = FALSE)
   
   e$x$groupDisconnect <- group
   

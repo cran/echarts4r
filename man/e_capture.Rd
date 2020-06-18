@@ -7,7 +7,8 @@
 e_capture(e, event)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{event}{An event name from the \href{https://echarts.apache.org/en/api.html#events}{event documentation}.}
 }
@@ -15,7 +16,7 @@ e_capture(e, event)
 Add an event capture.
 }
 \details{
-Many events can be capture, however not all are integrated, you can pass one that is not implemented with this function.
+Many events can be captured, however not all are integrated, you can pass one that is not implemented with this function.
 }
 \examples{
 \dontrun{
@@ -41,7 +42,8 @@ server <- function(input, output){
   })
 }
 
-shinyApp(ui, server)
+if(interactive())
+ shinyApp(ui, server)
 }
 
 }

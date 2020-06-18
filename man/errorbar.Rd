@@ -5,14 +5,33 @@
 \alias{e_error_bar_}
 \title{Error bar}
 \usage{
-e_error_bar(e, lower, upper, name = NULL, legend = TRUE, y_index = 0,
-  x_index = 0, coord_system = "cartesian2d", ...)
+e_error_bar(
+  e,
+  lower,
+  upper,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  coord_system = "cartesian2d",
+  ...
+)
 
-e_error_bar_(e, lower, upper, name = NULL, legend = TRUE,
-  y_index = 0, x_index = 0, coord_system = "cartesian2d", ...)
+e_error_bar_(
+  e,
+  lower,
+  upper,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  coord_system = "cartesian2d",
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{lower, upper}{Lower and upper error bands.}
 

@@ -7,12 +7,16 @@
 \usage{
 e_leaflet(e, roam = TRUE, ...)
 
-e_leaflet_tile(e,
+e_leaflet_tile(
+  e,
   template = "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-  options = NULL, ...)
+  options = NULL,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{roam}{Whether to allow the user to roam.}
 

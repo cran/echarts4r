@@ -7,23 +7,63 @@
 \alias{e_line_3d_}
 \title{Lines 3D}
 \usage{
-e_lines_3d(e, source_lon, source_lat, target_lon, target_lat, source_name,
-  target_name, value, name = NULL, coord_system = "globe",
-  rm_x = TRUE, rm_y = TRUE, ...)
+e_lines_3d(
+  e,
+  source_lon,
+  source_lat,
+  target_lon,
+  target_lat,
+  source_name,
+  target_name,
+  value,
+  name = NULL,
+  coord_system = "globe",
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 
-e_line_3d(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE,
-  rm_y = TRUE, ...)
+e_line_3d(
+  e,
+  y,
+  z,
+  name = NULL,
+  coord_system = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 
-e_lines_3d_(e, source_lon, source_lat, target_lon, target_lat,
-  source_name = NULL, target_name = NULL, value = NULL,
-  name = NULL, coord_system = "globe", rm_x = TRUE, rm_y = TRUE,
-  ...)
+e_lines_3d_(
+  e,
+  source_lon,
+  source_lat,
+  target_lon,
+  target_lat,
+  source_name = NULL,
+  target_name = NULL,
+  value = NULL,
+  name = NULL,
+  coord_system = "globe",
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 
-e_line_3d_(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE,
-  rm_y = TRUE, ...)
+e_line_3d_(
+  e,
+  y,
+  z,
+  name = NULL,
+  coord_system = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{source_lon, source_lat, target_lon, target_lat}{coordinates.}
 

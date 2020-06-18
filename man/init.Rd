@@ -8,17 +8,47 @@
 \alias{e_data}
 \title{Initialise}
 \usage{
-e_charts(data, x, width = NULL, height = NULL, elementId = NULL,
-  dispose = TRUE, draw = TRUE, renderer = "canvas",
-  timeline = FALSE, ...)
+e_charts(
+  data,
+  x,
+  width = NULL,
+  height = NULL,
+  elementId = NULL,
+  dispose = TRUE,
+  draw = TRUE,
+  renderer = "canvas",
+  timeline = FALSE,
+  ...,
+  reorder = TRUE
+)
 
-e_charts_(data, x = NULL, width = NULL, height = NULL,
-  elementId = NULL, dispose = TRUE, draw = TRUE,
-  renderer = "canvas", timeline = FALSE, ...)
+e_charts_(
+  data,
+  x = NULL,
+  width = NULL,
+  height = NULL,
+  elementId = NULL,
+  dispose = TRUE,
+  draw = TRUE,
+  renderer = "canvas",
+  timeline = FALSE,
+  ...,
+  reorder = TRUE
+)
 
-e_chart(data, x, width = NULL, height = NULL, elementId = NULL,
-  dispose = TRUE, draw = TRUE, renderer = "canvas",
-  timeline = FALSE, ...)
+e_chart(
+  data,
+  x,
+  width = NULL,
+  height = NULL,
+  elementId = NULL,
+  dispose = TRUE,
+  draw = TRUE,
+  renderer = "canvas",
+  timeline = FALSE,
+  ...,
+  reorder = TRUE
+)
 
 e_data(e, data, x)
 }
@@ -42,6 +72,8 @@ string and have \code{'px'} appended.}
 \item{timeline}{Set to \code{TRUE} to build a timeline, see timeline section.}
 
 \item{...}{Any other argument.}
+
+\item{reorder}{Set the \code{FALSE} to not reorder numeric x axis values.}
 
 \item{e}{An object of class \code{echarts4r} as returned by \code{e_charts}.}
 }

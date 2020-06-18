@@ -1,41 +1,8 @@
 dependencies:
  - name: echarts4r
-   version: 4.3.2
-   src: htmlwidgets/lib/echarts-4.3.2
+   version: 4.8.0
+   src: htmlwidgets/lib/echarts-4.8.0
    script: 
-      - echarts.min.js
-      - echarts-gl.min.js
+      - echarts-en.min.js
       - ecStat.min.js
       - dataTool.min.js
-      - world.js
-      - plugins/echarts-wordcloud.min.js
-      - plugins/echarts-liquidfill.min.js
-      - plugins/echarts-graph-modularity.min.js
-      - plugins/leaflet/leaflet.js
-      - plugins/leaflet/echarts-leaflet.js
-      - themes/dark.js
-      - themes/vintage.js
-      - themes/westeros.js
-      - themes/essos.js
-      - themes/wonderland.js
-      - themes/walden.js
-      - themes/chalk.js
-      - themes/infographic.js
-      - themes/macarons.js
-      - themes/roma.js
-      - themes/shine.js
-      - themes/purple-passion.js
-      - themes/halloween.js
-      - themes/wef.js
-      - themes/weforum.js
-      - themes/auritus.js
-      - custom/renderers.js
-   stylesheet: 
-      - plugins/leaflet/leaflet.css
- - name: mapbox
-   version: 0.38.0
-   src: htmlwidgets/lib/mapbox
-   script:
-    - mapbox-gl.js
-   stylesheet:
-    - mapbox-gl.css

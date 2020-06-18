@@ -21,6 +21,10 @@
 #'   \item{\code{e_rm_axis} to remove axis}
 #' }
 #' 
+#' @details The \code{e_axis_formatter} may not work in RStudio, 
+#' open the plot in your browser. It will display just fine in 
+#' Rmarkdown and Shiny. 
+#' 
 #' @examples 
 #' # range axis based on serie
 #' cars %>% 
@@ -206,6 +210,9 @@ e_rm_axis <- function(e, axis = c("x", "y", "z")){
 #' @export
 e_axis_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0, 
                              locale = NULL, currency = "USD") {
+
+  if(rstudioapi::isAvailable())
+    warning("`e_axis_formatter` breaks the plot in RStudio, open it in your browser.", call. = FALSE)
   
   if(is.null(locale))
     locale <- .get_locale()
@@ -412,6 +419,20 @@ e_angle_axis_ <- function(e, serie = NULL, show = TRUE, ...){
 #' @inheritParams e_bar
 #' @param index Index of axis to customise.
 #' 
+#' @examples
+#' df <- data.frame(
+#'   x = LETTERS[1:5],
+#'   y = runif(5, 1, 5),
+#'   z = runif(5, 3, 7)
+#' )
+#' 
+#' df %>%
+#'   e_charts(x) %>%
+#'   e_radar(y, max = 7) %>%
+#'   e_radar(z) %>%
+#'   e_radar_opts(center = c("25%", "25%")) %>% 
+#'   e_tooltip(trigger = "item")
+#' 
 #' @export
 e_radar_opts <- function(e, index = 0, ...){
   
@@ -429,7 +450,7 @@ e_radar_opts <- function(e, index = 0, ...){
   # initiatlise if wrong index
   if(r.index > max){
     r.index <- 1
-    if(!e$xtl)
+    if(!e$x$tl)
       e$x$opts$radar <- list(list())
     else
       e$x$opts$baseOption$radar <- list(list())
@@ -506,7 +527,7 @@ e_single_axis <- function(e, index = 0, ...){
       
       vect <- c()
       for(i in 1:length(e$x$data)){
-        dat <- e$x$data[[i]] %>% dplyr::select_(e$x$mapping$x) %>% unlist()
+        dat <- e$x$data[[i]] %>% dplyr::select(e$x$mapping$x) %>% unlist()
         dat <- unname(dat)
         dat <- as.character(dat)
         
@@ -526,4 +547,97 @@ e_single_axis <- function(e, index = 0, ...){
   }
   
   e
+}
+
+#' Axis Labels
+#' 
+#' Convenience function to add axis labels.
+#' 
+#' @inheritParams e_bar
+#' @param x,y Labels of axes.
+#' 
+#' @examples 
+#' cars %>% 
+#'  e_charts(speed) %>% 
+#'  e_scatter(dist) %>% 
+#'  e_axis_labels(
+#'    x = "speed",
+#'    y = "distance"
+#'  )
+#' 
+#' @export 
+e_axis_labels <- function(e, x = "", y = ""){
+  e %>% 
+    e_x_axis(name = x) %>% 
+    e_y_axis(name = y)
+}
+
+#'' Hide Grid Lines
+#' 
+#' A convenience function to easily hide grid lines.
+#' 
+#' @inheritParams e_bar
+#' @param which Which axis grid lines to hide.
+#' 
+#' @examples 
+#' cars %>%
+#'  e_charts(speed) %>% 
+#'  e_scatter(dist) %>% 
+#'  e_hide_grid_lines()
+#'  
+#' @export
+e_hide_grid_lines <- function(e, which = c("x", "y")){
+
+  if("x" %in% which){
+    if(!e$x$tl)
+      e$x$opts[["xAxis"]][[1]]$splitLine$show <- FALSE
+    else
+      e$x$opts$baseOption[["xAxis"]][[1]]$splitLine$show <- FALSE
+  }
+
+  if("y" %in% which){
+    if(!e$x$tl)
+      e$x$opts[["yAxis"]][[1]]$splitLine$show <- FALSE
+    else
+      e$x$opts$baseOption[["yAxis"]][[1]]$splitLine$show <- FALSE
+  }
+
+  return(e)
+}
+
+#' Stagger Axis Labels
+#' 
+#' Stagger axis labels.
+#' 
+#' @inheritParams e_bar
+#' 
+#' @examples
+#' df <- data.frame(
+#'  x = c("a very long label", "Another long label"),
+#'  y = 1:2
+#' )
+#' 
+#' df %>% 
+#'  e_charts(x, width = 150) %>% 
+#'  e_bar(y) %>% 
+#'  e_axis_stagger()
+#' 
+#' @export
+e_axis_stagger <- function(e){
+
+  form <- "function(value, index){
+    if(index % 2){
+      return('\\n' + value)
+    }
+
+    return(value)
+  }" %>% 
+    htmlwidgets::JS()
+
+  if(!e$x$tl)
+    e$x$opts[["xAxis"]][[1]]$axisLabel$formatter <- form
+  else
+    e$x$opts$baseOption[["xAxis"]][[1]]$axisLabel$formatter <- form
+
+  return(e)
 }

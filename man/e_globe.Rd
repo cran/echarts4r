@@ -4,11 +4,11 @@
 \alias{e_globe}
 \title{Globe}
 \usage{
-e_globe(e, environment = NULL, base_texture = NULL,
-  height_texture = NULL, ...)
+e_globe(e, environment = NULL, base_texture = NULL, height_texture = NULL, ...)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{environment}{Texture of background.}
 

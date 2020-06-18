@@ -17,11 +17,11 @@ e_connect_group(e, group)
 
 e_disconnect_group(e, group = NULL)
 
-e_arrange(..., rows = NULL, cols = NULL, width = "xs",
-  title = NULL)
+e_arrange(..., rows = NULL, cols = NULL, width = "xs", title = NULL)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{ids}{Scalar, vector or list of ids of chart to connect with.}
 
@@ -36,8 +36,8 @@ e_arrange(..., rows = NULL, cols = NULL, width = "xs",
 \item{title}{Title of charts.}
 }
 \value{
-\code{e_arrange}: in an interactive session, returns a \link[htmltools]{browsable}, in \code{rmarkdown} returns a 
-container (\link[htmltools]{div}).
+\code{e_arrange}: in an interactive session, returns a \code{htmltools::browsable}, in \code{rmarkdown} returns a 
+container (\code{htmltools::div}).
 }
 \description{
 Connect charts together.
@@ -77,6 +77,7 @@ e2 <- cars \%>\%
   e_group("grp") \%>\%  # assign group
   e_connect_group("grp") # connect
 
-e_arrange(e1, e2, title = "Linked datazoom")
+if(interactive())
+ e_arrange(e1, e2, title = "Linked datazoom")
 
 }

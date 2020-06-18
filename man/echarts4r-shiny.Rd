@@ -5,13 +5,30 @@
 \alias{echarts4rOutput}
 \alias{renderEcharts4r}
 \alias{echarts4rProxy}
+\alias{echarts4r_proxy}
 \title{Shiny bindings for echarts4r}
 \usage{
 echarts4rOutput(outputId, width = "100\%", height = "400px")
 
 renderEcharts4r(expr, env = parent.frame(), quoted = FALSE)
 
-echarts4rProxy(id, session = shiny::getDefaultReactiveDomain())
+echarts4rProxy(
+  id,
+  data,
+  x,
+  timeline = FALSE,
+  session = shiny::getDefaultReactiveDomain(),
+  reorder = TRUE
+)
+
+echarts4r_proxy(
+  id,
+  data,
+  x,
+  timeline = FALSE,
+  session = shiny::getDefaultReactiveDomain(),
+  reorder = TRUE
+)
 }
 \arguments{
 \item{outputId}{output variable to read from.}
@@ -29,7 +46,15 @@ is useful if you want to save an expression in a variable.}
 
 \item{id}{Target chart id.}
 
+\item{data}{A \code{data.frame}.}
+
+\item{x}{Column name containing x axis.}
+
+\item{timeline}{Set to \code{TRUE} to build a timeline, see timeline section.}
+
 \item{session}{Shiny session.}
+
+\item{reorder}{Set the \code{FALSE} to not reorder numeric x axis values.}
 }
 \description{
 Output and render functions for using echarts4r within Shiny
@@ -53,12 +78,18 @@ applications and interactive Rmd documents.
 
 \section{Proxies}{
 
+The \code{echarts4rProxy} function returns a proxy for chart which allows 
+manipulating a drawn chart, adding data, adding or removing series, etc. without
+redrawing the entire chart.
+
 \itemize{
   \item{\code{\link{e_append1_p}} & \code{\link{e_append2_p}}}
   \item{\code{\link{e_showtip_p}} & \code{\link{e_hidetip_p}}}
   \item{\code{\link{e_highlight_p}} & \code{\link{e_downplay_p}}}
   \item{\code{\link{e_focus_adjacency}} & \code{\link{e_unfocus_adjacency}}}
   \item{\code{\link{e_dispatch_action_p}}}
+  \item{\code{\link{e_execute}}}
+  \item{\code{\link{e_remove_serie_p}}}
 }
 }
 

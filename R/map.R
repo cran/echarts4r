@@ -146,6 +146,20 @@ e_map_ <- function(e, serie = NULL, map = "world", name = NULL, rm_x = TRUE, rm_
   
   if(isTRUE(e$x$tl))
     e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(app))
+
+
+  if(map == "world"){
+    # add dependency
+    path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+    dep <- htmltools::htmlDependency(
+      name = "echarts-world",
+      version = "1.0.0",
+      src = c(file = path),
+      script = "world.js"
+    )
+
+    e$dependencies <- append(e$dependencies, list(dep))
+  }
   
   e
 }
@@ -209,6 +223,30 @@ e_map_3d_ <- function(e, serie = NULL, map = "world", name = NULL, coord_system 
   
   if(isTRUE(e$x$tl))
     e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(app))
+
+  if(map == "world"){
+    # add dependency
+    path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+    dep <- htmltools::htmlDependency(
+      name = "echarts-world",
+      version = "1.0.0",
+      src = c(file = path),
+      script = "world.js"
+    )
+
+    e$dependencies <- append(e$dependencies, list(dep))
+  }
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
@@ -268,6 +306,13 @@ e_map_3d_custom <- function(e, id, value, height, map = NULL, name = NULL, rm_x 
 #' @param e An \code{echarts4r} object as returned by \code{\link{e_charts}}.
 #' @param name Name of map, to use in \code{\link{e_map}}.
 #' @param json \href{http://geojson.org/}{Geojson}.
+#' @param async Whether to read the file asynchronously.
+#' @param session A valid Shiny session.
+#' 
+#' @details \code{e_map_register_p} is not truly a proxy as it does not require
+#' a chart to function. While the function \code{e_map_register_ui} is meant to
+#' register the map globally in the Shiny UI, not that then \code{json} must be accessible
+#' from the UI (generally www folder).
 #' 
 #' @examples 
 #' \dontrun{
@@ -281,8 +326,13 @@ e_map_3d_custom <- function(e, id, value, height, map = NULL, name = NULL, rm_x 
 #'   e_visual_map(Murder)
 #' }
 #' 
+#' @rdname e_map_register
 #' @export
-e_map_register <- function(e, name, json){
+e_map_register <- function(e, name, json) UseMethod("e_map_register")
+
+#' @export
+#' @method e_map_register echarts4r
+e_map_register.echarts4r <- function(e, name, json){
   
   if(!length(e$x$registerMap))
     e$x$registerMap <- list()
@@ -294,6 +344,39 @@ e_map_register <- function(e, name, json){
   
   e$x$registerMap <- append(e$x$registerMap, list(opts))
   e
+}
+
+#' @rdname e_map_register
+#' @export
+e_map_register_p <- function(name, json, async = FALSE, session = shiny::getDefaultReactiveDomain()){
+  
+  opts <- list(
+    mapAsync = async,
+    mapName = name,
+    geoJSON = json
+  )
+  
+  session$sendCustomMessage("e_register_map", opts)
+  invisible()
+}
+
+#' @rdname e_map_register
+#' @export
+e_map_register_ui <- function(name, json, async = FALSE){
+  async <- paste0(tolower(async))
+  script <- paste0("
+    $.ajax({ 
+        url: '", json, "', 
+        dataType: 'json', 
+        async: ", async, ",
+        success: function(map){ 
+          echarts.registerMap('", name, "', map);
+        } 
+      });"
+    )
+  shiny::tags$script(
+    script
+  )
 }
 
 #' Mapbox
@@ -340,6 +423,18 @@ e_mapbox <- function(e, token, ...){
     e$x$opts$mapbox <- list(...)
   else
     e$x$opts$baseOption$mapbox <- list(...)
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/mapbox", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-mapbox",
+    version = "0.38.0",
+    src = c(file = path),
+    script = "mapbox-gl.js",
+    stylesheet = "mapbox-gl.css"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep))
   
   e
 }

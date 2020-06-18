@@ -5,14 +5,33 @@
 \alias{e_bar_3d_}
 \title{Bar 3D}
 \usage{
-e_bar_3d(e, y, z, bind, coord_system = "cartesian3D", name = NULL,
-  rm_x = TRUE, rm_y = TRUE, ...)
+e_bar_3d(
+  e,
+  y,
+  z,
+  bind,
+  coord_system = "cartesian3D",
+  name = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 
-e_bar_3d_(e, y, z, bind = NULL, coord_system = "cartesian3D",
-  name = NULL, rm_x = TRUE, rm_y = TRUE, ...)
+e_bar_3d_(
+  e,
+  y,
+  z,
+  bind = NULL,
+  coord_system = "cartesian3D",
+  name = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{y, z}{Coordinates.}
 

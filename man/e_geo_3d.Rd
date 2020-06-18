@@ -5,14 +5,21 @@
 \alias{e_geo_3d_}
 \title{Geo 3D}
 \usage{
-e_geo_3d(e, serie, color, type = "world", rm_x = TRUE, rm_y = TRUE,
-  ...)
+e_geo_3d(e, serie, color, type = "world", rm_x = TRUE, rm_y = TRUE, ...)
 
-e_geo_3d_(e, serie = NULL, color = NULL, type = "world",
-  rm_x = TRUE, rm_y = TRUE, ...)
+e_geo_3d_(
+  e,
+  serie = NULL,
+  color = NULL,
+  type = "world",
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{serie}{Column name of serie to plot.}
 

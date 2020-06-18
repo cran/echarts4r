@@ -5,14 +5,23 @@
 \alias{e_candle_}
 \title{Candlestick}
 \usage{
-e_candle(e, opening, closing, low, high, bind, name = NULL,
-  legend = TRUE, ...)
+e_candle(e, opening, closing, low, high, bind, name = NULL, legend = TRUE, ...)
 
-e_candle_(e, opening, closing, low, high, bind = NULL, name = NULL,
-  legend = TRUE, ...)
+e_candle_(
+  e,
+  opening,
+  closing,
+  low,
+  high,
+  bind = NULL,
+  name = NULL,
+  legend = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{opening, closing, low, high}{Stock prices.}
 

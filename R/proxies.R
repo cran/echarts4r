@@ -2,7 +2,6 @@
 #' 
 #' Proxies to highlight and downplay series.
 #' 
-#' @inheritParams e_bar
 #' @param proxy An echarts4r proxy as returned by \code{\link{echarts4rProxy}}.
 #' @param series_index Series index, can be a vector.
 #' @param series_name Series Name, can be vector.
@@ -66,7 +65,8 @@
 #'    })
 #'  }
 #'  
-#'  shinyApp(ui, server)
+#'  if(interactive())
+#'    shinyApp(ui, server)
 #'
 #' }
 #' 
@@ -167,7 +167,8 @@ e_downplay_p <- function(proxy, series_index = NULL, series_name = NULL){
 #'      
 #'    }
 #'    
-#'    shinyApp(ui, server)
+#'    if(interactive())
+#'      shinyApp(ui, server)
 #' } 
 #' 
 #' @rdname tooltip_proxy
@@ -209,7 +210,7 @@ e_hidetip_p <- function(proxy){
 #' Focus or unfocus on node adjacency.
 #' 
 #' @inheritParams e_highlight_p
-#' @param index Index of node to focus on.
+#' @param index One or more node index to focus on.
 #' @param ... Any other options, see 
 #' \href{https://echarts.apache.org/en/api.html#action.graph}{official documentation} and details.
 #' 
@@ -265,7 +266,7 @@ e_hidetip_p <- function(proxy){
 #'     observeEvent(input$focus, {
 #'     
 #'       echarts4rProxy("graph") %>% 
-#'         e_focus_adjacency(
+#'         e_focus_adjacency_p(
 #'           seriesIndex = 0,
 #'           index = input$index
 #'         )
@@ -275,13 +276,14 @@ e_hidetip_p <- function(proxy){
 #'     observeEvent(input$unfocus, {
 #'       
 #'       echarts4rProxy("graph") %>% 
-#'         e_unfocus_adjacency(seriesIndex = 0)
+#'         e_unfocus_adjacency_p(seriesIndex = 0)
 #'       
 #'     })
 #'   
 #'   }
 #'   
-#'   shinyApp(ui, server)
+#'   if(interactive())
+#'    shinyApp(ui, server)
 #' 
 #' }
 #' 
@@ -299,14 +301,16 @@ e_focus_adjacency_p <- function(proxy, index, ...){
   if(sum(hasArgs) != 1)
     stop("Must pass one of seriesId, seriesIndex, or seriesName", call. = FALSE)
   
-  data <- list(
-    id = proxy$id,
-    opts = list(
-      type = "focusNodeAdjacency",
-      dataIndex = index,
-      ...
+  data <- purrr::map(index, function(i, id){
+    list(
+      id = id,
+      opts = list(
+        type = "focusNodeAdjacency",
+        dataIndex = i,
+        ...
+      )
     )
-  )
+  }, id = proxy$id)
   
   proxy$session$sendCustomMessage("e_focus_node_adjacency_p", data)
   
@@ -379,7 +383,8 @@ e_unfocus_adjacency_p <- function(proxy, ...){
 #'   
 #'   }
 #'   
-#'   shinyApp(ui, server)
+#'   if(interactive())
+#'    shinyApp(ui, server)
 #' 
 #' }
 #' 
@@ -405,7 +410,7 @@ e_dispatch_action_p <- function(proxy, type, ...){
 #' @inheritParams e_bar
 #' @param event An event name from the \href{https://echarts.apache.org/en/api.html#events}{event documentation}.
 #' 
-#' @details Many events can be capture, however not all are integrated, you can pass one that is not implemented with this function.
+#' @details Many events can be captured, however not all are integrated, you can pass one that is not implemented with this function.
 #' 
 #' @examples 
 #' \dontrun{
@@ -431,7 +436,8 @@ e_dispatch_action_p <- function(proxy, type, ...){
 #'   })
 #' }
 #' 
-#' shinyApp(ui, server)
+#' if(interactive())
+#'  shinyApp(ui, server)
 #' }
 #' 
 #' @export
@@ -469,7 +475,8 @@ e_capture <- function(e, event){
 #'   })
 #' }
 #' 
-#' shinyApp(ui, server)
+#' if(interactive())
+#'  shinyApp(ui, server)
 #' }
 #' 
 #' @details Useful if you set \code{draw} to \code{FALSE} in \code{\link{e_charts}}.
@@ -486,4 +493,21 @@ e_draw_p <- function(proxy){
   data <- list(id = proxy$id)
   
   proxy$session$sendCustomMessage("e_draw_p", data)
+}
+
+#' Resize
+#' 
+#' Force resize the chart.
+#' 
+#' @inheritParams e_highlight_p
+#' 
+#' @export 
+e_resize <- function(proxy) UseMethod("e_resize")
+
+#' @export 
+#' @method e_resize echarts4rProxy
+e_resize.echarts4rProxy <- function(proxy){
+  data <- list(id = proxy$id)
+  proxy$session$sendCustomMessage("e_resize", data)
+  return(proxy)
 }

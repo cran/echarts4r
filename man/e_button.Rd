@@ -7,7 +7,8 @@
 e_button(e, id, ..., position = "top", tag = htmltools::tags$button)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{id}{A valid CSS id.}
 
@@ -15,7 +16,7 @@ e_button(e, id, ..., position = "top", tag = htmltools::tags$button)
 
 \item{position}{Position of button, \code{top} or \code{bottom}.}
 
-\item{tag}{A Valid \link[htmltools]{tags} function.}
+\item{tag}{A Valid \code{htmltools::tags} function.}
 }
 \description{
 Add a button to your visualisation.

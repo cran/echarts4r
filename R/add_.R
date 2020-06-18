@@ -1,7 +1,7 @@
 #' @rdname e_bar
 #' @export
 e_bar_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
-                   coord_system = "cartesian2d", ...){
+                   coord_system = "cartesian2d", ...) {
   
   if(missing(e))
     stop("must pass e", call. = FALSE)
@@ -25,7 +25,7 @@ e_bar_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index = 
       e <- .set_x_axis(e, x_index, i)
     
     if(coord_system == "polar"){
-      e_serie$data <- e$x$data[[i]] %>% dplyr::select_(serie) %>% unlist %>% unname %>% as.list
+      e_serie$data <- e$x$data[[i]] %>% dplyr::select(serie) %>% unlist %>% unname %>% as.list
     }
     
     # timeline
@@ -119,7 +119,7 @@ e_line_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index =
       }
       
     } else if(coord_system == "polar") {
-      l$data <- e$x$data[[i]] %>% dplyr::select_(serie) %>% unlist %>% unname %>% as.list
+      l$data <- e$x$data[[i]] %>% dplyr::select(serie) %>% unlist %>% unname %>% as.list
     }
     
     if(!e$x$tl){
@@ -201,7 +201,7 @@ e_area_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index =
       l$yAxisIndex <- y_index
       l$xAxisIndex <- x_index
     } else if(coord_system == "polar") {
-      l$data <- e$x$data[[i]] %>% dplyr::select_(serie) %>% unlist %>% unname %>% as.list
+      l$data <- e$x$data[[i]] %>% dplyr::select(serie) %>% unlist %>% unname %>% as.list
     }
     
     if(!e$x$tl){
@@ -285,7 +285,7 @@ e_step_ <- function(e, serie, bind = NULL, step = c("start", "middle", "end"), f
       l$yAxisIndex <- y_index
       l$xAxisIndex <- x_index
     } else if(coord_system == "polar") {
-      l$data <- e$x$data[[i]] %>% dplyr::select_(serie) %>% unlist %>% unname %>% as.list
+      l$data <- e$x$data[[i]] %>% dplyr::select(serie) %>% unlist %>% unname %>% as.list
     }
     
     if(!e$x$tl){
@@ -377,7 +377,7 @@ e_scatter_ <- function(e, serie, size = NULL, bind = NULL, symbol = NULL, symbol
     e.serie <- list(data = xy)
     
     if(coord_system == "polar"){
-      e.serie$data <- e$x$data[[i]] %>% dplyr::select_(serie) %>% unlist %>% unname %>% as.list
+      e.serie$data <- e$x$data[[i]] %>% dplyr::select(serie) %>% unlist %>% unname %>% as.list
     }
     
     opts <- list(
@@ -490,7 +490,7 @@ e_effect_scatter_ <- function(e, serie, size = NULL, bind = NULL, symbol = NULL,
     e.serie <- list(data = xy)
     
     if(coord_system == "polar"){
-      e.serie$data <- e$x$data[[i]] %>% dplyr::select_(serie) %>% unlist %>% unname %>% as.list
+      e.serie$data <- e$x$data[[i]] %>% dplyr::select(serie) %>% unlist %>% unname %>% as.list
     }
     
     opts <- list(
@@ -633,7 +633,7 @@ e_candle_ <- function(e, opening, closing, low, high, bind = NULL, name = NULL, 
 #' @rdname e_radar
 #' @export
 e_radar_ <- function(e, serie, max = 100, name = NULL, legend = TRUE, 
-                    rm_x = TRUE, rm_y = TRUE, ...){
+                    rm_x = TRUE, rm_y = TRUE, ..., radar = list()){
   
   r.index = 0
   
@@ -666,7 +666,7 @@ e_radar_ <- function(e, serie, max = 100, name = NULL, legend = TRUE,
     )
     
     # add indicators
-    e <- .add_indicators(e, r.index, max) 
+    e <- .add_indicators(e, r.index, max, radar = radar) 
     
     # add serie
     e$x$opts$series <- append(e$x$opts$series, list(serie))
@@ -771,7 +771,7 @@ e_sankey_ <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm
 
 #' @rdname e_heatmap
 #' @export
-e_heatmap_ <- function(e, y, z = NULL, name = NULL, coord_system = "cartesian2d", 
+e_heatmap_ <- function(e, y, z = NULL, bind = NULL, name = NULL, coord_system = "cartesian2d", 
                        rm_x = TRUE, rm_y = TRUE, calendar = NULL, ...){
   
   if(missing(y))
@@ -783,6 +783,9 @@ e_heatmap_ <- function(e, y, z = NULL, name = NULL, coord_system = "cartesian2d"
       xyz <- .build_data2(e$x$data[[i]], e$x$mapping$x, y, z)
     else 
       xyz <- .build_data2(e$x$data[[i]], e$x$mapping$x, y)
+
+    if(!is.null(bind))
+      xyz <- .add_bind2(e, xyz, bind, i = i)
     
     serie <- list(data = xyz)
     
@@ -858,7 +861,7 @@ e_parallel_ <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE){
   e <- .rm_axis(e, rm_y, "y")
   
   e$x$data[[1]] %>% 
-    dplyr::select_(...) -> df
+    dplyr::select(...) -> df
   
   # remove names
   data <- df
@@ -978,7 +981,7 @@ e_sunburst_ <- function(e, parent, child, value, itemStyle = NULL, rm_x = TRUE, 
 
 #' @rdname e_treemap
 #' @export
-e_treemap_ <- function(e, parent, child, value, rm_x = TRUE, rm_y = TRUE, ...){
+e_treemap_ <- function(e, parent, child, value, itemStyle = NULL, rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
@@ -989,7 +992,7 @@ e_treemap_ <- function(e, parent, child, value, rm_x = TRUE, rm_y = TRUE, ...){
   e <- .rm_axis(e, rm_y, "y")
   
   # build JSON data
-  data <- .build_sun(e, parent, child, value)
+  data <- .build_sun(e, parent, child, value, itemStyle)
   
   serie <- list(
     type = "treemap",
@@ -1081,8 +1084,8 @@ e_boxplot_ <- function(e, serie, name = NULL, outliers = TRUE, ...){
       }
       
       # xaxis
-      e$x$opts$xAxis$data <- append(e$x$opts$xAxis$data, list(nm))
-      e$x$opts$xAxis$type <- "category"
+      e$x$opts$xAxis[[1]]$data <- append(e$x$opts$xAxis[[1]]$data, list(nm))
+      e$x$opts$xAxis[[1]]$type <- "category"
       
     } else {
       
@@ -1198,6 +1201,17 @@ e_lines_3d_ <- function(e, source_lon, source_lat, target_lon, target_lat, sourc
     e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(serie_opts))
     e$x$opts$baseOption$legend$data <- append(e$x$opts$baseOption$legend$data, list(name))
   }
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
@@ -1282,6 +1296,17 @@ e_line_3d_ <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, r
     e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(serie_opts))
     
   }
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
@@ -1376,6 +1401,17 @@ e_bar_3d_ <- function(e, y, z, bind = NULL, coord_system = "cartesian3D", name =
     e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(serie_opts))
     
   }
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
@@ -1411,7 +1447,7 @@ e_surface_ <- function(e, y, z, bind = NULL, name = NULL, rm_x = TRUE, rm_y = TR
     row.names(e$x$data[[i]]) <- NULL
     
     data <- e$x$data[[i]] %>% 
-      dplyr::select_(e$x$mapping$x, y, z) %>% 
+      dplyr::select(e$x$mapping$x, y, z) %>% 
       unname(.) -> data
     
     data <- apply(data, 1, as.list) 
@@ -1427,6 +1463,17 @@ e_surface_ <- function(e, y, z, bind = NULL, name = NULL, rm_x = TRUE, rm_y = TR
     e$x$opts$series <- append(e$x$opts$series, list(e.serie))
     
   }
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
@@ -1488,7 +1535,7 @@ e_scatter_3d_ <- function(e, y, z, color = NULL, size = NULL, bind = NULL, coord
   
   if(missing(y) || missing(z))
     stop("must pass y and z", call. = FALSE)
-  
+
   if(is.null(name)) # defaults to column name
     name <- z
   
@@ -1534,6 +1581,8 @@ e_scatter_3d_ <- function(e, y, z, color = NULL, size = NULL, bind = NULL, coord
       else if(!is.null(color) && !is.null(size))
         data <- .build_data2(e$x$data[[i]], e$x$mapping$x, y, z, color, size)
       
+      if(!is.null(bind))
+        data <- .add_bind2(e, data, bind, i = i)
     }
     
     e_data <- list(data = data)
@@ -1566,7 +1615,17 @@ e_scatter_3d_ <- function(e, y, z, color = NULL, size = NULL, bind = NULL, coord
     
     e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(e_serie))
   }
-    
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
@@ -1610,6 +1669,17 @@ e_flow_gl_ <- function(e, y, sx, sy, color = NULL, name = NULL, coord_system = N
     serie$coordinateSystem <- coord_system
   
   e$x$opts$series <- append(e$x$opts$series, list(serie))
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
@@ -1680,6 +1750,17 @@ e_scatter_gl_ <- function(e, y, z, name = NULL, coord_system = "geo", rm_x = TRU
   
   if(e$x$tl)
     e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(serie_opts))
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
@@ -2006,7 +2087,7 @@ e_error_bar_ <- function(e, lower, upper, name = NULL, legend = TRUE, y_index = 
     
     if(coord_system == "polar"){
       e_serie$data <- e$x$data[[i]] %>% 
-        dplyr::select_(lower, upper) %>% 
+        dplyr::select(lower, upper) %>% 
         unlist %>% unname %>% as.list
     }
     
@@ -2082,6 +2163,17 @@ e_error_bar_ <- function(e, lower, upper, name = NULL, legend = TRUE, y_index = 
     
     e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(series_opts))
   }
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0/custom", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-renderers",
+    version = "1.0.0",
+    src = c(file = path),
+    script = "renderers.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep))
   
   e
   

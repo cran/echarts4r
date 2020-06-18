@@ -32,8 +32,25 @@ e_leaflet <- function(e, roam = TRUE, ...){
   leaf <- list(...)
   leaf$roam <- roam
   leaf$tiles <- list()
+
+  # remove axis
+  e <- .rm_axis(e, TRUE, "x")
+  e <- .rm_axis(e, TRUE, "y")
   
   e$x$opts$leaflet <- leaf
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0/plugins", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-leaflet",
+    version = "1.0.0",
+    src = c(file = path),
+    script = "echarts-leaflet.js"
+  )
+
+  e$dependencies <- append(e$dependencies, htmlwidgets::getDependency("leaflet"))
+  e$dependencies <- append(e$dependencies, list(dep))
+
   e
 }
 
@@ -41,8 +58,12 @@ e_leaflet <- function(e, roam = TRUE, ...){
 #' @export
 e_leaflet_tile <- function(e, template = "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", 
                            options = NULL, ...){
-  
-  if(!length(e$x$opts$leaflet$tiles))
+
+  pkgs <- utils::installed.packages() %>% rownames()
+  if(!"leaflet" %in% pkgs)
+    stop("Requires the `leaflet` package installed", call. = FALSE)
+
+  if(!length(e$x$opts$leaflet$roam))
     e <- e_leaflet(e)
   
   tile <- list(...)

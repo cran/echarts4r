@@ -5,14 +5,22 @@
 \alias{e_sunburst_}
 \title{Sunburst}
 \usage{
-e_sunburst(e, parent, child, value, itemStyle, rm_x = TRUE,
-  rm_y = TRUE, ...)
+e_sunburst(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...)
 
-e_sunburst_(e, parent, child, value, itemStyle = NULL, rm_x = TRUE,
-  rm_y = TRUE, ...)
+e_sunburst_(
+  e,
+  parent,
+  child,
+  value,
+  itemStyle = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{parent, child}{Edges.}
 
@@ -52,7 +60,7 @@ df$color <- sample(colors, 5, replace = TRUE)
 df$borderColor <- sample(colors, 5, replace = TRUE)
 
 df \%>\% 
-  tidyr::nest(color, borderColor, .key = "style") \%>\% # nest
+  tidyr::nest(c(color, borderColor), .key = "style") \%>\% # nest
   e_charts() \%>\% 
   e_sunburst(parent, child, value, style) 
 

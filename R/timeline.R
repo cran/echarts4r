@@ -3,7 +3,9 @@
 #' Set timeline options
 #' 
 #' @inheritParams e_bar
-#' @param axis_type Type of axis, \code{time}, \code{value}, or \code{category}
+#' @param axis_type Type of axis, \code{time}, \code{value}, or \code{category}.
+#' @param index The index of the element to apply options to, see examples.
+#' @param serie_index The index of the serie to add elements to.
 #' @param ... Named options.
 #' 
 #' @section Functions:
@@ -56,7 +58,7 @@ e_timeline_opts <- function(e, axis_type = "category", ...){
 
 #' @name timeline-opts
 #' @export
-e_timeline_serie <- function(e, ...){
+e_timeline_serie <- function(e, ..., index = 1){
   
   if(missing(e))
     stop("missing e", call. = FALSE)
@@ -69,7 +71,34 @@ e_timeline_serie <- function(e, ...){
   for(i in 1:length(e$x$opts$options)){
     
     for(j in 1:length(args)){
-      e$x$opts$options[[i]][[names(args)[j]]] <- args[[j]][[i]]
+      if(!length(e$x$opts$options[[i]][[names(args)[j]]]) < index)
+        e$x$opts$options[[i]][[names(args)[j]]][[index]] <- list()
+      e$x$opts$options[[i]][[names(args)[j]]][[index]] <- args[[j]][[i]]
+    }
+    
+  }
+  
+  e
+}
+
+#' @name timeline-opts
+#' @export
+e_timeline_on_serie <- function(e, ..., serie_index){
+  
+  if(missing(e) || missing(serie_index))
+    stop("missing e or serie_index", call. = FALSE)
+  
+  args <- list(...)
+  
+  if(length(args) == 0)
+    stop("no arguments passed", call. = FALSE)
+  
+  for(i in 1:length(e$x$opts$options)){
+    
+    for(j in 1:length(args)){
+      if(!length(e$x$opts$options[[i]]$series[[serie_index]][[names(args)[j]]]) < serie_index)
+        e$x$opts$options[[i]]$series[[serie_index]][[names(args)[j]]] <- list()
+      e$x$opts$options[[i]]$series[[serie_index]][[names(args)[j]]] <- args[[j]][[i]]
     }
     
   }

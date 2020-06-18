@@ -8,23 +8,55 @@
 \alias{e_map_3d_custom}
 \title{Choropleth}
 \usage{
-e_map(e, serie, map = "world", name = NULL, rm_x = TRUE,
-  rm_y = TRUE, ...)
+e_map(e, serie, map = "world", name = NULL, rm_x = TRUE, rm_y = TRUE, ...)
 
-e_map_(e, serie = NULL, map = "world", name = NULL, rm_x = TRUE,
-  rm_y = TRUE, ...)
+e_map_(
+  e,
+  serie = NULL,
+  map = "world",
+  name = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 
-e_map_3d(e, serie, map = "world", name = NULL, coord_system = NULL,
-  rm_x = TRUE, rm_y = TRUE, ...)
+e_map_3d(
+  e,
+  serie,
+  map = "world",
+  name = NULL,
+  coord_system = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 
-e_map_3d_(e, serie = NULL, map = "world", name = NULL,
-  coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...)
+e_map_3d_(
+  e,
+  serie = NULL,
+  map = "world",
+  name = NULL,
+  coord_system = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 
-e_map_3d_custom(e, id, value, height, map = NULL, name = NULL,
-  rm_x = TRUE, rm_y = TRUE, ...)
+e_map_3d_custom(
+  e,
+  id,
+  value,
+  height,
+  map = NULL,
+  name = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{serie}{Values to plot.}
 

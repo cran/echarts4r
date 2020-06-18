@@ -5,16 +5,28 @@
 \alias{e_treemap_}
 \title{Treemap}
 \usage{
-e_treemap(e, parent, child, value, rm_x = TRUE, rm_y = TRUE, ...)
+e_treemap(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...)
 
-e_treemap_(e, parent, child, value, rm_x = TRUE, rm_y = TRUE, ...)
+e_treemap_(
+  e,
+  parent,
+  child,
+  value,
+  itemStyle = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{parent, child}{Edges.}
 
 \item{value}{Value of edges.}
+
+\item{itemStyle}{Name of column containing styles to pass to \code{child},}
 
 \item{rm_x, rm_y}{Whether to remove x and y axis, defaults to \code{TRUE}.}
 

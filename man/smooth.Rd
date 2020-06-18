@@ -6,17 +6,41 @@
 \alias{e_loess}
 \title{Smooth}
 \usage{
-e_lm(e, formula, name = NULL, legend = TRUE, symbol = "none",
-  smooth = TRUE, ...)
+e_lm(
+  e,
+  formula,
+  name = NULL,
+  legend = TRUE,
+  symbol = "none",
+  smooth = TRUE,
+  ...
+)
 
-e_glm(e, formula, name = NULL, legend = TRUE, symbol = "none",
-  smooth = TRUE, ...)
+e_glm(
+  e,
+  formula,
+  name = NULL,
+  legend = TRUE,
+  symbol = "none",
+  smooth = TRUE,
+  ...
+)
 
-e_loess(e, formula, name = NULL, legend = TRUE, symbol = "none",
-  smooth = TRUE, x_index = 0, y_index = 0, ...)
+e_loess(
+  e,
+  formula,
+  name = NULL,
+  legend = TRUE,
+  symbol = "none",
+  smooth = TRUE,
+  x_index = 0,
+  y_index = 0,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{formula}{formula to pass to \code{\link{lm}}.}
 

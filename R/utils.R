@@ -4,22 +4,26 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   if (!is.null(x)) x else y
 }
 
-.arrange_data_x <- function(data, x){
+.arrange_data_x <- function(data, x, reorder = TRUE){
   vect <- data[[x]]
   
-  if(inherits(vect, "numeric") || inherits(vect, "integer"))
-    data <- data %>% dplyr::arrange_(x)
+  if(reorder){
+    if(inherits(vect, "numeric") || inherits(vect, "integer")){
+      data <- data[order(data[[x]]), ]
+    }
+  }
   
   return(data)
 }
 
-.arrange_data_by_group <- function(data, x){
+.arrange_data_by_group <- function(data, x, reorder = TRUE){
   
   vect <- data[[1]][[x]]
   
   for(i in 1:length(data)){
-    if(inherits(vect, "numeric") || inherits(vect, "integer"))
-      data[[i]] <- data[[i]] %>% dplyr::arrange_(x)
+    if(reorder)
+      if(inherits(vect, "numeric") || inherits(vect, "integer"))
+        data[[i]] <- data[[i]][order(data[[i]][[x]]), ]
   }
   
   return(data)
@@ -64,7 +68,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
 .build_data <- function(e, ...){
   e$x$data[[1]] %>% 
-    dplyr::select_(...) %>% 
+    dplyr::select(...) %>% 
     unname(.) -> data
   
   apply(data, 1, function(x){
@@ -94,7 +98,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
     data[["sizeECHARTS"]] <- scale(data[["sizeECHARTS"]]) * symbol_size
   
   data %>% 
-    dplyr::select_(x = x, y = y, size, "sizeECHARTS") %>% 
+    dplyr::select(x = x, y = y, size, "sizeECHARTS") %>% 
     dplyr::mutate(
       x = .jitter(x, factor, amount),
       y = .jitter(y, factor, amount)
@@ -110,7 +114,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 .build_data_jitter <- function(data, x, y, factor = 0, amount = NULL){
   row.names(data) <- NULL
   data %>% 
-    dplyr::select_(x = x, y = y) %>% 
+    dplyr::select(x = x, y = y) %>% 
     dplyr::mutate(
       x = .jitter(x, factor, amount),
       y = .jitter(y, factor, amount)
@@ -126,7 +130,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 .build_data2 <- function(data, ...){
   row.names(data) <- NULL
   data %>% 
-    dplyr::select_(...) %>% 
+    dplyr::select(...) %>% 
     unname(.) -> data
   
   apply(data, 1, function(x){
@@ -137,7 +141,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
 .add_bind2 <- function(e, l, bind, col = "name", i){
   e$x$data[[i]] %>% 
-    dplyr::select_(bind) %>% unname() %>% unlist() -> bind
+    dplyr::select(bind) %>% unname() %>% unlist() -> bind
   
   for(i in 1:length(l)){
     l[[i]][[col]] <- bind[i]
@@ -147,7 +151,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
 .add_bind <- function(e, l, bind, col = "name"){
   e$x$data[[1]] %>% 
-    dplyr::select_(bind) %>% unname() %>% unlist() -> bind
+    dplyr::select(bind) %>% unname() %>% unlist() -> bind
   
   for(i in 1:length(l)){
     l[[i]][[col]] <- bind[i]
@@ -157,7 +161,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
 .build_data_p <- function(data, ..., vector = FALSE, scale = NULL, symbol_size = 1){
   data %>% 
-    dplyr::select_(...) %>% 
+    dplyr::select(...) %>% 
     purrr::set_names(NULL) -> data
   
   if(!is.null(scale))
@@ -175,10 +179,10 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   
   nodes <- c(
     unlist(
-      dplyr::select_(data, source)
+      dplyr::select(data, source)
     ),
     unlist(
-      dplyr::select_(data, target)
+      dplyr::select(data, target)
     )
   )
   
@@ -189,19 +193,18 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   
   apply(nodes, 1, as.list)
   
-  
 }
 
 .build_sankey_edges <- function(data, source, target, values){
   data %>%
-    dplyr::select_(source, target, values) -> edges
+    dplyr::select(source, target, values) -> edges
   
   names(edges) <- c("source", "target", "value")
   
   apply(edges, 1, as.list)
 }
 
-.build_graph_nodes <- function(nodes, names, value, symbolSize, category){
+.build_graph_nodes <- function(nodes, names, value, symbolSize, category, symbol){
   
   row.names(nodes) <- NULL
   
@@ -210,30 +213,16 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
       !!names,
       !!value,
       !!symbolSize,
-      !!category
+      !!category,
+      !!symbol,
     ) -> data
   
-  names(data) <- c("name", "value", "symbolSize", "category")[1:ncol(data)]
+  names(data) <- c("name", "value", "symbolSize", "category", "symbol")[1:ncol(data)]
   
   apply(data, 1, as.list)
 }
 
-.build_graph_nodes_no_size <- function(nodes, names, value){
-  
-  row.names(nodes) <- NULL
-  
-  nodes %>%
-    dplyr::select(
-      !!names,
-      !!value
-    ) -> data
-  
-  names(data) <- c("name", "value")[1:ncol(data)]
-  
-  apply(data, 1, as.list)
-}
-
-.build_graph_nodes_no_cat <- function(nodes, names, value, symbolSize){
+.build_graph_nodes_no_size <- function(nodes, names, value, symbol){
   
   row.names(nodes) <- NULL
   
@@ -241,10 +230,27 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
     dplyr::select(
       !!names,
       !!value,
-      !!symbolSize
+      !!symbol,
     ) -> data
   
-  names(data) <- c("name", "value", "symbolSize")[1:ncol(data)]
+  names(data) <- c("name", "value", "symbol")[1:ncol(data)]
+  
+  apply(data, 1, as.list)
+}
+
+.build_graph_nodes_no_cat <- function(nodes, names, value, symbolSize, symbol){
+  
+  row.names(nodes) <- NULL
+  
+  nodes %>%
+    dplyr::select(
+      !!names,
+      !!value,
+      !!symbolSize,
+      !!symbol
+    ) -> data
+  
+  names(data) <- c("name", "value", "symbolSize", "symbol")[1:ncol(data)]
   
   apply(data, 1, as.list)
 }
@@ -262,10 +268,6 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   names(data) <- c("source", "target")
   
   apply(data, 1, as.list) -> x
-  # for(i in 1:length(x)){
-  #   x[[i]]$source <- trimws(as.character(x[[i]]$source))
-  #   x[[i]]$target <- trimws(as.character(x[[i]]$target))
-  # }
   x
 }
 
@@ -336,7 +338,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   cols <- c("value")
   
   e$x$data[[1]] %>%
-    dplyr::select_(
+    dplyr::select(
       parent,
       name = child,
       value = value
@@ -344,7 +346,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   
   if(!is.null(itemStyle)){
     e$x$data[[1]] %>%
-      dplyr::select_(
+      dplyr::select(
         itemStyle = itemStyle
       ) -> is
     
@@ -372,7 +374,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   label <- rep(label, length(x))
   
   e$x$data[[i]] %>%
-    dplyr::select_(serie) -> data
+    dplyr::select(serie) -> data
   
   data <- cbind(x, data, label)
   row.names(data) <- NULL
@@ -398,7 +400,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
 .get_data <- function(e, serie, i = 1){
   e$x$data[[i]] %>% 
-    dplyr::select_(serie) %>% 
+    dplyr::select(serie) %>% 
     unname() %>% 
     .[[1]]
 }
@@ -475,7 +477,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 .map_lines <- function(e, source.lon, source.lat, target.lon, target.lat, source.name, target.name, value, i){
   
   data <- e$x$data[[i]] %>% 
-    dplyr::select_(
+    dplyr::select(
       source.lon, source.lat, target.lon, target.lat
     ) %>% 
     apply(., 1, function(x){
@@ -501,7 +503,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
 .build_cartesian3D <- function(e, ..., i = 1){
   e$x$data[[i]] %>%
-    dplyr::select_(
+    dplyr::select(
       ...
     ) %>%
     unname() -> df
@@ -516,7 +518,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   
   #data <- .build_data(e, e$x$mapping$x, serie, names = c("name", "height"))
   e$x$data[[j]] %>%
-    dplyr::select_(
+    dplyr::select(
       name = e$x$mapping$x,
       height = serie
     ) -> data
@@ -552,7 +554,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   purrr::map(serie, ~which(series == .)) %>% unlist() %>% unique()
 }
 
-.add_indicators <- function(e, r.index, max){
+.add_indicators <- function(e, r.index, max, radar = list()){
   
   if(!length(e$x$opts$radar))
     e$x$opts$radar <- list(list())
@@ -566,6 +568,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   
   indicators <- apply(indicators, 1, as.list)
   
+  e$x$opts$radar[[r.index + 1]] <- radar
   e$x$opts$radar[[r.index + 1]]$indicator <- indicators
   e
 }
@@ -619,5 +622,5 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 }
 
 .get_locale <- function(){
-  stringi::stri_locale_info()$Language
+  "en"
 }

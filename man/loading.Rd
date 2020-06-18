@@ -5,14 +5,21 @@
 \alias{e_hide_loading}
 \title{Loading}
 \usage{
-e_show_loading(e, hide_overlay = TRUE, text = "loading",
-  color = "#c23531", text_color = "#000",
-  mask_color = "rgba(255, 255, 255, 0.8)", zlevel = 0)
+e_show_loading(
+  e,
+  hide_overlay = TRUE,
+  text = "loading",
+  color = "#c23531",
+  text_color = "#000",
+  mask_color = "rgba(255, 255, 255, 0.8)",
+  zlevel = 0
+)
 
 e_hide_loading(e)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{hide_overlay}{Hides the white overaly that appears in shiny when a plot is recalculating.}
 
@@ -62,7 +69,8 @@ server <- function(input, output){
   })
 }
 
-shinyApp(ui, server)
+if(interactive())
+ shinyApp(ui, server)
 
 # add loading
 server <- function(input, output){
@@ -82,7 +90,8 @@ server <- function(input, output){
   })
 }
 
-shinyApp(ui, server)
+if(interactive())
+ shinyApp(ui, server)
 }
 
 }

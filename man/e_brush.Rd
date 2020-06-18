@@ -4,20 +4,32 @@
 \alias{e_brush}
 \title{Brush}
 \usage{
-e_brush(e, x_index = NULL, y_index = NULL, ...)
+e_brush(e, x_index = NULL, y_index = NULL, brush_link = "all", ...)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{x_index}{Indexes of x and y axis.}
 
 \item{y_index}{Indexes of x and y axis.}
+
+\item{brush_link}{Links interaction between selected items in different series.}
 
 \item{...}{Any other option to pass, check See Also section.}
 }
 \description{
 Add a brush.
 }
+\section{\code{brush_link}}{
+$
+\itemize{
+  \item{\code{c(3, 4, 5)}, for interacting series with seriesIndex as 3, 4, or 5.}
+  \item{\code{all}, for interacting all series.}
+  \item{\code{none} for disabling.}  
+}
+}
+
 \examples{
 quakes \%>\% 
   e_charts(long) \%>\% 

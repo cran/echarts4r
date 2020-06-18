@@ -4,18 +4,26 @@
 \alias{timeline-opts}
 \alias{e_timeline_opts}
 \alias{e_timeline_serie}
+\alias{e_timeline_on_serie}
 \title{Timeline}
 \usage{
 e_timeline_opts(e, axis_type = "category", ...)
 
-e_timeline_serie(e, ...)
+e_timeline_serie(e, ..., index = 1)
+
+e_timeline_on_serie(e, ..., serie_index)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
-\item{axis_type}{Type of axis, \code{time}, \code{value}, or \code{category}}
+\item{axis_type}{Type of axis, \code{time}, \code{value}, or \code{category}.}
 
 \item{...}{Named options.}
+
+\item{index}{The index of the element to apply options to, see examples.}
+
+\item{serie_index}{The index of the serie to add elements to.}
 }
 \description{
 Set timeline options

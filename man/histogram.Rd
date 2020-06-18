@@ -7,20 +7,57 @@
 \alias{e_density_}
 \title{Histogram & Density}
 \usage{
-e_histogram(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
-  bar_width = "99\%", x_index = 0, y_index = 0, ...)
+e_histogram(
+  e,
+  serie,
+  breaks = "Sturges",
+  name = NULL,
+  legend = TRUE,
+  bar_width = "99\%",
+  x_index = 0,
+  y_index = 0,
+  ...
+)
 
-e_density(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
-  x_index = 0, y_index = 0, smooth = TRUE, ...)
+e_density(
+  e,
+  serie,
+  breaks = "Sturges",
+  name = NULL,
+  legend = TRUE,
+  x_index = 0,
+  y_index = 0,
+  smooth = TRUE,
+  ...
+)
 
-e_histogram_(e, serie, breaks = "Sturges", name = NULL,
-  legend = TRUE, bar_width = "90\%", x_index = 0, y_index = 0, ...)
+e_histogram_(
+  e,
+  serie,
+  breaks = "Sturges",
+  name = NULL,
+  legend = TRUE,
+  bar_width = "90\%",
+  x_index = 0,
+  y_index = 0,
+  ...
+)
 
-e_density_(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
-  x_index = 0, y_index = 0, smooth = TRUE, ...)
+e_density_(
+  e,
+  serie,
+  breaks = "Sturges",
+  name = NULL,
+  legend = TRUE,
+  x_index = 0,
+  y_index = 0,
+  smooth = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{serie}{Column name of serie to plot.}
 

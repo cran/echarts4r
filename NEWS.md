@@ -1,3 +1,52 @@
+# echarts4r 0.3.2
+
+- Bump echarts.js to 4.8.0 and echarts-gl to 1.1.2
+- Fix `e_add` when used with timeline feature see [#165](https://github.com/JohnCoene/echarts4r/issues/165).
+- Bump echart.js to 4.8.0 now in english (no longer chinese.
+
+Dynamic dependencies:
+
+- themes
+- leaflet
+- mapbox
+- wordcloud
+- liquidfill
+- world.js (underlying world map for e_geo and e_map)
+- error bars (custom renderer)
+
+This greatly improves the performances of echarts4r which now loads much faster.
+
+# echarts4r 0.3.1.9000
+
+- Added convenience `e_hide_grid_lines` to easily hide grid lines.
+- `e_map_register_ui` added to register a custom map in the Shiny UI, for faster serialisation.
+- `e_leaflet*` functions now correctly apply the `roam` argument [#147](https://github.com/JohnCoene/echarts4r/issues/147)
+- Internals changes for dplyr >= 0.7.0 
+- Correct bug in [boxplot](https://echarts4r.john-coene.com/articles/stats.html#boxplot) thanks to [Matthias](https://github.com/matthias-a) in [issue #163](https://github.com/JohnCoene/echarts4r/issues/163) for the fix.
+- Avoid page breaks on PDF, see [#159](https://github.com/JohnCoene/echarts4r/issues/159), thanks [Steve](https://github.com/sdmcallister).
+
+# echarts4r 0.3.0.9000
+
+Bumped echarts JavaScript library to `4.6.0`, [PR #121](https://github.com/JohnCoene/echarts4r/pull/121), also bumped echarts gl to `1.2.1`.
+
+Every function that adds a serie to chart (e.g.: `e_bar`) have been turned into methods that now can be applied to proxies (`echarts4rProxy`), see the [development vignette](https://echarts4r.john-coene.com/articles/development.html) for more. This implies some minute changes to the `echarts4rProxy`: nothing broken though.
+
+- Warning in `e_axis_fomatter` if user uses RStudio, relates to [#100](https://github.com/JohnCoene/echarts4r/issues/100)
+- Fixed [#98](https://github.com/JohnCoene/echarts4r/issues/98) where a bug was introduced in `e_radar_opts` when the timeline component was added.
+- `bind` argument added to `e_heatmap`
+- `e_scatter_3d` correctly takes `bind` argument when `coords` is set to `cartesian3D` (previously incorrect).
+- Bumped number of built-in themes to 40+.
+- Added `e_remove_serie_p` to remove series from the graph.
+- Added `e_axis_labels` to easily place axis labels.
+- Added `e_resize` to dynamically resize the chart.
+- Added `e_map_register_p` works like a proxy but does not require a chart.
+- Fixed a few issues with `e_mark*` family, labels and multiple marks correctly work.
+- Initialisation function now take `reorder` argument to specify whether to reorder numeric values. [#126](https://github.com/JohnCoene/echarts4r/issues/126)
+- Added `e_register_theme` to register a global theme, see [#127](https://github.com/JohnCoene/echarts4r/issues/127).
+- `e_theme_custom` now accepts path to a JSON file.
+- `e_visual_map` drops `NA`s.
+- Added `e_axis_stagger` function to stagger x axis labels.
+
 # echarts4r 0.2.3
 
 - Bar chart's `bind` argument has been fixed.

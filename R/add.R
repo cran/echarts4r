@@ -2,7 +2,8 @@
 #' 
 #' Add bar serie.
 #' 
-#' @param e An \code{echarts4r} object as returned by \code{\link{e_charts}}.
+#' @param e An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+#' a proxy as returned by \code{\link{echarts4rProxy}}.
 #' @param serie Column name of serie to plot.
 #' @param bind Binding between datasets, namely for use of \code{\link{e_brush}}.
 #' @param name name of the serie.
@@ -28,10 +29,11 @@
 #' 
 #' @rdname e_bar
 #' @export
-e_bar <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", ...){
-  
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+e_bar <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", ...) UseMethod("e_bar")
+
+#' @method e_bar echarts4r
+#' @export
+e_bar.echarts4r <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", ...){
   
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
@@ -44,6 +46,24 @@ e_bar <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_ind
   sr <- deparse(substitute(serie))
   
   e_bar_(e, sr, bd, name, legend, y_index, x_index, coord_system, ...)
+}
+
+#' @method e_bar echarts4rProxy
+#' @export
+e_bar.echarts4rProxy <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", ...){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  sr <- deparse(substitute(serie))
+  
+  e$chart <- e_bar_(e$chart, sr, bd, name, legend, y_index, x_index, coord_system, ...)
+  return(e)
 }
 
 #' Line 
@@ -72,9 +92,12 @@ e_bar <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_ind
 #' @rdname e_line
 #' @export
 e_line <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
+                   coord_system = "cartesian2d", ...) UseMethod("e_line")
+
+#' @export
+#' @method e_line echarts4r
+e_line.echarts4r <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
                    coord_system = "cartesian2d", ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
   
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
@@ -87,6 +110,25 @@ e_line <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_in
     bd <- deparse(substitute(bind))
   
   e_line_(e, serie, bd, name, legend, y_index, x_index, coord_system, ...)
+}
+
+#' @export
+#' @method e_line echarts4rProxy
+e_line.echarts4rProxy <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
+                   coord_system = "cartesian2d", ...){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  serie <- deparse(substitute(serie))
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  e$chart <- e_line_(e$chart, serie, bd, name, legend, y_index, x_index, coord_system, ...)
+  return(e)
 }
 
 #' Area 
@@ -114,10 +156,12 @@ e_line <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_in
 #' @rdname e_area
 #' @export
 e_area <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
+                   coord_system = "cartesian2d", ...) UseMethod("e_area")
+
+#' @export
+#' @method e_area echarts4r
+e_area.echarts4r <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
                    coord_system = "cartesian2d", ...){
-  
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
   
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
@@ -130,6 +174,25 @@ e_area <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_in
     bd <- deparse(substitute(bind))
   
   e_area_(e, serie, bd, name, legend, y_index, x_index, coord_system,...)
+}
+
+#' @export
+#' @method e_area echarts4rProxy
+e_area.echarts4rProxy <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
+                   coord_system = "cartesian2d", ...){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  serie <- deparse(substitute(serie))
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  e$chart <- e_area_(e$chart, serie, bd, name, legend, y_index, x_index, coord_system,...)
+  return(e)
 }
 
 #' Step 
@@ -162,9 +225,13 @@ e_area <- function(e, serie, bind, name = NULL, legend = TRUE, y_index = 0, x_in
 #' @export
 e_step <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FALSE, 
                    name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", 
+                   ...) UseMethod("e_step")
+
+#' @export
+#' @method e_step echarts4r
+e_step.echarts4r <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FALSE, 
+                   name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", 
                    ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
   
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
@@ -177,6 +244,26 @@ e_step <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FA
     bd <- deparse(substitute(bind))
   
   e_step_(e, serie, bd, step, fill, name, legend, y_index, x_index, coord_system = "cartesian2d", ...)
+}
+
+#' @export
+#' @method e_step echarts4rProxy
+e_step.echarts4rProxy <- function(e, serie, bind, step = c("start", "middle", "end"), fill = FALSE, 
+                   name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", 
+                   ...){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  serie <- deparse(substitute(serie))
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  e$chart <- e_step_(e$chart, serie, bd, step, fill, name, legend, y_index, x_index, coord_system = "cartesian2d", ...)
+  return(e)
 }
 
 #' Scatter
@@ -282,6 +369,14 @@ e_scatter <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scal
                       scale_js = "function(data){ return data[3];}", name = NULL, 
                       coord_system = "cartesian2d", jitter_factor = 0,
                       jitter_amount = NULL, legend = TRUE, y_index = 0, 
+                      x_index = 0, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_scatter")
+
+#' @export 
+#' @method e_scatter echarts4r
+e_scatter.echarts4r <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scale = e_scale, 
+                      scale_js = "function(data){ return data[3];}", name = NULL, 
+                      coord_system = "cartesian2d", jitter_factor = 0,
+                      jitter_amount = NULL, legend = TRUE, y_index = 0, 
                       x_index = 0, rm_x = TRUE, rm_y = TRUE, ...){
   
   if(missing(serie))
@@ -307,9 +402,48 @@ e_scatter <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scal
  
 }
 
+#' @export 
+#' @method e_scatter echarts4rProxy
+e_scatter.echarts4rProxy <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scale = e_scale, 
+                      scale_js = "function(data){ return data[3];}", name = NULL, 
+                      coord_system = "cartesian2d", jitter_factor = 0,
+                      jitter_amount = NULL, legend = TRUE, y_index = 0, 
+                      x_index = 0, rm_x = TRUE, rm_y = TRUE, ...){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  serie <- deparse(substitute(serie))
+  
+  if(missing(size))
+    size <- NULL
+  else
+    size <- deparse(substitute(size))
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  e$chart <- e_scatter_(e = e$chart, serie = serie, size = size, bind = bd, symbol = symbol, symbol_size = symbol_size, 
+             scale = scale, scale_js = scale_js, name = name, coord_system = coord_system,
+             jitter_factor = jitter_factor, jitter_amount = jitter_amount,
+             legend = legend, y_index = y_index, x_index = x_index, rm_x = rm_x, 
+             rm_y = rm_y, ...)
+  
+  return(e)
+}
+
 #' @rdname scatter
 #' @export
 e_effect_scatter <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scale = e_scale, 
+                             scale_js = "function(data){ return data[3];}", name = NULL, 
+                             coord_system = "cartesian2d", legend = TRUE, 
+                             y_index = 0, x_index = 0, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_effect_scatter")
+
+#' @export
+#' @method e_effect_scatter echarts4r 
+e_effect_scatter.echarts4r <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scale = e_scale, 
                              scale_js = "function(data){ return data[3];}", name = NULL, 
                              coord_system = "cartesian2d", legend = TRUE, 
                              y_index = 0, x_index = 0, rm_x = TRUE, rm_y = TRUE, ...){
@@ -333,6 +467,36 @@ e_effect_scatter <- function(e, serie, size, bind, symbol = NULL, symbol_size = 
                     symbol_size = symbol_size, scale = scale, scale_js = scale_js,
                     name = name, coord_system, legend, 
                     y_index, x_index, rm_x, rm_y, ...)
+}
+
+#' @export
+#' @method e_effect_scatter echarts4rProxy 
+e_effect_scatter.echarts4rProxy <- function(e, serie, size, bind, symbol = NULL, symbol_size = 1, scale = e_scale, 
+                             scale_js = "function(data){ return data[3];}", name = NULL, 
+                             coord_system = "cartesian2d", legend = TRUE, 
+                             y_index = 0, x_index = 0, rm_x = TRUE, rm_y = TRUE, ...){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  serie <- deparse(substitute(serie))
+  
+  if(missing(size))
+    size <- NULL
+  else
+    size <- deparse(substitute(size))
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  e$chart <- e_effect_scatter_(e$chart, serie = serie, size = size, bind = bd, symbol = symbol, 
+                    symbol_size = symbol_size, scale = scale, scale_js = scale_js,
+                    name = name, coord_system, legend, 
+                    y_index, x_index, rm_x, rm_y, ...)
+
+  return(e)
 }
 
 #' Candlestick
@@ -363,7 +527,11 @@ e_effect_scatter <- function(e, serie, size, bind, symbol = NULL, symbol_size = 
 #' 
 #' @rdname e_candle
 #' @export
-e_candle <- function(e, opening, closing, low, high, bind, name = NULL, legend = TRUE, ...){
+e_candle <- function(e, opening, closing, low, high, bind, name = NULL, legend = TRUE, ...) UseMethod("e_candle")
+
+#' @export 
+#' @method e_candle echarts4r
+e_candle.echarts4r <- function(e, opening, closing, low, high, bind, name = NULL, legend = TRUE, ...){
   
   if(missing(opening) || missing(closing) || missing(low) || missing(high))
     stop("missing inputs", call. = FALSE)
@@ -373,11 +541,36 @@ e_candle <- function(e, opening, closing, low, high, bind, name = NULL, legend =
   else 
     bind <- NULL
   
-  e_candle_(e, deparse(substitute(opening)), 
-            deparse(substitute(closing)), 
-            deparse(substitute(low)), 
-            deparse(substitute(high)), 
-            bind, name, legend, ...)
+  e_candle_(
+    e, deparse(substitute(opening)), 
+    deparse(substitute(closing)), 
+    deparse(substitute(low)), 
+    deparse(substitute(high)), 
+    bind, name, legend, ...
+  )
+}
+
+#' @export 
+#' @method e_candle echarts4rProxy
+e_candle.echarts4rProxy <- function(e, opening, closing, low, high, bind, name = NULL, legend = TRUE, ...){
+  
+  if(missing(opening) || missing(closing) || missing(low) || missing(high))
+    stop("missing inputs", call. = FALSE)
+  
+  if(!missing(bind))
+    bind <- deparse(substitute(bind))
+  else 
+    bind <- NULL
+  
+  e$chart <- e_candle_(
+    e$chart, deparse(substitute(opening)), 
+    deparse(substitute(closing)), 
+    deparse(substitute(low)), 
+    deparse(substitute(high)), 
+    bind, name, legend, ...
+  )
+  
+  return(e)
 }
 
 #' Radar
@@ -387,6 +580,9 @@ e_candle <- function(e, opening, closing, low, high, bind, name = NULL, legend =
 #' @inheritParams e_bar
 #' @param max Maximum value.
 #' @param rm_x,rm_y Whether to remove x and y axis, defaults to \code{TRUE}.
+#' @param radar A \code{list} of options to pass to the \code{radar} 
+#' rather than the serie, see \href{https://echarts.apache.org/en/option.html#radar}{official documentation}
+#' alternatively, use the \code{\link{e_radar_opts}}.
 #' 
 #' @examples
 #' df <- data.frame(
@@ -404,19 +600,33 @@ e_candle <- function(e, opening, closing, low, high, bind, name = NULL, legend =
 #' @rdname e_radar
 #' @export
 e_radar <- function(e, serie, max = 100, name = NULL, legend = TRUE, 
-                    rm_x = TRUE, rm_y = TRUE, ...){
-  
-  r.index = 0
-  
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+                    rm_x = TRUE, rm_y = TRUE, ..., radar = list()) UseMethod("e_radar")
+
+#' @export 
+#' @method e_radar echarts4r
+e_radar.echarts4r <- function(e, serie, max = 100, name = NULL, legend = TRUE, 
+                    rm_x = TRUE, rm_y = TRUE, ..., radar = list()){
   
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
   
   serie <- deparse(substitute(serie))
   
-  e_radar_(e, serie, max, name, legend, rm_x, rm_y, ...)
+  e_radar_(e, serie, max, name, legend, rm_x, rm_y, ..., radar = radar)
+}
+
+#' @export 
+#' @method e_radar echarts4rProxy
+e_radar.echarts4rProxy <- function(e, serie, max = 100, name = NULL, legend = TRUE, 
+                    rm_x = TRUE, rm_y = TRUE, ..., radar = list()){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  serie <- deparse(substitute(serie))
+  
+  e$chart <- e_radar_(e, serie, max, name, legend, rm_x, rm_y, ..., radar = radar)
+  return(e)
 }
 
 #' Funnel
@@ -446,20 +656,46 @@ e_radar <- function(e, serie, max = 100, name = NULL, legend = TRUE,
 #' 
 #' @rdname e_funnel
 #' @export
-e_funnel <- function(e, values, labels, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
+e_funnel <- function(e, values, labels, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_funnel")
+
+#' @export
+#' @method e_funnel echarts4r
+e_funnel.echarts4r <- function(e, values, labels, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
   
   if(missing(values) || missing(labels))
     stop("missing values or labels", call. = FALSE)
   
-  e_funnel_(e = e, 
-            values = deparse(substitute(values)), 
-            labels = deparse(substitute(labels)), 
-            name = name, 
-            legend = legend, 
-            rm_x = rm_x, 
-            rm_y = rm_y, 
-            ...)
+  e_funnel_(
+    e = e, 
+    values = deparse(substitute(values)), 
+    labels = deparse(substitute(labels)), 
+    name = name, 
+    legend = legend, 
+    rm_x = rm_x, 
+    rm_y = rm_y, 
+    ...
+  )
+}
+
+#' @export
+#' @method e_funnel echarts4rProxy
+e_funnel.echarts4rProxy <- function(e, values, labels, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
   
+  if(missing(values) || missing(labels))
+    stop("missing values or labels", call. = FALSE)
+  
+  e$chart <- e_funnel_(
+    e = e$chart, 
+    values = deparse(substitute(values)), 
+    labels = deparse(substitute(labels)), 
+    name = name, 
+    legend = legend, 
+    rm_x = rm_x, 
+    rm_y = rm_y, 
+    ...
+  )
+
+  return(e)
 }
 
 #' Sankey
@@ -488,7 +724,11 @@ e_funnel <- function(e, values, labels, name = NULL, legend = TRUE, rm_x = TRUE,
 #' 
 #' @rdname e_sankey
 #' @export
-e_sankey <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_y = TRUE, ...){
+e_sankey <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_sankey")
+
+#' @export 
+#' @method e_sankey echarts4r
+e_sankey.echarts4r <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_y = TRUE, ...){
   
   if(missing(source) || missing(target) || missing(value))
     stop("missing source, target or values", call. = FALSE)
@@ -496,8 +736,28 @@ e_sankey <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
   
-  e_sankey_(e, deparse(substitute(source)), deparse(substitute(target)), 
-            deparse(substitute(value)), layout, rm_x, rm_y, ...)
+  e_sankey_(
+    e, deparse(substitute(source)), deparse(substitute(target)), 
+    deparse(substitute(value)), layout, rm_x, rm_y, ...
+  )
+}
+
+#' @export 
+#' @method e_sankey echarts4rProxy
+e_sankey.echarts4rProxy <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_y = TRUE, ...){
+  
+  if(missing(source) || missing(target) || missing(value))
+    stop("missing source, target or values", call. = FALSE)
+  
+  e <- .rm_axis(e, rm_x, "x")
+  e <- .rm_axis(e, rm_y, "y")
+  
+  e$chart <- e_sankey_(
+    e$chart, deparse(substitute(source)), deparse(substitute(target)), 
+    deparse(substitute(value)), layout, rm_x, rm_y, ...
+  )
+
+  return(e)
 }
 
 #' Graph
@@ -510,6 +770,7 @@ e_sankey <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_
 #' @param names Names of nodes, unique.
 #' @param value values of nodes.
 #' @param size Size of nodes.
+#' @param symbol Symbols of nodes.
 #' @param legend Whether to add serie to legend.
 #' @param category Group of nodes (i.e.: group membership).
 #' @param edges Data.frame of edges.
@@ -525,6 +786,7 @@ e_sankey <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_
 #'   name = sample(LETTERS, 10),
 #'   value = value,
 #'   size = value,
+#'   symbol = sample(c("circle", "rect", "triangle"), 10, replace = TRUE),
 #'   grp = rep(c("grp1", "grp2"), 5),
 #'   stringsAsFactors = FALSE
 #' )
@@ -537,7 +799,7 @@ e_sankey <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_
 #' 
 #' e_charts() %>% 
 #'   e_graph() %>% 
-#'   e_graph_nodes(nodes, name, value, size, grp) %>% 
+#'   e_graph_nodes(nodes, name, value, size, grp, symbol) %>% 
 #'   e_graph_edges(edges, source, target)
 #' 
 #' #Use graphGL for larger networks
@@ -565,7 +827,11 @@ e_sankey <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm_
 #' 
 #' @rdname graph
 #' @export
-e_graph <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, ...){
+e_graph <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_graph")
+
+#' @export 
+#' @method e_graph echarts4r
+e_graph.echarts4r <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
@@ -580,15 +846,35 @@ e_graph <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, 
   )
   
   e$x$opts$series <- append(e$x$opts$series, list(serie))
+
+  # add dependency
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep)) 
   
   e
 }
 
+#' @export 
+#' @method e_graph echarts4rProxy
+e_graph.echarts4rProxy <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, ...){
+  e$chart <- e_graph(e$chart, layout, name, rm_x, rm_y, ...)
+  return(e)
+}
+
 #' @rdname graph
 #' @export
-e_graph_gl <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+e_graph_gl <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_graph_gl")
+
+#' @export 
+#' @method e_graph_gl echarts4r
+e_graph_gl.echarts4r <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, ...){
   
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
@@ -604,15 +890,27 @@ e_graph_gl <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRU
   e
 }
 
+#' @export 
+#' @method e_graph_gl echarts4rProxy
+e_graph_gl.echarts4rProxy <- function(e, layout = "force", name = NULL, rm_x = TRUE, rm_y = TRUE, ...){
+  e$chart <- e_graph_gl(e$chart, layout, name, rm_x, rm_y, ...)
+  return(e)
+}
+
 #' @rdname graph
 #' @export
-e_graph_nodes <- function(e, nodes, names, value, size, category, legend = TRUE){
+e_graph_nodes <- function(e, nodes, names, value, size, category, symbol = NULL, legend = TRUE) UseMethod("e_graph_nodes")
+
+#' @export 
+#' @method e_graph_nodes echarts4r
+e_graph_nodes.echarts4r <- function(e, nodes, names, value, size, category, symbol = NULL, legend = TRUE){
   
   if(missing(nodes) || missing(names) || missing(value))
     stop("missing arguments", call. = FALSE)
   
   value <- dplyr::enquo(value)
   symbolSize <- dplyr::enquo(size)
+  symbol <- dplyr::enquo(symbol)
   names <- dplyr::enquo(names)
   
   if(!missing(category) && !missing(size)){
@@ -627,20 +925,23 @@ e_graph_nodes <- function(e, nodes, names, value, size, category, legend = TRUE)
       names, 
       value,
       symbolSize,
-      dplyr::enquo(category)
+      dplyr::enquo(category),
+      symbol
     )
   } else if(missing(category) && !missing(size)) {
     nodes <- .build_graph_nodes_no_cat(
       nodes, 
       names, 
       value,
-      symbolSize
+      symbolSize,
+      symbol
     )
   } else if (missing(category) && missing(size)){
     nodes <- .build_graph_nodes_no_size(
       nodes, 
       names, 
-      value
+      value,
+      symbol
     )
   }
   
@@ -649,9 +950,62 @@ e_graph_nodes <- function(e, nodes, names, value, size, category, legend = TRUE)
   e
 }
 
+#' @export 
+#' @method e_graph_nodes echarts4rProxy
+e_graph_nodes.echarts4rProxy <- function(e, nodes, names, value, size, category, symbol = NULL, legend = TRUE){
+  
+  if(missing(nodes) || missing(names) || missing(value))
+    stop("missing arguments", call. = FALSE)
+  
+  value <- dplyr::enquo(value)
+  symbolSize <- dplyr::enquo(size)
+  symbol <- dplyr::enquo(symbol)
+  names <- dplyr::enquo(names)
+  
+  if(!missing(category) && !missing(size)){
+    
+    e$chart$x$opts$series[[length(e$chart$x$opts$series)]]$categories <- .build_graph_category(nodes, dplyr::enquo(category))
+    
+    if(isTRUE(legend))
+      e$chart$x$opts$legend$data <- append(e$chart$x$opts$legend$data, unique(nodes[[deparse(substitute(category))]]))
+    
+    nodes <- .build_graph_nodes(
+      nodes, 
+      names, 
+      value,
+      symbolSize,
+      symbol,
+      dplyr::enquo(category)
+    )
+  } else if(missing(category) && !missing(size)) {
+    nodes <- .build_graph_nodes_no_cat(
+      nodes, 
+      names, 
+      value,
+      symbolSize,
+      symbol
+    )
+  } else if (missing(category) && missing(size)){
+    nodes <- .build_graph_nodes_no_size(
+      nodes, 
+      names, 
+      value,
+      symbol
+    )
+  }
+  
+  # build JSON data
+  e$chart$x$opts$series[[length(e$chart$x$opts$series)]]$data <- nodes
+  e
+}
+
 #' @rdname graph
 #' @export
-e_graph_edges <- function(e, edges, source, target){
+e_graph_edges <- function(e, edges, source, target) UseMethod("e_graph_edges")
+
+#' @method e_graph_edges echarts4r
+#' @export
+e_graph_edges.echarts4r <- function(e, edges, source, target){
   if(missing(edges) || missing(source) || missing(target))
     stop("must pass edges, source and target", call. = FALSE)
   
@@ -666,6 +1020,27 @@ e_graph_edges <- function(e, edges, source, target){
   
   # build JSON data
   e$x$opts$series[[length(e$x$opts$series)]]$links <- data
+  e
+}
+
+
+#' @method e_graph_edges echarts4rProxy
+#' @export
+e_graph_edges.echarts4rProxy <- function(e, edges, source, target){
+  if(missing(edges) || missing(source) || missing(target))
+    stop("must pass edges, source and target", call. = FALSE)
+  
+  source <- dplyr::enquo(source)
+  target <- dplyr::enquo(target)
+  
+  data <- .build_graph_edges(
+    edges, 
+    source, 
+    target
+  )
+  
+  # build JSON data
+  e$chart$x$opts$series[[length(e$chart$x$opts$series)]]$links <- data
   e
 }
 
@@ -761,8 +1136,13 @@ e_graph_edges <- function(e, edges, source, target){
 #' 
 #' @rdname e_heatmap
 #' @export
-e_heatmap <- function(e, y, z, name = NULL, coord_system = "cartesian2d", rm_x = TRUE, rm_y = TRUE, 
-                      calendar = NULL, ...){
+e_heatmap <- function(e, y, z, bind, name = NULL, coord_system = "cartesian2d", 
+  rm_x = TRUE, rm_y = TRUE, calendar = NULL, ...) UseMethod("e_heatmap")
+
+#' @export
+#' @method e_heatmap echarts4r
+e_heatmap.echarts4r <- function(e, y, z, bind, name = NULL, coord_system = "cartesian2d", 
+  rm_x = TRUE, rm_y = TRUE, calendar = NULL, ...){
   if(missing(y))
     stop("must pass y", call. = FALSE)
   
@@ -770,8 +1150,34 @@ e_heatmap <- function(e, y, z, name = NULL, coord_system = "cartesian2d", rm_x =
     z <- deparse(substitute(z))
   else
     z <- NULL
+
+  if(!missing(bind))
+    bind <- deparse(substitute(bind))
+  else
+    bind <- NULL
   
-  e_heatmap_(e, deparse(substitute(y)), z, name, coord_system, rm_x, rm_y, calendar, ...)
+  e_heatmap_(e, deparse(substitute(y)), z, bind, name, coord_system, rm_x, rm_y, calendar, ...)
+}
+
+#' @export
+#' @method e_heatmap echarts4rProxy
+e_heatmap.echarts4rProxy <- function(e, y, z, bind, name = NULL, coord_system = "cartesian2d", 
+  rm_x = TRUE, rm_y = TRUE, calendar = NULL, ...){
+  if(missing(y))
+    stop("must pass y", call. = FALSE)
+  
+  if(!missing(z))
+    z <- deparse(substitute(z))
+  else
+    z <- NULL
+
+  if(!missing(bind))
+    bind <- deparse(substitute(bind))
+  else
+    bind <- NULL
+  
+  e$chart <- e_heatmap_(e$chart, deparse(substitute(y)), z, bind, name, coord_system, rm_x, rm_y, calendar, ...)
+  return(e)
 }
 
 #' Parallel
@@ -796,10 +1202,11 @@ e_heatmap <- function(e, y, z, name = NULL, coord_system = "cartesian2d", rm_x =
 #' 
 #' @rdname e_parallel
 #' @export
-e_parallel <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE){
-  if(missing(e))
-    stop("must pass e", call. = FALSE) 
-  
+e_parallel <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE) UseMethod("e_parallel")
+
+#' @export 
+#' @method e_parallel echarts4r
+e_parallel.echarts4r <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE){  
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
   
@@ -837,6 +1244,13 @@ e_parallel <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE){
   e
 }
 
+#' @export 
+#' @method e_parallel echarts4rProxy
+e_parallel.echarts4rProxy <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE){
+  e$chart <- e_parallel(e$chart, ..., name = name, rm_x = rm_x, rm_y = rm_y)
+  return(e)
+}
+
 #' Pie
 #' 
 #' Draw pie and donut charts.
@@ -867,14 +1281,25 @@ e_parallel <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE){
 #' 
 #' @rdname e_pie
 #' @export
-e_pie <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
-  
+e_pie <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_pie")
+
+#' @export 
+#' @method e_pie echarts4r
+e_pie.echarts4r <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
   
   e_pie_(e, deparse(substitute(serie)), name, legend, rm_x, rm_y, ...)
+}
+
+#' @export 
+#' @method e_pie echarts4rProxy
+e_pie.echarts4rProxy <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  e$chart <- e_pie_(e$chart, deparse(substitute(serie)), name, legend, rm_x, rm_y, ...)
+  return(e)
 }
 
 #' Sunburst
@@ -911,7 +1336,7 @@ e_pie <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE
 #' df$borderColor <- sample(colors, 5, replace = TRUE)
 #' 
 #' df %>% 
-#'   tidyr::nest(color, borderColor, .key = "style") %>% # nest
+#'   tidyr::nest(c(color, borderColor), .key = "style") %>% # nest
 #'   e_charts() %>% 
 #'   e_sunburst(parent, child, value, style) 
 #' 
@@ -919,9 +1344,11 @@ e_pie <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE
 #' 
 #' @rdname e_sunburst
 #' @export
-e_sunburst <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+e_sunburst <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_sunburst")
+
+#' @export
+#' @method e_sunburst echarts4r
+e_sunburst.echarts4r <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...){
   
   if(!missing(itemStyle))
     style <- deparse(substitute(itemStyle))
@@ -933,6 +1360,23 @@ e_sunburst <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = T
               style, rm_x, rm_y, ...)
 }
 
+#' @export
+#' @method e_sunburst echarts4rProxy
+e_sunburst.echarts4rProxy <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...){
+
+  if(!missing(itemStyle))
+    style <- deparse(substitute(itemStyle))
+  else
+    style <- NULL
+  
+  e$chart <- e_sunburst_(
+    e$chart, deparse(substitute(parent)), 
+    deparse(substitute(child)), deparse(substitute(value)), 
+    style, rm_x, rm_y, ...
+  )
+  return(e)
+}
+
 #' Treemap
 #' 
 #' Build a treemap.
@@ -940,6 +1384,7 @@ e_sunburst <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = T
 #' @inheritParams e_bar
 #' @param parent,child Edges.
 #' @param value Value of edges.
+#' @param itemStyle Name of column containing styles to pass to \code{child}, 
 #' @param rm_x,rm_y Whether to remove x and y axis, defaults to \code{TRUE}.
 #' 
 #' @examples 
@@ -957,16 +1402,46 @@ e_sunburst <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = T
 #' 
 #' @rdname e_treemap
 #' @export
-e_treemap <- function(e, parent, child, value, rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+e_treemap <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_treemap")
+
+#' @export
+#' @method e_treemap echarts4r
+e_treemap.echarts4r <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...){
+
+  if(!missing(itemStyle))
+    style <- deparse(substitute(itemStyle))
+  else
+    style <- NULL
   
   if(missing(parent) || missing(child) || missing(value))
     stop("must pass parent, child and value", call. = FALSE)
   
-  e_treemap_(e, deparse(substitute(parent)), 
-              deparse(substitute(child)), deparse(substitute(value)), 
-              rm_x, rm_y, ...)
+  e_treemap_(
+    e, deparse(substitute(parent)), 
+    deparse(substitute(child)), deparse(substitute(value)),
+    style, rm_x, rm_y, ...
+  )
+}
+
+#' @export
+#' @method e_treemap echarts4rProxy
+e_treemap.echarts4rProxy <- function(e, parent, child, value, itemStyle, rm_x = TRUE, rm_y = TRUE, ...){
+
+  if(!missing(itemStyle))
+    style <- deparse(substitute(itemStyle))
+  else
+    style <- NULL
+  
+  if(missing(parent) || missing(child) || missing(value))
+    stop("must pass parent, child and value", call. = FALSE)
+  
+  e$chart <- e_treemap_(
+    e$chart, deparse(substitute(parent)), 
+    deparse(substitute(child)), deparse(substitute(value)),
+    style, rm_x, rm_y, ...
+  )
+
+  return(e)
 }
 
 #' River
@@ -996,14 +1471,27 @@ e_treemap <- function(e, parent, child, value, rm_x = TRUE, rm_y = TRUE, ...){
 #' 
 #' @rdname e_river
 #' @export
-e_river <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+e_river <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_river")
+
+#' @export
+#' @method e_river echarts4r
+e_river.echarts4r <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
   
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
   
   e_river_(e, deparse(substitute(serie)), name, legend, rm_x, rm_y, ...)
+}
+
+#' @export
+#' @method e_river echarts4rProxy
+e_river.echarts4rProxy <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRUE, ...){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  e$chart <- e_river_(e$chart, deparse(substitute(serie)), name, legend, rm_x, rm_y, ...)
+  return(e)
 }
 
 #' Boxplot
@@ -1029,7 +1517,11 @@ e_river <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TR
 #' 
 #' @rdname e_boxplot
 #' @export
-e_boxplot <- function(e, serie, name = NULL, outliers = TRUE, ...){
+e_boxplot <- function(e, serie, name = NULL, outliers = TRUE, ...) UseMethod("e_boxplot")
+
+#' @export 
+#' @method e_boxplot echarts4r
+e_boxplot.echarts4r <- function(e, serie, name = NULL, outliers = TRUE, ...){
   
   if(missing(serie))
     stop("must pass serie", call. = FALSE)
@@ -1038,6 +1530,20 @@ e_boxplot <- function(e, serie, name = NULL, outliers = TRUE, ...){
     name <- deparse(substitute(serie))
   
   e_boxplot_(e, deparse(substitute(serie)), name, outliers, ...)
+}
+
+#' @export 
+#' @method e_boxplot echarts4rProxy
+e_boxplot.echarts4rProxy <- function(e, serie, name = NULL, outliers = TRUE, ...){
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  if(is.null(name)) # defaults to column name
+    name <- deparse(substitute(serie))
+  
+  e$chart <- e_boxplot_(e, deparse(substitute(serie)), name, outliers, ...)
+  return(e)
 }
 
 #' Tree
@@ -1062,14 +1568,27 @@ e_boxplot <- function(e, serie, name = NULL, outliers = TRUE, ...){
 #' 
 #' @rdname e_tree
 #' @export
-e_tree <- function(e, parent, child, rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
-  
+e_tree <- function(e, parent, child, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_tree")
+
+#' @export
+#' @method e_tree echarts4r
+e_tree.echarts4r <- function(e, parent, child, rm_x = TRUE, rm_y = TRUE, ...){
+
   if(missing(parent) || missing(child))
     stop("must pass parent and child", call. = FALSE)
   
   e_tree_(e, deparse(substitute(parent)), deparse(substitute(child)), rm_x, rm_y, ...)
+}
+
+#' @export
+#' @method e_tree echarts4rProxy
+e_tree.echarts4rProxy <- function(e, parent, child, rm_x = TRUE, rm_y = TRUE, ...){
+
+  if(missing(parent) || missing(child))
+    stop("must pass parent and child", call. = FALSE)
+  
+  e$chart <- e_tree_(e$chart, deparse(substitute(parent)), deparse(substitute(child)), rm_x, rm_y, ...)
+  return(e)
 }
 
 #' Gauge
@@ -1089,7 +1608,11 @@ e_tree <- function(e, parent, child, rm_x = TRUE, rm_y = TRUE, ...){
 #' 
 #' @rdname e_gauge
 #' @export
-e_gauge <- function(e, value, name, rm_x = TRUE, rm_y = TRUE, ...){
+e_gauge <- function(e, value, name, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_gauge")
+
+#' @export
+#' @method e_gauge echarts4r
+e_gauge.echarts4r <- function(e, value, name, rm_x = TRUE, rm_y = TRUE, ...){
   
   if(missing(e) || missing(value) || missing(name))
     stop("missing e, name, or value", call. = FALSE)
@@ -1123,9 +1646,18 @@ e_gauge <- function(e, value, name, rm_x = TRUE, rm_y = TRUE, ...){
   e
 }
 
+#' @export
+#' @method e_gauge echarts4rProxy
+e_gauge.echarts4rProxy <- function(e, value, name, rm_x = TRUE, rm_y = TRUE, ...){
+  e <- e$chart <- e_gauge(e$chart, value, name, rm_x, rm_y, ...)
+  return(e)
+}
+
 #' @rdname e_gauge
 #' @export
-e_gauge_ <- e_gauge
+e_gauge_ <- function(...){
+  .Deprecated("e_gauge", package = "echarts4r")
+}
 
 #' Lines 3D
 #' 
@@ -1222,9 +1754,44 @@ e_gauge_ <- e_gauge
 #' @rdname line3D
 #' @export
 e_lines_3d <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name, value, name = NULL, 
+                       coord_system = "globe", rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_lines_3d")
+
+#' @export
+#' @method e_lines_3d echarts4r
+e_lines_3d.echarts4r <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name, value, name = NULL, 
                        coord_system = "globe", rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+  
+  if(missing(source_lat) || missing(source_lon) || missing(target_lat) || missing(target_lon))
+    stop("missing coordinates", call. = FALSE)
+  
+  if(missing(source_name))
+    source_name <- NULL
+  else
+    source_name <- deparse(substitute(source_name))
+  
+  if(missing(target_name))
+    target_name <- NULL
+  else 
+    target_name <- deparse(substitute(target_name))
+  
+  if(missing(value))
+    value <- NULL
+  else 
+    value <- deparse(substitute(value))
+  
+  e_lines_3d_(
+    e, deparse(substitute(source_lon)), deparse(substitute(source_lat)), 
+    deparse(substitute(target_lon)), deparse(substitute(target_lat)), 
+    source_name, target_name, value,
+    name, coord_system, rm_x, rm_y, 
+    ...
+  )
+}
+
+#' @export
+#' @method e_lines_3d echarts4rProxy
+e_lines_3d.echarts4rProxy <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name, value, name = NULL, 
+                       coord_system = "globe", rm_x = TRUE, rm_y = TRUE, ...){
   
   if(missing(source_lat) || missing(source_lon) || missing(target_lat) || missing(target_lon))
     stop("missing coordinates", call. = FALSE)
@@ -1237,16 +1804,24 @@ e_lines_3d <- function(e, source_lon, source_lat, target_lon, target_lat, source
   if(missing(value))
     value <- NULL
   
-  e_lines_3d_(e, deparse(substitute(source_lon)), deparse(substitute(source_lat)), 
-              deparse(substitute(target_lon)), deparse(substitute(target_lat)), 
-              deparse(substitute(source_name)), deparse(substitute(target_name)),
-              deparse(substitute(value)),
-              name, coord_system, rm_x, rm_y, ...)
+  e$chart <- e_lines_3d_(
+    e$chart, deparse(substitute(source_lon)), deparse(substitute(source_lat)), 
+    deparse(substitute(target_lon)), deparse(substitute(target_lat)), 
+    deparse(substitute(source_name)), deparse(substitute(target_name)),
+    deparse(substitute(value)),
+    name, coord_system, rm_x, rm_y, 
+    ...
+  )
+  return(e)
 }
 
 #' @rdname line3D
 #' @export
-e_line_3d <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...){
+e_line_3d <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_line_3d")
+
+#' @export
+#' @method e_line_3d echarts4r
+e_line_3d.echarts4r <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
   
@@ -1254,7 +1829,21 @@ e_line_3d <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, rm
     stop("missing coordinates", call. = FALSE)
   
   e_line_3d_(e, deparse(substitute(y)), deparse(substitute(z)), 
-             name, coord_system, rm_x, rm_y, ...)
+    name, coord_system, rm_x, rm_y, ...)
+}
+
+#' @export
+#' @method e_line_3d echarts4rProxy
+e_line_3d.echarts4rProxy <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...){
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(y) || missing(z))
+    stop("missing coordinates", call. = FALSE)
+  
+  e$chart <- e_line_3d_(e$chart, deparse(substitute(y)), deparse(substitute(z)), 
+    name, coord_system, rm_x, rm_y, ...)
+  return(e)
 }
 
 #' Bar 3D
@@ -1339,9 +1928,12 @@ e_line_3d <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, rm
 #' @rdname e_bar_3d
 #' @export
 e_bar_3d <- function(e, y, z, bind, coord_system = "cartesian3D", name = NULL, 
+                     rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_bar_3d")
+
+#' @export
+#' @method e_bar_3d echarts4r
+e_bar_3d.echarts4r <- function(e, y, z, bind, coord_system = "cartesian3D", name = NULL, 
                      rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
   
   if(missing(y) || missing(z))
     stop("must pass y and z", call. = FALSE)
@@ -1352,7 +1944,25 @@ e_bar_3d <- function(e, y, z, bind, coord_system = "cartesian3D", name = NULL,
     bd <- deparse(substitute(bind))
   
   e_bar_3d_(e, deparse(substitute(y)), deparse(substitute(z)), bd, 
-            coord_system, name, rm_x, rm_y, ...)
+    coord_system, name, rm_x, rm_y, ...)
+}
+
+#' @export
+#' @method e_bar_3d echarts4rProxy
+e_bar_3d.echarts4rProxy <- function(e, y, z, bind, coord_system = "cartesian3D", name = NULL, 
+                     rm_x = TRUE, rm_y = TRUE, ...){
+  
+  if(missing(y) || missing(z))
+    stop("must pass y and z", call. = FALSE)
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  e$chart <- e_bar_3d_(e$chart, deparse(substitute(y)), deparse(substitute(z)), bd, 
+    coord_system, name, rm_x, rm_y, ...)
+  return(e)
 }
 
 #' Surface
@@ -1379,6 +1989,11 @@ e_bar_3d <- function(e, y, z, bind, coord_system = "cartesian3D", name = NULL,
 #' @rdname e_surface
 #' @export
 e_surface <- function(e, y, z, bind, name = NULL, 
+                     rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_surface")
+
+#' @export 
+#' @method e_surface echarts4r
+e_surface.echarts4r <- function(e, y, z, bind, name = NULL, 
                      rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
@@ -1393,6 +2008,26 @@ e_surface <- function(e, y, z, bind, name = NULL,
   
   e_surface_(e, deparse(substitute(y)), deparse(substitute(z)), bd, 
             name, rm_x, rm_y, ...)
+}
+
+#' @export 
+#' @method e_surface echarts4rProxy
+e_surface.echarts4rProxy <- function(e, y, z, bind, name = NULL, 
+                     rm_x = TRUE, rm_y = TRUE, ...){
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(y) || missing(z))
+    stop("must pass y and z", call. = FALSE)
+  
+  if(missing(bind))
+    bd <- NULL
+  else
+    bd <- deparse(substitute(bind))
+  
+  e$chart <- e_surface_(e$chart, deparse(substitute(y)), deparse(substitute(z)), bd, 
+            name, rm_x, rm_y, ...)
+  return(e)
 }
 
 #' Lines
@@ -1458,7 +2093,44 @@ e_surface <- function(e, y, z, bind, name = NULL,
 #' 
 #' @rdname e_lines
 #' @export
-e_lines <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name ,value, coord_system = "geo", name = NULL, 
+e_lines <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name, value, coord_system = "geo", name = NULL, 
+                    rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_lines")
+
+#' @export 
+#' @method e_lines echarts4r
+e_lines.echarts4r <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name ,value, coord_system = "geo", name = NULL, 
+                    rm_x = TRUE, rm_y = TRUE, ...){
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(source_lat) || missing(source_lon) || missing(target_lat) || missing(target_lon))
+    stop("missing coordinates", call. = FALSE)
+  
+  if(missing(source_name))
+    source_name <- NULL
+  else
+    source_name <- deparse(substitute(source_name))
+  
+  if(missing(target_name))
+    target_name <- NULL
+  else
+    target_name <- deparse(substitute(target_name))
+  
+  if(missing(value))
+    value <- NULL
+  else
+    value <- deparse(substitute(value))
+  
+  e_lines_(e, deparse(substitute(source_lon)), deparse(substitute(source_lat)), 
+           deparse(substitute(target_lon)), deparse(substitute(target_lat)),
+           source_name, target_name,
+           value,
+           coord_system, name, rm_x, rm_y, ...)
+}
+
+#' @export 
+#' @method e_lines echarts4rProxy
+e_lines.echarts4rProxy <- function(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name ,value, coord_system = "geo", name = NULL, 
                     rm_x = TRUE, rm_y = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
@@ -1475,11 +2147,13 @@ e_lines <- function(e, source_lon, source_lat, target_lon, target_lat, source_na
   if(missing(value))
     value <- NULL
   
-  e_lines_(e, deparse(substitute(source_lon)), deparse(substitute(source_lat)), 
+  e$chart <- e_lines_(e$chart, deparse(substitute(source_lon)), deparse(substitute(source_lat)), 
            deparse(substitute(target_lon)), deparse(substitute(target_lat)),
            deparse(substitute(source_name)), deparse(substitute(target_name)),
            deparse(substitute(value)),
            coord_system, name, rm_x, rm_y, ...)
+
+  return(e)
 }
 
 #' Scatter 3D
@@ -1554,9 +2228,12 @@ e_lines <- function(e, source_lon, source_lat, target_lon, target_lat, source_na
 #' @rdname e_scatter_3d
 #' @export
 e_scatter_3d <- function(e, y, z, color, size, bind, coord_system = "cartesian3D", name = NULL, 
+                         rm_x = TRUE, rm_y = TRUE, legend = FALSE, ...) UseMethod("e_scatter_3d")
+
+#' @export 
+#' @method e_scatter_3d echarts4r
+e_scatter_3d.echarts4r <- function(e, y, z, color, size, bind, coord_system = "cartesian3D", name = NULL, 
                          rm_x = TRUE, rm_y = TRUE, legend = FALSE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
   
   if(missing(y) || missing(z))
     stop("must pass y and z", call. = FALSE)
@@ -1578,6 +2255,35 @@ e_scatter_3d <- function(e, y, z, color, size, bind, coord_system = "cartesian3D
   
   e_scatter_3d_(e, deparse(substitute(y)), deparse(substitute(z)), colour, sz, bd, coord_system, name, 
                 rm_x, rm_y, legend, ...)
+}
+
+#' @export 
+#' @method e_scatter_3d echarts4rProxy
+e_scatter_3d.echarts4rProxy <- function(e, y, z, color, size, bind, coord_system = "cartesian3D", name = NULL, 
+                         rm_x = TRUE, rm_y = TRUE, legend = FALSE, ...){
+  
+  if(missing(y) || missing(z))
+    stop("must pass y and z", call. = FALSE)
+  
+  if(!missing(color))
+    colour <- deparse(substitute(color))
+  else
+    colour <- NULL
+  
+  if(!missing(size))
+    sz <- deparse(substitute(size))
+  else
+    sz <- NULL
+  
+  if(!missing(bind))
+    bd <- deparse(substitute(bind))
+  else
+    bd <- NULL
+  
+  e$chart <- e_scatter_3d_(e$chart, deparse(substitute(y)), deparse(substitute(z)), colour, sz, bd, coord_system, name, 
+    rm_x, rm_y, legend, ...)
+
+  return(e)
 }
 
 #' Flow GL
@@ -1655,10 +2361,12 @@ e_scatter_3d <- function(e, y, z, color, size, bind, coord_system = "cartesian3D
 #' 
 #' @rdname e_flow_gl
 #' @export
-e_flow_gl <- function(e, y, sx, sy, color, name = NULL, coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
-  
+e_flow_gl <- function(e, y, sx, sy, color, name = NULL, coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_flow_gl")
+
+#' @export 
+#' @method e_flow_gl echarts4r
+e_flow_gl.echarts4r <- function(e, y, sx, sy, color, name = NULL, coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...){
+
   if(missing(y) || missing(sx) || missing(sy))
     stop("must pass y and z", call. = FALSE)
   
@@ -1673,7 +2381,33 @@ e_flow_gl <- function(e, y, sx, sy, color, name = NULL, coord_system = NULL, rm_
     sx = deparse(substitute(sx)), 
     sy = deparse(substitute(sy)), 
     color = colour, 
-    name, coord_system, rm_x, rm_y, ...)
+    name, coord_system, rm_x, rm_y, 
+    ...
+  )
+}
+
+#' @export 
+#' @method e_flow_gl echarts4rProxy
+e_flow_gl.echarts4rProxy <- function(e, y, sx, sy, color, name = NULL, coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...){
+
+  if(missing(y) || missing(sx) || missing(sy))
+    stop("must pass y and z", call. = FALSE)
+  
+  if(!missing(color))
+    colour <- deparse(substitute(color))
+  else
+    colour <- NULL
+  
+  e$chart <- e_flow_gl_(
+    e = e$chart, 
+    y = deparse(substitute(y)), 
+    sx = deparse(substitute(sx)), 
+    sy = deparse(substitute(sy)), 
+    color = colour, 
+    name, coord_system, rm_x, rm_y, 
+    ...
+  )
+  return(e)
 }
 
 #' Scatter GL
@@ -1716,14 +2450,39 @@ e_flow_gl <- function(e, y, sx, sy, color, name = NULL, coord_system = NULL, rm_
 #' 
 #' @rdname e_scatter_gl
 #' @export
-e_scatter_gl <- function(e, y, z, name = NULL, coord_system = "geo", rm_x = TRUE, rm_y = TRUE, ...){
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+e_scatter_gl <- function(e, y, z, name = NULL, coord_system = "geo", rm_x = TRUE, rm_y = TRUE, ...) UseMethod("e_scatter_gl")
+
+#' @export 
+#' @method e_scatter_gl echarts4r
+e_scatter_gl.echarts4r <- function(e, y, z, name = NULL, coord_system = "geo", rm_x = TRUE, rm_y = TRUE, ...){
+
+  if(missing(y) || missing(z))
+    stop("must pass y and z", call. = FALSE)
+  
+  e_scatter_gl_(
+    e, 
+    deparse(substitute(y)), 
+    deparse(substitute(z)), 
+    name, coord_system, rm_x, 
+    rm_y, ...
+  )
+}
+
+#' @export 
+#' @method e_scatter_gl echarts4rProxy
+e_scatter_gl.echarts4rProxy <- function(e, y, z, name = NULL, coord_system = "geo", rm_x = TRUE, rm_y = TRUE, ...){
   
   if(missing(y) || missing(z))
     stop("must pass y and z", call. = FALSE)
   
-  e_scatter_gl_(e, deparse(substitute(y)), deparse(substitute(z)), name, coord_system, rm_x, rm_y, ...)
+  e$chart <- e_scatter_gl_(
+    e$chart, 
+    deparse(substitute(y)), 
+    deparse(substitute(z)), 
+    name, coord_system, 
+    rm_x, rm_y, ...
+  )
+  return(e)
 }
 
 #' Pictorial
@@ -1819,10 +2578,11 @@ e_scatter_gl <- function(e, y, z, name = NULL, coord_system = "geo", rm_x = TRUE
 #' 
 #' @rdname e_pictorial
 #' @export
-e_pictorial <- function(e, serie, symbol, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, ...){
-  
-  if(missing(e))
-    stop("must pass e", call. = FALSE)
+e_pictorial <- function(e, serie, symbol, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, ...) UseMethod("e_pictorial")
+
+#' @export 
+#' @method e_pictorial echarts4r
+e_pictorial.echarts4r <- function(e, serie, symbol, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, ...){
    
   if(missing(serie) || missing(symbol))
     stop("must pass serie and symbol", call. = FALSE)
@@ -1836,7 +2596,37 @@ e_pictorial <- function(e, serie, symbol, bind, name = NULL, legend = TRUE, y_in
   if(deparse(substitute(symbol)) %in% colnames(e$x$data[[1]]))
     symbol <- deparse(substitute(symbol))
   
-  e_pictorial_(e, deparse(substitute(serie)), symbol, bd, name, legend, y_index, x_index, ...)
+  e_pictorial_(
+    e, 
+    deparse(substitute(serie)), 
+    symbol, bd, name, legend, 
+    y_index, x_index, ...
+  )
+}
+
+#' @export 
+#' @method e_pictorial echarts4rProxy
+e_pictorial.echarts4rProxy <- function(e, serie, symbol, bind, name = NULL, legend = TRUE, y_index = 0, x_index = 0, ...){
+   
+  if(missing(serie) || missing(symbol))
+    stop("must pass serie and symbol", call. = FALSE)
+  
+  if(!missing(bind))
+    bd <- deparse(substitute(bind))
+  else
+    bd <- NULL
+  
+  # only deparse if it is a column name
+  if(deparse(substitute(symbol)) %in% colnames(e$chart$x$data[[1]]))
+    symbol <- deparse(substitute(symbol))
+  
+  e$chart <- e_pictorial_(
+    e$chart, 
+    deparse(substitute(serie)), 
+    symbol, bd, name, legend, 
+    y_index, x_index, ...
+  )
+  return(e)
 }
 
 #' Smooth
@@ -1873,7 +2663,11 @@ e_pictorial <- function(e, serie, symbol, bind, name = NULL, legend = TRUE, y_in
 #' 
 #' @rdname smooth
 #' @export
-e_lm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...){
+e_lm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...) UseMethod("e_lm")
+
+#' @export
+#' @method e_lm echarts4r
+e_lm.echarts4r <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...){
   
   form <- as.formula(formula)
   
@@ -1940,9 +2734,82 @@ e_lm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth
   e 
 }
 
+#' @export
+#' @method e_lm echarts4rProxy
+e_lm.echarts4rProxy <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...){
+  
+  form <- as.formula(formula)
+  
+  for(i in 1:length(e$chart$x$data)){
+    
+    model <- tryCatch(
+      eval(
+        lm(form, data = e$chart$x$data[[i]])
+      ),
+      error = function(e) e
+    )
+    
+    if(!inherits(model, "error")){
+      
+      data <- broom::augment(model)
+      data <- data %>% dplyr::select(-dplyr::one_of(names(model$model)))
+      
+      e$chart$x$data[[i]] <- dplyr::bind_cols(e$chart$x$data[[i]], data)
+      
+      vector <- .build_data2(e$chart$x$data[[i]], e$chart$x$mapping$x, ".fitted")
+      
+      l_data <- list(data = vector)
+      
+      l <- list(
+        name = name,
+        type = "line",
+        symbol = symbol,
+        smooth = smooth,
+        ...
+      )
+      
+      if(!e$chart$x$tl){
+        
+        if(is.null(name)) 
+          nm <- paste0(names(e$chart$x$data)[i],"-lm")
+        else
+          nm <- name
+        
+        l$name <- nm
+        
+        l <- append(l, l_data)
+        
+        e$chart$x$opts$series <- append(e$chart$x$opts$series, list(l))
+        
+        if(isTRUE(legend))
+          e$chart$x$opts$legend$data <- append(e$chart$x$opts$legend$data, list(nm))
+        
+      } else {
+        e$chart$x$opts$options[[i]]$series <- append(e$chart$x$opts$options[[i]]$series, list(l_data))
+      }
+      
+    }
+    
+  }
+  
+  if(isTRUE(e$chart$x$tl) && !inherits(model, "error")){
+    
+    if(isTRUE(legend) && !is.null(name))
+      e$chart$x$opts$baseOption$legend$data <- append(e$chart$x$opts$baseOption$legend$data, list(name))
+    
+    e$chart$x$opts$baseOption$series <- append(e$chart$x$opts$baseOption$series, list(l))
+  }
+  
+  e 
+}
+
 #' @rdname smooth
 #' @export
-e_glm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...){
+e_glm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...) UseMethod("e_glm")
+
+#' @export 
+#' @method e_glm echarts4r
+e_glm.echarts4r <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...){
   
   form <- as.formula(formula)
   
@@ -2009,9 +2876,83 @@ e_glm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smoot
   e 
 }
 
+#' @export 
+#' @method e_glm echarts4rProxy
+e_glm.echarts4rProxy <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, ...){
+  
+  form <- as.formula(formula)
+  
+  for(i in 1:length(e$chart$x$data)){
+    
+    model <- tryCatch(
+      eval(
+        glm(form, data = e$chart$x$data[[i]])
+      ),
+      error = function(e) e
+    )
+    
+    if(!inherits(model, "error")){
+      
+      data <- broom::augment(model)
+      data <- data %>% dplyr::select(-dplyr::one_of(names(model$model)))
+      
+      e$chart$x$data[[i]] <- dplyr::bind_cols(e$chart$x$data[[i]], data)
+      
+      vector <- .build_data2(e$chart$x$data[[i]], e$chart$x$mapping$x, ".fitted")
+      
+      l_data <- list(data = vector)
+      
+      l_opts <- list(
+        name = name,
+        type = "line",
+        symbol = symbol,
+        smooth = smooth,
+        ...
+      )
+      
+      if(!e$chart$x$tl){
+        
+        if(is.null(name)) 
+          nm <- paste0(names(e$chart$x$data)[i],"-glm")
+        else
+          nm <- name
+        
+        l_opts$name <- nm
+        
+        l <- append(l, l_opts)
+        
+        e$chart$x$opts$series <- append(e$chart$x$opts$series, list(l))
+        
+        if(isTRUE(legend))
+          e$chart$x$opts$legend$data <- append(e$chart$x$opts$legend$data, list(nm))
+        
+      } else {
+        e$chart$x$opts$options[[i]]$series <- append(e$chart$x$opts$options[[i]]$series, list(l_data))
+      }
+      
+    }
+    
+  }
+  
+  if(isTRUE(e$chart$x$tl) && !inherits(model, "error")){
+    
+    if(isTRUE(legend) && !is.null(name))
+      e$chart$x$opts$baseOption$legend$data <- append(e$chart$x$opts$baseOption$legend$data, list(name))
+    
+    e$chart$x$opts$baseOption$series <- append(e$chart$x$opts$baseOption$series, list(l))
+  }
+  
+  e 
+}
+
 #' @rdname smooth
 #' @export
 e_loess <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, 
+                    x_index = 0, y_index = 0, ...) UseMethod("e_loess")
+
+#' @export 
+#' @method e_loess echarts4r
+e_loess.echarts4r <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, 
                     x_index = 0, y_index = 0, ...){
 
   for(i in 1:length(e$x$data)){
@@ -2085,6 +3026,82 @@ e_loess <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smo
   e
 }
 
+#' @export 
+#' @method e_loess echarts4rProxy
+e_loess.echarts4rProxy <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, 
+                    x_index = 0, y_index = 0, ...){
+
+  for(i in 1:length(e$chart$x$data)){
+    
+    mod <- tryCatch(
+      eval(
+        loess(as.formula(formula), data = e$chart$x$data[[i]])
+      ),
+      error = function(e) e
+    )
+    
+    if(!inherits(mod, "error")){
+      
+      ser <- "ECHARTS4RLOESS"
+      
+      e$chart$x$data[[i]][, ser] <- predict(mod)
+      
+      vector <- .build_data2(
+        e$chart$x$data[[i]], 
+        e$chart$x$mapping$x,
+        ser
+      )
+      
+      l_data <- list(data = vector)
+      
+      l_opts <- list(
+        type = "line",
+        yAxisIndex = y_index,
+        xAxisIndex = x_index,
+        name = name,
+        ...
+      )
+      
+      if(y_index != 0)
+        e <- .set_y_axis(e, name, y_index)
+      
+      if(x_index != 0)
+        e <- .set_x_axis(e, x_index)
+      
+      if(!e$chart$x$tl){
+        
+        if(is.null(name))
+          nm <- paste0(names(e$chart$x$data)[i],"-loess")
+        else
+          nm <- name
+        
+        l_opts$name <- nm
+        
+        l_data <- append(l_data, l_opts)
+        
+        if(isTRUE(legend) && !is.null(nm))
+          e$chart$x$opts$legend$data <- append(e$chart$x$opts$legend$data, list(nm))
+        
+        e$chart$x$opts$series <- append(e$chart$x$opts$series, list(l_data))
+      } else {
+        e$chart$x$opts$options[[i]]$series <- append(e$chart$x$opts$options[[i]]$series, list(l_data))
+      }
+      
+    }
+    
+  }
+  
+  if(isTRUE(e$chart$x$tl) && !inherits(mod, "error")){
+    
+    if(isTRUE(legend) && !is.null(name))
+      e$chart$x$opts$baseOption$legend$data <- append(e$chart$x$opts$baseOption$legend$data, list(name))
+    
+    e$chart$x$opts$baseOption$series <- append(e$chart$x$opts$baseOption$series, list(l_opts))
+  }
+  
+  e
+}
+
 #' Histogram & Density
 #' 
 #' Add a histogram or density plots.
@@ -2111,6 +3128,11 @@ e_loess <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smo
 #' @rdname histogram
 #' @export
 e_histogram <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
+                        bar_width = "99%", x_index = 0, y_index = 0, ...) UseMethod("e_histogram")
+
+#' @export 
+#' @method e_histogram echarts4r
+e_histogram.echarts4r <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
                         bar_width = "99%", x_index = 0, y_index = 0, ...){
   
   if(missing(e))
@@ -2122,9 +3144,29 @@ e_histogram <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE
   e_histogram_(e, deparse(substitute(serie)), breaks, name, legend, bar_width, x_index, y_index, ...)
 }
 
+#' @export 
+#' @method e_histogram echarts4rProxy
+e_histogram.echarts4rProxy <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
+                        bar_width = "99%", x_index = 0, y_index = 0, ...){
+  
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  e$chart <- e_histogram_(e$chart, deparse(substitute(serie)), breaks, name, legend, bar_width, x_index, y_index, ...)
+  return(e)
+}
+
 #' @rdname histogram
 #' @export
 e_density <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE, 
+                      x_index = 0, y_index = 0, smooth = TRUE, ...) UseMethod("e_density")
+
+#' @export 
+#' @method e_density echarts4r
+e_density.echarts4r <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE, 
                       x_index = 0, y_index = 0, smooth = TRUE, ...){
   if(missing(e))
     stop("must pass e", call. = FALSE)
@@ -2135,6 +3177,19 @@ e_density <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
   e_density_(e, deparse(substitute(serie)), breaks, name, legend, x_index, y_index, ...)
 }
 
+#' @export 
+#' @method e_density echarts4rProxy
+e_density.echarts4rProxy <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE, 
+                      x_index = 0, y_index = 0, smooth = TRUE, ...){
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(serie))
+    stop("must pass serie", call. = FALSE)
+  
+  e$chart <- e_density_(e$chart, deparse(substitute(serie)), breaks, name, legend, x_index, y_index, ...)
+  return(e)
+}
 
 #' Lines WebGL
 #' 
@@ -2142,11 +3197,14 @@ e_density <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
 #' 
 #' @inheritParams e_bar
 #' @param data A list.
-#' @param ... Any other options, see this \href{https://ecomfe.github.io/echarts-examples/public/editor.html?c=linesGL-ny&gl=1}{example}
-#' for possible options, as this series type is mostly undocumented.
+#' @param ... Any other options (this series type is mostly undocumented).
 #' 
 #' @export
-e_lines_gl <- function(e, data, coord_system = "geo", ...){
+e_lines_gl <- function(e, data, coord_system = "geo", ...) UseMethod("e_lines_gl")
+
+#' @export 
+#' @method e_lines_gl echarts4r
+e_lines_gl.echarts4r <- function(e, data, coord_system = "geo", ...){
   
   if(missing(data) || missing(e))
     stop("missing e or data", call. = FALSE)
@@ -2159,6 +3217,24 @@ e_lines_gl <- function(e, data, coord_system = "geo", ...){
   )
   
   e$x$opts$series <- append(e$x$opts$series, list(serie))
+  e
+}
+
+#' @export 
+#' @method e_lines_gl echarts4rProxy
+e_lines_gl.echarts4rProxy <- function(e, data, coord_system = "geo", ...){
+  
+  if(missing(data) || missing(e))
+    stop("missing e or data", call. = FALSE)
+  
+  serie <- list(
+    type = "linesGL",
+    coordinateSystem = coord_system,
+    data = data,
+    ...
+  )
+  
+  e$chart$x$opts$series <- append(e$chart$x$opts$series, list(serie))
   e
 }
 
@@ -2194,6 +3270,12 @@ e_lines_gl <- function(e, data, coord_system = "geo", ...){
 #' @export
 e_band <- function(e, min, max, stack = "confidence-band", symbol = c("none", "none"),
                    areaStyle = list(list(color = "rgba(0,0,0,0)"), list()), 
+                   legend = list(FALSE, FALSE), ...) UseMethod("e_band")
+
+#' @export 
+#' @method e_band echarts4r
+e_band.echarts4r <- function(e, min, max, stack = "confidence-band", symbol = c("none", "none"),
+                   areaStyle = list(list(color = "rgba(0,0,0,0)"), list()), 
                    legend = list(FALSE, FALSE), ...){
   
   if(missing(e))
@@ -2204,6 +3286,31 @@ e_band <- function(e, min, max, stack = "confidence-band", symbol = c("none", "n
   
   e_band_(
     e,  
+    deparse(substitute(min)), 
+    deparse(substitute(max)), 
+    stack = "confidence-band", 
+    symbol = symbol,
+    areaStyle = areaStyle,
+    legend = legend,
+    ...
+  )
+  
+}
+
+#' @export 
+#' @method e_band echarts4rProxy
+e_band.echarts4rProxy <- function(e, min, max, stack = "confidence-band", symbol = c("none", "none"),
+                   areaStyle = list(list(color = "rgba(0,0,0,0)"), list()), 
+                   legend = list(FALSE, FALSE), ...){
+  
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(min) || missing(max))
+    stop("must pass min and max", call. = FALSE)
+  
+  e$chart <- e_band_(
+    e$chart,  
     deparse(substitute(min)), 
     deparse(substitute(max)), 
     stack = "confidence-band", 
@@ -2236,7 +3343,11 @@ e_band <- function(e, min, max, stack = "confidence-band", symbol = c("none", "n
 #'   )
 #'
 #' @export
-e_correlations <- function(e, order = NULL, visual_map = TRUE, ...){
+e_correlations <- function(e, order = NULL, visual_map = TRUE, ...) UseMethod("e_correlations")
+
+#' @export 
+#' @method e_correlations echarts4r
+e_correlations.echarts4r <- function(e, order = NULL, visual_map = TRUE, ...){
   
   if(missing(e))
     stop("missing e", call. = FALSE)
@@ -2258,6 +3369,34 @@ e_correlations <- function(e, order = NULL, visual_map = TRUE, ...){
   
   if(isTRUE(visual_map))
     e <- e %>% e_visual_map_(min = -1, max = 1, ...)
+    
+  return(e)
+}
+
+#' @export 
+#' @method e_correlations echarts4rProxy
+e_correlations.echarts4rProxy <- function(e, order = NULL, visual_map = TRUE, ...){
+  
+  if(missing(e))
+    stop("missing e", call. = FALSE)
+  
+  mat <- e$chart$x$data[[1]]
+  
+  if(!is.null(order)){
+    order <- corrplot::corrMatOrder(mat, order = order)
+    mat <- mat[order, order]
+  }
+  
+  row.names(mat) <- colnames(mat)
+  mat <- as.data.frame(as.table(mat))
+  names(mat) <- c("x", "y", "correlation")
+  
+  e$chart <- e$chart %>% 
+    e_data(mat, x) %>% 
+    e_heatmap_("y", "correlation", ...) 
+  
+  if(isTRUE(visual_map))
+    e$chart <- e$chart %>% e_visual_map_(min = -1, max = 1, ...)
     
   return(e)
 }
@@ -2300,6 +3439,11 @@ e_correlations <- function(e, order = NULL, visual_map = TRUE, ...){
 #' @rdname errorbar
 #' @export
 e_error_bar <- function(e, lower, upper, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
+                        coord_system = "cartesian2d", ...) UseMethod("e_error_bar")
+
+#' @export 
+#' @method e_error_bar echarts4r
+e_error_bar.echarts4r <- function(e, lower, upper, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
                         coord_system = "cartesian2d", ...){
   
   if(missing(e))
@@ -2311,4 +3455,22 @@ e_error_bar <- function(e, lower, upper, name = NULL, legend = TRUE, y_index = 0
   e_error_bar_(e, deparse(substitute(lower)), deparse(substitute(upper)), name = name, 
                legend = legend, y_index = y_index, x_index = x_index, 
                coord_system = coord_system, ...)
+}
+
+#' @export 
+#' @method e_error_bar echarts4rProxy
+e_error_bar.echarts4rProxy <- function(e, lower, upper, name = NULL, legend = TRUE, y_index = 0, x_index = 0, 
+                        coord_system = "cartesian2d", ...){
+  
+  if(missing(e))
+    stop("must pass e", call. = FALSE)
+  
+  if(missing(lower) || missing(upper))
+    stop("must pass lower, or upper", call. = FALSE)
+  
+  e$chart <- e_error_bar_(e$chart, deparse(substitute(lower)), deparse(substitute(upper)), name = name, 
+    legend = legend, y_index = y_index, x_index = x_index, 
+    coord_system = coord_system, ...
+  )
+  return(e)
 }

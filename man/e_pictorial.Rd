@@ -5,14 +5,33 @@
 \alias{e_pictorial_}
 \title{Pictorial}
 \usage{
-e_pictorial(e, serie, symbol, bind, name = NULL, legend = TRUE,
-  y_index = 0, x_index = 0, ...)
+e_pictorial(
+  e,
+  serie,
+  symbol,
+  bind,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  ...
+)
 
-e_pictorial_(e, serie, symbol, bind = NULL, name = NULL,
-  legend = TRUE, y_index = 0, x_index = 0, ...)
+e_pictorial_(
+  e,
+  serie,
+  symbol,
+  bind = NULL,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{serie}{Column name of serie to plot.}
 

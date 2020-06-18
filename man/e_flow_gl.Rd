@@ -5,14 +5,35 @@
 \alias{e_flow_gl_}
 \title{Flow GL}
 \usage{
-e_flow_gl(e, y, sx, sy, color, name = NULL, coord_system = NULL,
-  rm_x = TRUE, rm_y = TRUE, ...)
+e_flow_gl(
+  e,
+  y,
+  sx,
+  sy,
+  color,
+  name = NULL,
+  coord_system = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 
-e_flow_gl_(e, y, sx, sy, color = NULL, name = NULL,
-  coord_system = NULL, rm_x = TRUE, rm_y = TRUE, ...)
+e_flow_gl_(
+  e,
+  y,
+  sx,
+  sy,
+  color = NULL,
+  name = NULL,
+  coord_system = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+)
 }
 \arguments{
-\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}}.}
+\item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or 
+a proxy as returned by \code{\link{echarts4rProxy}}.}
 
 \item{y}{Vector position on the y axis.}
 
