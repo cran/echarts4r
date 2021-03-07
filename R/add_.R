@@ -1,7 +1,16 @@
 #' @rdname e_bar
 #' @export
-e_bar_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index = 0, x_index = 0,
-                   coord_system = "cartesian2d", ...) {
+e_bar_ <- function(
+  e,
+  serie,
+  bind = NULL,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  coord_system = "cartesian2d",
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -10,7 +19,7 @@ e_bar_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index = 
     stop("must pass serie", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     .build_data2(e$x$data[[i]], e$x$mapping$x, serie) -> vector
 
     if (!is.null(bind)) {
@@ -65,6 +74,8 @@ e_bar_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index = 
   }
 
   if (isTRUE(e$x$tl)) {
+    if (is.null(name)) name <- serie
+
     series_opts <- list(
       name = name,
       type = "bar",
@@ -86,8 +97,17 @@ e_bar_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index = 
 
 #' @rdname e_line
 #' @export
-e_line_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index = 0, x_index = 0,
-                    coord_system = "cartesian2d", ...) {
+e_line_ <- function(
+  e,
+  serie,
+  bind = NULL,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  coord_system = "cartesian2d",
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -102,7 +122,7 @@ e_line_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index =
     e$x$facets$current <- e$x$facets$current + 1
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # build JSON data
     .build_data2(e$x$data[[i]], e$x$mapping$x, serie) -> vector
@@ -163,6 +183,8 @@ e_line_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index =
   }
 
   if (isTRUE(e$x$tl)) {
+    if (is.null(name)) name <- serie
+
     series_opts <- list(
       name = name,
       type = "line",
@@ -184,8 +206,17 @@ e_line_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index =
 
 #' @rdname e_area
 #' @export
-e_area_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index = 0, x_index = 0,
-                    coord_system = "cartesian2d", ...) {
+e_area_ <- function(
+  e,
+  serie,
+  bind = NULL,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  coord_system = "cartesian2d",
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -194,7 +225,7 @@ e_area_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index =
     stop("must pass serie", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # build JSON data
     .build_data2(e$x$data[[i]], e$x$mapping$x, serie) -> vector
@@ -250,6 +281,8 @@ e_area_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index =
   }
 
   if (isTRUE(e$x$tl)) {
+    if (is.null(name)) name <- serie
+
     series_opts <- list(
       name = name,
       type = "line",
@@ -272,8 +305,19 @@ e_area_ <- function(e, serie, bind = NULL, name = NULL, legend = TRUE, y_index =
 
 #' @rdname e_step
 #' @export
-e_step_ <- function(e, serie, bind = NULL, step = c("start", "middle", "end"), fill = FALSE,
-                    name = NULL, legend = TRUE, y_index = 0, x_index = 0, coord_system = "cartesian2d", ...) {
+e_step_ <- function(
+  e,
+  serie,
+  bind = NULL,
+  step = c("start", "middle", "end"),
+  fill = FALSE,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  coord_system = "cartesian2d",
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -286,7 +330,7 @@ e_step_ <- function(e, serie, bind = NULL, step = c("start", "middle", "end"), f
     stop("wrong step", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # build JSON data
     .build_data2(e$x$data[[i]], e$x$mapping$x, serie) -> vector
@@ -342,6 +386,8 @@ e_step_ <- function(e, serie, bind = NULL, step = c("start", "middle", "end"), f
   }
 
   if (isTRUE(e$x$tl)) {
+    if (is.null(name)) name <- serie
+
     series_opts <- list(
       name = name,
       type = "line",
@@ -375,16 +421,31 @@ e_scale <- function(x) {
 
 #' @rdname scatter
 #' @export
-e_scatter_ <- function(e, serie, size = NULL, bind = NULL, symbol = NULL, symbol_size = 1,
-                       scale = e_scale, scale_js = "function(data){ return data[3];}",
-                       name = NULL, coord_system = "cartesian2d", jitter_factor = 0,
-                       jitter_amount = NULL, legend = TRUE, y_index = 0, x_index = 0, rm_x = TRUE,
-                       rm_y = TRUE, ...) {
+e_scatter_ <- function(
+  e,
+  serie,
+  size = NULL,
+  bind = NULL,
+  symbol = NULL,
+  symbol_size = 1,
+  scale = e_scale,
+  scale_js = "function(data){ return data[3];}",
+  name = NULL,
+  coord_system = "cartesian2d",
+  jitter_factor = 0,
+  jitter_amount = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+) {
   if (missing(serie)) {
     stop("must pass serie", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     if (y_index != 0) {
       e <- .set_y_axis(e, serie, y_index, i)
     }
@@ -395,7 +456,14 @@ e_scatter_ <- function(e, serie, size = NULL, bind = NULL, symbol = NULL, symbol
 
     if (!is.null(size)) {
       xy <- .build_data_size(
-        e$x$data[[i]], e$x$mapping$x, serie, size, scale, symbol_size, jitter_factor, jitter_amount
+        e$x$data[[i]],
+        e$x$mapping$x,
+        serie,
+        size,
+        scale,
+        symbol_size,
+        jitter_factor,
+        jitter_amount
       )
     } else {
       xy <- .build_data_jitter(e$x$data[[i]], e$x$mapping$x, serie, jitter_factor, jitter_amount)
@@ -474,6 +542,8 @@ e_scatter_ <- function(e, serie, size = NULL, bind = NULL, symbol = NULL, symbol
   }
 
   if (isTRUE(e$x$tl)) {
+    if (is.null(name)) name <- serie
+
     add_opts <- list(
       name = name,
       type = "scatter",
@@ -495,16 +565,29 @@ e_scatter_ <- function(e, serie, size = NULL, bind = NULL, symbol = NULL, symbol
 
 #' @rdname scatter
 #' @export
-e_effect_scatter_ <- function(e, serie, size = NULL, bind = NULL, symbol = NULL, symbol_size = 1,
-                              scale = e_scale, scale_js = "function(data){ return data[3];}",
-                              name = NULL, coord_system = "cartesian2d",
-                              legend = TRUE, y_index = 0, x_index = 0, rm_x = TRUE,
-                              rm_y = TRUE, ...) {
+e_effect_scatter_ <- function(
+  e,
+  serie,
+  size = NULL,
+  bind = NULL,
+  symbol = NULL,
+  symbol_size = 1,
+  scale = e_scale,
+  scale_js = "function(data){ return data[3];}",
+  name = NULL,
+  coord_system = "cartesian2d",
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+) {
   if (missing(serie)) {
     stop("must pass serie", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     if (y_index != 0) {
       e <- .set_y_axis(e, serie, y_index, i)
     }
@@ -588,6 +671,8 @@ e_effect_scatter_ <- function(e, serie, size = NULL, bind = NULL, symbol = NULL,
   }
 
   if (isTRUE(e$x$tl)) {
+    if (is.null(name)) name <- serie
+
     add_opts <- list(
       name = name,
       type = "effectScatter",
@@ -614,7 +699,7 @@ e_candle_ <- function(e, opening, closing, low, high, bind = NULL, name = NULL, 
     stop("missing inputs", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     data <- .build_data2(e$x$data[[i]], opening, closing, low, high)
 
     if (!is.null(bind)) {
@@ -666,8 +751,17 @@ e_candle_ <- function(e, opening, closing, low, high, bind = NULL, name = NULL, 
 
 #' @rdname e_radar
 #' @export
-e_radar_ <- function(e, serie, max = 100, name = NULL, legend = TRUE,
-                     rm_x = TRUE, rm_y = TRUE, ..., radar = list()) {
+e_radar_ <- function(
+  e,
+  serie,
+  max = 100,
+  name = NULL,
+  legend = TRUE,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...,
+  radar = list()
+) {
   r.index <- 0
 
   if (missing(e)) {
@@ -726,7 +820,7 @@ e_funnel_ <- function(e, values, labels, name = NULL, legend = TRUE, rm_x = TRUE
     stop("missing values or labels", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # build JSON data
     funnel <- .build_data2(e$x$data[[i]], values)
@@ -806,13 +900,23 @@ e_sankey_ <- function(e, source, target, value, layout = "none", rm_x = TRUE, rm
 
 #' @rdname e_heatmap
 #' @export
-e_heatmap_ <- function(e, y, z = NULL, bind = NULL, name = NULL, coord_system = "cartesian2d",
-                       rm_x = TRUE, rm_y = TRUE, calendar = NULL, ...) {
+e_heatmap_ <- function(
+  e,
+  y,
+  z = NULL,
+  bind = NULL,
+  name = NULL,
+  coord_system = "cartesian2d",
+  rm_x = TRUE,
+  rm_y = TRUE,
+  calendar = NULL,
+  ...
+) {
   if (missing(y)) {
     stop("must pass y", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     if (!is.null(z)) {
       xyz <- .build_data2(e$x$data[[i]], e$x$mapping$x, y, z)
     } else {
@@ -888,7 +992,7 @@ e_heatmap_ <- function(e, y, z = NULL, bind = NULL, name = NULL, coord_system = 
 
 #' @rdname e_parallel
 #' @export
-e_parallel_ <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE) {
+e_parallel_ <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE, opts = list()) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -912,6 +1016,8 @@ e_parallel_ <- function(e, ..., name = NULL, rm_x = TRUE, rm_y = TRUE) {
     type = "parallel",
     data = data
   )
+
+  serie <- append(serie, opts)
 
   para <- list()
   for (i in 1:ncol(df)) {
@@ -945,7 +1051,7 @@ e_pie_ <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = TRU
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # build JSON data
     data <- .build_data2(e$x$data[[i]], serie)
@@ -1051,7 +1157,7 @@ e_river_ <- function(e, serie, name = NULL, legend = TRUE, rm_x = TRUE, rm_y = T
     stop("must pass serie", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     nm <- .name_it(e, serie, name, i)
 
     if (length(e$x$opts$xAxis$data)) {
@@ -1092,7 +1198,7 @@ e_boxplot_ <- function(e, serie, name = NULL, outliers = TRUE, ...) {
     stop("must pass serie", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # build JSON data
     vector <- .build_boxplot(e, serie, i)
@@ -1122,7 +1228,11 @@ e_boxplot_ <- function(e, serie, name = NULL, outliers = TRUE, ...) {
       }
 
       # xaxis
-      e$x$opts$xAxis[[1]]$data <- append(e$x$opts$xAxis[[1]]$data, list(nm))
+      xs <- names(e$x$data)[i]
+      if (is.null(xs)) {
+        xs <- serie
+      }
+      e$x$opts$xAxis[[1]]$data <- append(e$x$opts$xAxis[[1]]$data, list(xs))
       e$x$opts$xAxis[[1]]$type <- "category"
     } else {
       e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(list(data = vector)))
@@ -1167,9 +1277,21 @@ e_tree_ <- function(e, rm_x = TRUE, rm_y = TRUE, ...) {
 
 #' @rdname line3D
 #' @export
-e_lines_3d_ <- function(e, source_lon, source_lat, target_lon, target_lat, source_name = NULL, target_name = NULL,
-                        value = NULL, name = NULL, coord_system = "globe",
-                        rm_x = TRUE, rm_y = TRUE, ...) {
+e_lines_3d_ <- function(
+  e,
+  source_lon,
+  source_lat,
+  target_lon,
+  target_lat,
+  source_name = NULL,
+  target_name = NULL,
+  value = NULL,
+  name = NULL,
+  coord_system = "globe",
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -1194,12 +1316,15 @@ e_lines_3d_ <- function(e, source_lon, source_lat, target_lon, target_lat, sourc
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     data <- .map_lines(
       e,
-      source_lon, source_lat,
-      target_lon, target_lat,
-      source_name, target_name,
+      source_lon,
+      source_lat,
+      target_lon,
+      target_lat,
+      source_name,
+      target_name,
       value,
       i = i
     )
@@ -1266,7 +1391,7 @@ e_line_3d_ <- function(e, y, z, name = NULL, coord_system = NULL, rm_x = TRUE, r
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # build JSON data
     data <- .build_data2(e$x$data[[i]], e$x$mapping$x, y, z)
@@ -1367,7 +1492,7 @@ e_bar_3d_ <- function(e, y, z, bind = NULL, coord_system = "cartesian3D", name =
   e <- .set_axis_3D(e, "y", y, 0)
   e <- .set_axis_3D(e, "z", z, 0)
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     if (coord_system != "cartesian3D") {
       data <- .build_data2(e$x$data[[i]], e$x$mapping$x, y, z)
 
@@ -1487,7 +1612,7 @@ e_surface_ <- function(e, y, z, bind = NULL, name = NULL, rm_x = TRUE, rm_y = TR
     e$x$opts$grid3D <- list(show = TRUE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     row.names(e$x$data[[i]]) <- NULL
 
     data <- e$x$data[[i]] %>%
@@ -1523,9 +1648,21 @@ e_surface_ <- function(e, y, z, bind = NULL, name = NULL, rm_x = TRUE, rm_y = TR
 
 #' @rdname e_lines
 #' @export
-e_lines_ <- function(e, source_lon, source_lat, target_lon, target_lat, source_name = NULL, target_name = NULL,
-                     value = NULL, coord_system = "geo", name = NULL,
-                     rm_x = TRUE, rm_y = TRUE, ...) {
+e_lines_ <- function(
+  e,
+  source_lon,
+  source_lat,
+  target_lon,
+  target_lat,
+  source_name = NULL,
+  target_name = NULL,
+  value = NULL,
+  coord_system = "geo",
+  name = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -1539,7 +1676,7 @@ e_lines_ <- function(e, source_lon, source_lat, target_lon, target_lat, source_n
   e <- .rm_axis(e, rm_y, "y")
 
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     data <- .map_lines(e, source_lon, source_lat, target_lon, target_lat, source_name, target_name, value, i)
 
     e.serie <- list(data = data)
@@ -1570,8 +1707,20 @@ e_lines_ <- function(e, source_lon, source_lat, target_lon, target_lat, source_n
 
 #' @rdname e_scatter_3d
 #' @export
-e_scatter_3d_ <- function(e, y, z, color = NULL, size = NULL, bind = NULL, coord_system = "cartesian3D", name = NULL,
-                          rm_x = TRUE, rm_y = TRUE, legend = FALSE, ...) {
+e_scatter_3d_ <- function(
+  e,
+  y,
+  z,
+  color = NULL,
+  size = NULL,
+  bind = NULL,
+  coord_system = "cartesian3D",
+  name = NULL,
+  rm_x = TRUE,
+  rm_y = TRUE,
+  legend = FALSE,
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -1584,7 +1733,7 @@ e_scatter_3d_ <- function(e, y, z, color = NULL, size = NULL, bind = NULL, coord
   e <- .rm_axis(e, rm_x, "x")
   e <- .rm_axis(e, rm_y, "y")
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # globe
     if (coord_system != "cartesian3D") {
@@ -1683,17 +1832,11 @@ e_flow_gl_ <- function(e, y, sx, sy, color = NULL, name = NULL, coord_system = N
   e$x$renderer <- "webgl"
 
   if (missing(y) || missing(sx) || missing(sy)) {
-    stop("must pass y and z", call. = FALSE)
+    stop("must pass y, sx, and sy", call. = FALSE)
   }
 
-  if (is.null(coord_system)) {
-    e$x$opts$xAxis <- list(type = "value")
-    e$x$opts$yAxis <- list(type = "value")
-  } else {
-    # remove axis
-    e <- .rm_axis(e, rm_x, "x")
-    e <- .rm_axis(e, rm_y, "y")
-  }
+  e$x$opts$xAxis <- list(type = "value")
+  e$x$opts$yAxis <- list(type = "value")
 
   if (is.null(color)) {
     data <- .build_data(e, e$x$mapping$x, y, sx, sy)
@@ -1709,10 +1852,6 @@ e_flow_gl_ <- function(e, y, sx, sy, color = NULL, name = NULL, coord_system = N
 
   if (!is.null(name)) {
     serie$name <- name
-  }
-
-  if (!is.null(coord_system)) {
-    serie$coordinateSystem <- coord_system
   }
 
   e$x$opts$series <- append(e$x$opts$series, list(serie))
@@ -1744,7 +1883,7 @@ e_scatter_gl_ <- function(e, y, z, name = NULL, coord_system = "geo", rm_x = TRU
     stop("must pass y and z", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # remove axis
     e <- .rm_axis(e, rm_x, "x")
@@ -1834,7 +1973,7 @@ e_pictorial_ <- function(e, serie, symbol, bind = NULL, name = NULL, legend = TR
     e <- .set_x_axis(e, x_index)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     if (is.null(name)) { # defaults to column name
       name <- serie
     }
@@ -1891,8 +2030,17 @@ e_pictorial_ <- function(e, serie, symbol, bind = NULL, name = NULL, legend = TR
 
 #' @rdname histogram
 #' @export
-e_histogram_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
-                         bar_width = "90%", x_index = 0, y_index = 0, ...) {
+e_histogram_ <- function(
+  e,
+  serie,
+  breaks = "Sturges",
+  name = NULL,
+  legend = TRUE,
+  bar_width = "90%",
+  x_index = 0,
+  y_index = 0,
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -1901,7 +2049,7 @@ e_histogram_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRU
     stop("must pass serie", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     data <- .get_data(e, serie, i)
     histogram <- hist(data, plot = FALSE, breaks)
 
@@ -1940,7 +2088,8 @@ e_histogram_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRU
       if (!length(e$x$opts$xAxis)) {
         e$x$opts$xAxis <- list(
           list(
-            type = "value", scale = TRUE
+            type = "value",
+            scale = TRUE
           )
         )
       }
@@ -1961,7 +2110,8 @@ e_histogram_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRU
     if (!length(e$x$opts$baseOption$xAxis)) {
       e$x$opts$baseOption$xAxis <- list(
         list(
-          type = "value", scale = TRUE
+          type = "value",
+          scale = TRUE
         )
       )
     }
@@ -1978,8 +2128,17 @@ e_histogram_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRU
 
 #' @rdname histogram
 #' @export
-e_density_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
-                       x_index = 0, y_index = 0, smooth = TRUE, ...) {
+e_density_ <- function(
+  e,
+  serie,
+  breaks = "Sturges",
+  name = NULL,
+  legend = TRUE,
+  x_index = 0,
+  y_index = 0,
+  smooth = TRUE,
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -1988,7 +2147,7 @@ e_density_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
     stop("must pass serie", call. = FALSE)
   }
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
     data <- .get_data(e, serie, i = i)
     histogram <- hist(data, plot = FALSE, breaks)
 
@@ -2023,27 +2182,26 @@ e_density_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
     }
 
     if (!e$x$tl) {
-      if (is.null(name)) { # defaults to column name
-        name <- serie
-      }
+      nm <- .name_it(e, serie, name, i)
 
-      serie_opts$name <- name
+      serie_opts$name <- nm
 
       if (!length(e$x$opts$xAxis)) {
         e$x$opts$xAxis <- list(
           list(
-            type = "value", scale = TRUE
+            type = "value",
+            scale = TRUE
           )
         )
       }
 
-      serie <- append(serie_opts, serie_data)
+      series <- append(serie_opts, serie_data)
 
       if (isTRUE(legend)) {
-        e$x$opts$legend$data <- append(e$x$opts$legend$data, list(name))
+        e$x$opts$legend$data <- append(e$x$opts$legend$data, list(nm))
       }
 
-      e$x$opts$series <- append(e$x$opts$series, list(serie))
+      e$x$opts$series <- append(e$x$opts$series, list(series))
     } else {
       e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(serie_data))
     }
@@ -2053,7 +2211,8 @@ e_density_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
     if (!length(e$x$opts$baseOption$xAxis)) {
       e$x$opts$baseOption$xAxis <- list(
         list(
-          type = "value", scale = TRUE
+          type = "value",
+          scale = TRUE
         )
       )
     }
@@ -2070,9 +2229,16 @@ e_density_ <- function(e, serie, breaks = "Sturges", name = NULL, legend = TRUE,
 
 #' @rdname band
 #' @export
-e_band_ <- function(e, min, max, stack = "confidence-band", symbol = c("none", "none"),
-                    areaStyle = list(list(color = "rgba(0,0,0,0)"), list()),
-                    legend = list(FALSE, FALSE), ...) {
+e_band_ <- function(
+  e,
+  min,
+  max,
+  stack = "confidence-band",
+  symbol = c("none", "none"),
+  areaStyle = list(list(color = "rgba(0,0,0,0)"), list()),
+  legend = list(FALSE, FALSE),
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
@@ -2098,7 +2264,7 @@ e_band_ <- function(e, min, max, stack = "confidence-band", symbol = c("none", "
   min_opts <- purrr::map(args, spl, 1)
   max_opts <- purrr::map(args, spl, 2)
 
-  for (i in 1:length(e$x$data)) {
+  for (i in seq_along(e$x$data)) {
 
     # min
     min_opts_index <- min_opts
@@ -2110,7 +2276,7 @@ e_band_ <- function(e, min, max, stack = "confidence-band", symbol = c("none", "
     e <- do.call(e_line_, min_opts_index)
 
     # max
-    # e$x$data[[i]][, max] <- e$x$data[[i]][[serie]] - e$x$data[[i]][[max]]
+    e$x$data[[i]][, max] <- e$x$data[[i]][, max] - e$x$data[[i]][, min]
     max_opts_index <- max_opts
     max_opts_index$e <- e
     max_opts_index$stack <- stack
@@ -2123,126 +2289,267 @@ e_band_ <- function(e, min, max, stack = "confidence-band", symbol = c("none", "
     e_x_axis(type = "category")
 }
 
-#' @rdname errorbar
+#' @rdname band2
 #' @export
-e_error_bar_ <- function(e, lower, upper, name = NULL, legend = TRUE, y_index = 0, x_index = 0,
-                         coord_system = "cartesian2d", ...) {
+e_band2_ <- function(
+  e,
+  lower,
+  upper,
+  name = NULL,
+  legend = TRUE,
+  y_index = 0,
+  x_index = 0,
+  coord_system = "cartesian2d",
+  itemStyle = list(borderWidth = 0.5),
+  ...
+) {
   if (missing(e)) {
     stop("must pass e", call. = FALSE)
   }
-
   if (missing(lower) || missing(upper)) {
     stop("must pass lower, or upper", call. = FALSE)
   }
+  if (coord_system != "cartesian2d") {
+    stop("only cartesian2d supported", call. = FALSE)
+  }
 
   args <- list(...)
-  names(args) <- names(args)
 
-  for (i in 1:length(e$x$data)) {
-    .build_data2(e$x$data[[i]], e$x$mapping$x, lower, upper) -> vector
-
+  for (i in seq_along(e$x$data)) {
+    vector <- .build_data2(
+      e$x$data[[i]],
+      e$x$mapping$x,
+      lower,
+      upper
+    )
     e_serie <- list(data = vector)
-
     if (y_index != 0) {
       e <- .set_y_axis(e, upper, y_index, i)
     }
-
     if (x_index != 0) {
       e <- .set_x_axis(e, x_index, i)
     }
 
-    if (coord_system == "polar") {
-      e_serie$data <- e$x$data[[i]] %>%
-        dplyr::select(lower, upper) %>%
-        unlist() %>%
-        unname() %>%
-        as.list()
-    }
+    nm <- .name_it(e, paste0(lower, ".", upper), name, i)
 
-    # timeline
     if (!e$x$tl) {
-      if (!is.null(name)) {
-        nm <- name
-      } else {
-        nm <- .name_it(e, NULL, name, i)
-        nm <- paste(nm, "error")
-        nm <- trimws(nm)
-      }
-
       opts <- list(
         name = nm,
         type = "custom",
         yAxisIndex = y_index,
         xAxisIndex = x_index,
-        z = ifelse("z" %in% names(args), args$z, 3),
         coordinateSystem = coord_system,
-        itemStyle = list(
-          normal = list(
-            borderWidth = 1.5
-          )
-        ),
-        renderItem = htmlwidgets::JS("renderErrorBar"),
-        encode = list(
-          x = 0,
-          y = list(1, 2)
-        ),
+        itemStyle = itemStyle,
+        renderItem = htmlwidgets::JS("renderBand"),
+        encode = list(x = 0, y = list(1, 2)),
         ...
       )
 
-      e_serie <- append(e_serie, opts)
+      e_serie <- append(opts, e_serie) # data after renderItem, data used for Y-sizing only
 
       if (isTRUE(legend)) {
         e$x$opts$legend$data <- append(e$x$opts$legend$data, list(nm))
       }
-
       e$x$opts$series <- append(e$x$opts$series, list(e_serie))
-    } else {
+    }
+    else {
       if (isTRUE(legend)) {
-        e$x$opts$legend$data <- append(e$x$opts$legend$data, list(name))
+        e$x$opts$legend$data <- append(
+          e$x$opts$legend$data,
+          list(nm)
+        )
       }
-
-      e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(e_serie))
+      e$x$opts$options[[i]]$series <- append(
+        e$x$opts$options[[i]]$series,
+        list(e_serie)
+      )
     }
   }
-
   if (isTRUE(e$x$tl)) {
     series_opts <- list(
       name = name,
       type = "custom",
       yAxisIndex = y_index,
       xAxisIndex = x_index,
-      z = ifelse("z" %in% names(args), args$z, 3),
       coordinateSystem = coord_system,
-      itemStyle = list(
-        normal = list(
-          borderWidth = 1.5
-        )
-      ),
-      renderItem = htmlwidgets::JS("renderErrorBar"),
-      encode = list(
-        x = 0,
-        y = list(1, 2)
-      ),
+      itemStyle = itemStyle,
+      renderItem = htmlwidgets::JS("renderBand"),
+      encode = list(x = 0, y = list(1, 2)),
       ...
     )
 
     if (isTRUE(legend)) {
       e$x$opts$baseOption$legend$data <- append(e$x$opts$baseOption$legend$data, list(name))
     }
-
-    e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(series_opts))
+    e$x$opts$baseOption$series <- append(
+      e$x$opts$baseOption$series,
+      list(series_opts)
+    )
   }
-
-  # add dependency
   path <- system.file("htmlwidgets/lib/echarts-4.8.0/custom", package = "echarts4r")
-  dep <- htmltools::htmlDependency(
-    name = "echarts-renderers",
-    version = "1.0.0",
-    src = c(file = path),
-    script = "renderers.js"
-  )
+  dep <- htmltools::htmlDependency(name = "echarts-renderers", version = "1.0.2", src = c(file = path), script = "renderers.js")
 
   e$dependencies <- append(e$dependencies, list(dep))
-
   e
+}
+
+#' @rdname errorbar
+#' @export
+e_error_bar_ <- function(
+  e,
+  lower,
+  upper,
+  name = NULL,
+  legend = FALSE,
+  y_index = 0,
+  x_index = 0,
+  coord_system = "cartesian2d",
+  itemStyle = list(borderWidth = 1.5),
+  renderer = "renderErrorBar2",
+  ...
+) {
+  if (missing(e)) {
+    stop("must pass e", call. = FALSE)
+  }
+  if (missing(lower) || missing(upper)) {
+    stop("must pass lower and upper", call. = FALSE)
+  }
+
+  args <- list(...)
+
+  ser <- if (e$x$tl) e$x$opts$baseOption$series else e$x$opts$series
+  # look for a name for timeline only
+  if (is.null(name) & e$x$tl) {
+    name <- unlist(lapply(ser, function(x) {
+      return(x$name)
+    }))[1]
+  }
+
+  # look for barGap(s), barCategoryGap(s)
+  allBarGaps <- lapply(ser, function(x) {
+    x$barGap
+  })
+  allBarCgGaps <- lapply(ser, function(x) {
+    x$barCategoryGap
+  })
+  lbg <- utils::tail(unlist(allBarGaps), 1)
+  lbg <- if (is.null(lbg)) "" else lbg
+  lcg <- utils::tail(unlist(allBarCgGaps), 1)
+  lcg <- if (is.null(lcg)) "" else lcg
+  tmp <- NULL
+  if (!is.null(name)) {
+    tmp <- unlist(lapply(ser, function(x) {
+      if (length(grep(name, x)) > 0) x$type else NULL
+    }))[1]
+  }
+  if (!is.null(tmp)) { # attached by name, count same types
+    info <- length(unlist(lapply(ser, function(x) grep(tmp, x))))
+  } else { # no name - choose bar or line but not both
+    info <- length(unlist(lapply(ser, function(x) grep("bar", x))))
+    if (info == 0) info <- length(unlist(lapply(ser, function(x) grep("line", x))))
+    if (info == 0) info <- length(unlist(lapply(ser, function(x) grep("scatter", x))))
+  }
+
+  if (info == 0) {
+    return(e)
+  } # no bars/lines/scatter, nothing to attach to
+
+  # save minimal info to be read by renderErrorBar2
+  # renderers.js works in a very isolated environment, so we send data thru sessionStorage
+  # info is last barGap, last barCategoryGap, number of bars
+  info <- c(lbg, lcg, as.character(info))
+
+  info <- paste0(
+    "sessionStorage.setItem('ErrorBar.oss','",
+    jsonlite::toJSON(info),
+    "'); ",
+    renderer
+  )
+  renderJS <- htmlwidgets::JS(info)
+
+  for (i in seq_along(e$x$data)) {
+    vector <- .build_data2(
+      e$x$data[[i]],
+      e$x$mapping$x,
+      lower,
+      upper
+    )
+    e_serie <- list(data = vector)
+    if (y_index != 0) {
+      e <- .set_y_axis(e, upper, y_index, i)
+    }
+    if (x_index != 0) {
+      e <- .set_x_axis(e, x_index, i)
+    }
+    if (coord_system == "polar") {
+      e_serie$data <- e$x$data[[i]] %>%
+        dplyr::select(
+          lower,
+          upper
+        ) %>%
+        unlist() %>%
+        unname() %>%
+        as.list()
+    }
+    nm <- .name_it(e, ser[[i]]$name, name, i)
+
+    if (!e$x$tl) {
+      opts <- list(
+        name = nm,
+        type = "custom",
+        yAxisIndex = y_index,
+        xAxisIndex = x_index,
+        coordinateSystem = coord_system,
+        itemStyle = itemStyle,
+        renderItem = renderJS,
+        encode = list(x = 0, y = list(1, 2)),
+        ...
+      )
+      if (!("z" %in% names(args))) opts$z <- 3
+      if (!("color" %in% names(args))) opts$color <- "black" # set, or it will blend with main bar
+
+      e_serie <- append(e_serie, opts)
+      if (isTRUE(legend)) {
+        e$x$opts$legend$data <- append(e$x$opts$legend$data, list(nm))
+      }
+      e$x$opts$series <- append(e$x$opts$series, list(e_serie))
+    }
+    else {
+      if (isTRUE(legend)) {
+        e$x$opts$legend$data <- append(e$x$opts$legend$data, list(nm))
+      }
+      e$x$opts$options[[i]]$series <- append(
+        e$x$opts$options[[i]]$series,
+        list(e_serie)
+      )
+    }
+  }
+  if (isTRUE(e$x$tl)) {
+    series_opts <- list(
+      type = "custom",
+      yAxisIndex = y_index,
+      xAxisIndex = x_index,
+      coordinateSystem = coord_system,
+      itemStyle = itemStyle,
+      renderItem = renderJS,
+      encode = list(x = 0, y = list(1, 2)),
+      ...
+    )
+    if (!is.null(name)) series_opts$name <- name
+    if (!("z" %in% names(args))) series_opts$z <- 3
+    if (!("color" %in% names(args))) series_opts$color <- "black" # set, or it will blend with main bar
+
+    if (isTRUE(legend) && !is.null(name)) {
+      e$x$opts$baseOption$legend$data <- append(e$x$opts$baseOption$legend$data, list(name))
+    }
+    e$x$opts$baseOption$series <- append(
+      e$x$opts$baseOption$series,
+      list(series_opts)
+    )
+  }
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0/custom", package = "echarts4r")
+  dep <- htmltools::htmlDependency(name = "echarts-renderers", version = "1.0.2", src = c(file = path), script = "renderers.js")
+
+  e$dependencies <- append(e$dependencies, list(dep))
+  e %>% e_x_axis(type = "category") # wont work with type 'value'
 }

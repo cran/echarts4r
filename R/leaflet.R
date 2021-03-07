@@ -22,7 +22,7 @@
 #'   e_charts(lon) %>%
 #'   e_leaflet() %>%
 #'   e_leaflet_tile() %>%
-#'   e_scatter(lat, size = value, coord.system = "leaflet")
+#'   e_scatter(lat, size = value, coord_system = "leaflet")
 #' }
 #'
 #' @note Will not render in the RStudio, open in browser.
@@ -57,8 +57,12 @@ e_leaflet <- function(e, roam = TRUE, ...) {
 
 #' @rdname leaflet
 #' @export
-e_leaflet_tile <- function(e, template = "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-                           options = NULL, ...) {
+e_leaflet_tile <- function(
+  e,
+  template = "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+  options = NULL,
+  ...
+) {
   pkgs <- utils::installed.packages() %>% rownames()
   if (!"leaflet" %in% pkgs) {
     stop("Requires the `leaflet` package installed", call. = FALSE)

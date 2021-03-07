@@ -129,7 +129,8 @@ e_get_data <- function(e) {
 #' df <- data.frame(
 #'   x = 1:10,
 #'   y = round(
-#'     runif(10, 1, 100), 2
+#'     runif(10, 1, 100),
+#'     2
 #'   )
 #' )
 #'
@@ -214,11 +215,11 @@ e_labels <- function(e, show = TRUE, position = "top", ...) {
   )
 
   if (!e$x$tl) {
-    for (i in 1:length(e$x$opts$series)) {
+    for (i in seq_along(e$x$opts$series)) {
       e$x$opts$series[[i]]$label <- opts
     }
   } else {
-    for (i in 1:length(e$x$opts$baseOption$series)) {
+    for (i in seq_along(e$x$opts$baseOption$series)) {
       e$x$opts$baseOption$series[[i]]$label <- opts
     }
   }
@@ -282,14 +283,14 @@ e_list <- function(e, list, append = FALSE) {
 #' can help the disabled understand the content of charts with the help of certain devices.
 #'
 #' @inheritParams e_bar
-#' @param show Whether to show aria helper text.
+#' @param enabled Whether to enable aria helper text.
 #'
 #' @seealso \href{https://echarts.apache.org/en/option.html#aria}{official documentation}
 #'
 #' @export
-e_aria <- function(e, show = TRUE, ...) {
-  e$x$aria <- list(
-    show = show,
+e_aria <- function(e, enabled = TRUE, ...) {
+  e$x$opts$aria <- list(
+    enabled = enabled,
     ...
   )
 

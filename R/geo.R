@@ -10,13 +10,27 @@
 #' @examples
 #' choropleth <- data.frame(
 #'   countries = c(
-#'     "France", "Brazil", "China", "Russia", "Canada", "India", "United States",
-#'     "Argentina", "Australia"
+#'     "France",
+#'     "Brazil",
+#'     "China",
+#'     "Russia",
+#'     "Canada",
+#'     "India",
+#'     "United States",
+#'     "Argentina",
+#'     "Australia"
 #'   ),
 #'   height = runif(9, 1, 5),
 #'   color = c(
-#'     "#F7FBFF", "#DEEBF7", "#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6",
-#'     "#2171B5", "#08519C", "#08306B"
+#'     "#F7FBFF",
+#'     "#DEEBF7",
+#'     "#C6DBEF",
+#'     "#9ECAE1",
+#'     "#6BAED6",
+#'     "#4292C6",
+#'     "#2171B5",
+#'     "#08519C",
+#'     "#08306B"
 #'   )
 #' )
 #'
@@ -74,6 +88,16 @@ e_geo_3d_ <- function(e, serie = NULL, color = NULL, type = "world", rm_x = TRUE
   } else {
     e$x$opts$baseOption$geo3D <- series
   }
+
+  path <- system.file("htmlwidgets/lib/echarts-4.8.0", package = "echarts4r")
+  dep <- htmltools::htmlDependency(
+    name = "echarts-gl",
+    version = "1.1.2",
+    src = c(file = path),
+    script = "echarts-gl.min.js"
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep))
 
   if (type == "world") {
     # add dependency

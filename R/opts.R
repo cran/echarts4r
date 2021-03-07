@@ -51,14 +51,19 @@
 #'   e_charts(x) %>%
 #'   e_scatter_3d(y, z, color, size) %>%
 #'   e_visual_map(
-#'     z, # scale to z
-#'     inRange = list(symbolSize = c(1, 30)), # scale size
+#'     z,
+#'     # scale to z
+#'     inRange = list(symbolSize = c(1, 30)),
+#'     # scale size
 #'     dimension = 3 # third dimension 0 = x, y = 1, z = 2, size = 3
 #'   ) %>%
 #'   e_visual_map(
-#'     z, # scale to z
-#'     inRange = list(color = c("#bf444c", "#d88273", "#f6efa6")), # scale colors
-#'     dimension = 4, # third dimension 0 = x, y = 1, z = 2, size = 3, color = 4
+#'     z,
+#'     # scale to z
+#'     inRange = list(color = c("#bf444c", "#d88273", "#f6efa6")),
+#'     # scale colors
+#'     dimension = 4,
+#'     # third dimension 0 = x, y = 1, z = 2, size = 3, color = 4
 #'     bottom = 300 # padding to avoid visual maps overlap
 #'   )
 #' @seealso \href{https://echarts.apache.org/en/option.html#visualMap}{Additional arguments}
@@ -99,9 +104,9 @@ e_visual_map_ <- function(e, serie = NULL, calculable = TRUE, type = c("continuo
     if (!is.null(scale)) {
       dat <- scale(dat)
     }
-    rng <- range(dat, na.rm = TRUE)
-    vm$min <- rng[1]
-    vm$max <- rng[2]
+    rng <- range(dat, na.rm = TRUE) %>% .get_validate_range()
+    vm$min <- rng$min
+    vm$max <- rng$max
   }
 
   if (!e$x$tl) {
@@ -195,8 +200,12 @@ e_tooltip <- function(e, trigger = c("item", "axis"), formatter = NULL, ...) {
 
 #' @rdname e-tooltip
 #' @export
-e_tooltip_item_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0,
-                                     locale = NULL, currency = "USD") {
+e_tooltip_item_formatter <- function(
+  style = c("decimal", "percent", "currency"),
+  digits = 0,
+  locale = NULL,
+  currency = "USD"
+) {
   if (is.null(locale)) {
     locale <- .get_locale()
   }
@@ -211,9 +220,13 @@ e_tooltip_item_formatter <- function(style = c("decimal", "percent", "currency")
 
   tip <- htmlwidgets::JS(sprintf("function(params, ticket, callback) {
         var fmt = new Intl.NumberFormat('%s', %s);
+        var idx = 0;
+        if (params.name == params.value[0]) {
+            idx = 1;
+        }
         return params.value[0] + '<br>' +
                params.marker + ' ' +
-               params.seriesName + ': ' + fmt.format(parseFloat(params.value[1]));
+               params.seriesName + ': ' + fmt.format(parseFloat(params.value[idx]));
     }", locale, jsonlite::toJSON(opts, auto_unbox = TRUE)))
 
   tip <- structure(tip, class = c("JS_EVAL", "item_formatter"))
@@ -222,8 +235,12 @@ e_tooltip_item_formatter <- function(style = c("decimal", "percent", "currency")
 
 #' @rdname e-tooltip
 #' @export
-e_tooltip_choro_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0,
-                                      locale = NULL, currency = "USD") {
+e_tooltip_choro_formatter <- function(
+  style = c("decimal", "percent", "currency"),
+  digits = 0,
+  locale = NULL,
+  currency = "USD"
+) {
   if (is.null(locale)) {
     locale <- .get_locale()
   }
@@ -249,8 +266,13 @@ e_tooltip_choro_formatter <- function(style = c("decimal", "percent", "currency"
 
 #' @rdname e-tooltip
 #' @export
-e_tooltip_pie_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0,
-                                    locale = NULL, currency = "USD", ...) {
+e_tooltip_pie_formatter <- function(
+  style = c("decimal", "percent", "currency"),
+  digits = 0,
+  locale = NULL,
+  currency = "USD",
+  ...
+) {
   if (is.null(locale)) {
     locale <- .get_locale()
   }
@@ -283,8 +305,12 @@ e_tooltip_pie_formatter <- function(style = c("decimal", "percent", "currency"),
 
 #' @rdname e-tooltip
 #' @export
-e_tooltip_pointer_formatter <- function(style = c("decimal", "percent", "currency"), digits = 0,
-                                        locale = NULL, currency = "USD") {
+e_tooltip_pointer_formatter <- function(
+  style = c("decimal", "percent", "currency"),
+  digits = 0,
+  locale = NULL,
+  currency = "USD"
+) {
   if (is.null(locale)) {
     locale <- .get_locale()
   }
@@ -358,12 +384,14 @@ e_legend <- function(e, show = TRUE, type = c("plain", "scroll"), icons = NULL, 
     if (length(icons) < length(e$x$opts$legend$data)) {
       stop(
         "invalid number of icons; ",
-        length(icons), " icons passed but ",
-        length(e$x$opts$legend$data), " legend items."
+        length(icons),
+        " icons passed but ",
+        length(e$x$opts$legend$data),
+        " legend items."
       )
     }
 
-    for (i in 1:length(e$x$opts$legend$data)) {
+    for (i in seq_along(e$x$opts$legend$data)) {
       e$x$opts$legend$data[[i]] <- list(name = e$x$opts$legend$data[[i]])
       e$x$opts$legend$data[[i]]$icon <- icons[[i]]
     }
@@ -437,12 +465,12 @@ e_toolbox_feature <- function(e, feature, ...) {
       e$x$opts$toolbox <- list(feature = list())
     }
 
-    for (i in 1:length(feature)) {
+    for (i in seq_along(feature)) {
       e$x$opts$toolbox$feature[[feature[i]]] <- list()
     }
 
     if (length(options)) {
-      for (i in 1:length(options)) {
+      for (i in seq_along(options)) {
         e$x$opts$toolbox$feature[[feature]][[names(options)[i]]] <- options[[i]]
       }
     }
@@ -451,12 +479,12 @@ e_toolbox_feature <- function(e, feature, ...) {
       e$x$opts$baseOption$toolbox <- list(feature = list())
     }
 
-    for (i in 1:length(feature)) {
+    for (i in seq_along(feature)) {
       e$x$opts$baseOption$toolbox$feature[[feature[i]]] <- list()
     }
 
     if (length(options)) {
-      for (i in 1:length(options)) {
+      for (i in seq_along(options)) {
         e$x$opts$baseOption$toolbox$feature[[feature]][[names(options)[i]]] <- options[[i]]
       }
     }
@@ -739,8 +767,17 @@ e_axis_pointer <- function(e, ...) {
 #' @seealso \href{https://echarts.apache.org/en/option.html#animation}{Additional arguments}
 #'
 #' @export
-e_animation <- function(e, show = TRUE, threshold = NULL, duration = NULL, easing = NULL, delay = NULL,
-                        duration.update = NULL, easing.update = NULL, delay.update = NULL) {
+e_animation <- function(
+  e,
+  show = TRUE,
+  threshold = NULL,
+  duration = NULL,
+  easing = NULL,
+  delay = NULL,
+  duration.update = NULL,
+  easing.update = NULL,
+  delay.update = NULL
+) {
   if (!e$x$tl) {
     e$x$opts$animation <- show
     e$x$opts$animationThreshold <- threshold
@@ -811,7 +848,7 @@ e_flip_coords <- function(e) {
 
     names(e$x$opts) <- n
 
-    for (i in 1:length(e$x$opts$series)) {
+    for (i in seq_along(e$x$opts$series)) {
       for (j in 1:length(e$x$opts$series[[i]]$data)) {
         vals <- e$x$opts$series[[i]]$data[[j]]$value
         e$x$opts$series[[i]]$data[[j]]$value <- rev(vals)

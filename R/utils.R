@@ -1,9 +1,5 @@
 globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val_loss"))
 
-`%||%` <- function(x, y) {
-  if (!is.null(x)) x else y
-}
-
 .arrange_data_x <- function(data, x, reorder = TRUE) {
   vect <- data[[x]]
 
@@ -344,7 +340,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 #' @param names Names of items to style, expects a \code{list}, defaults to \code{NULL}.
 #' @param levels Hierarchical levels to style, expects a \code{list}, defaults to \code{NULL}.
 #' @return updated hierarchy in json list format
-#' 
+#'
 #' @noRd
 #' @keywords internal
 .build_sun <- function(e, styles = NULL, names = NULL, levels = NULL) {
@@ -352,7 +348,8 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   #' recursive json-list traversal, append style on matching level and/or name
   recu <- function(chld, level) {
     if (!is.null(levels)) {
-      idLevel <- unlist(lapply(seq_along(levels),
+      idLevel <- unlist(lapply(
+        seq_along(levels),
         function(x, i) {
           if (level %in% x[[i]]) i
         },
@@ -360,7 +357,8 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
       ))
     }
     if (!is.null(names)) {
-      idName <- unlist(lapply(seq_along(names),
+      idName <- unlist(lapply(
+        seq_along(names),
         function(x, i) {
           if (chld$name %in% x[[i]]) i
         },
@@ -507,7 +505,10 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 .map_lines <- function(e, source.lon, source.lat, target.lon, target.lat, source.name, target.name, value, i) {
   data <- e$x$data[[i]] %>%
     dplyr::select(
-      source.lon, source.lat, target.lon, target.lat
+      source.lon,
+      source.lat,
+      target.lon,
+      target.lat
     ) %>%
     apply(., 1, function(x) {
       x <- unname(x)
@@ -650,16 +651,6 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   return(nm)
 }
 
-"%||%" <- function(x, y) {
-  if (is.null(x)) {
-    x
-  } else if (is.na(y)) {
-    x
-  } else {
-    y
-  }
-}
-
 .list_depth <- function(this, thisdepth = 0) {
   if (!is.list(this)) {
     return(thisdepth)
@@ -691,4 +682,37 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
 .get_locale <- function() {
   "en"
+}
+
+#' Determines the extremum of a vector
+#'
+#' If the vector contains only 1 element, then one of the extremum is set to 0.
+#'
+#' @author Wei Su
+#'
+#' @param rng Numeric vector.
+#' @return A list contains maximum and minimum value.
+#'
+#' @noRd
+.get_validate_range <- function(rng) {
+  max <- max(rng, na.rm = TRUE)
+  min <- min(rng, na.rm = TRUE)
+  if (!(max > min)) {
+    if (rng[1] >= 0) {
+      max <- rng[1]
+      min <- 0
+    } else {
+      max <- 0
+      min <- rng[1]
+    }
+  }
+  return(list(max = max, min = min))
+}
+
+check_installed <- function(pkg) {
+  has_it <- base::requireNamespace(pkg, quietly = TRUE)
+
+  if (!has_it) {
+    stop(sprintf("This function requires the package {%s}", pkg), call. = FALSE)
+  }
 }
