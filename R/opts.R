@@ -850,10 +850,18 @@ e_flip_coords <- function(e) {
 
     for (i in seq_along(e$x$opts$series)) {
       for (j in 1:length(e$x$opts$series[[i]]$data)) {
-        try({
-          vals <- e$x$opts$series[[i]]$data[[j]]$value
-          e$x$opts$series[[i]]$data[[j]]$value <- rev(vals)
-        }, silent = TRUE)
+
+        if(!is.null(names(e$x$opts$series[[i]]$data[[j]]))){
+          try({
+            vals <- e$x$opts$series[[i]]$data[[j]]$value
+            e$x$opts$series[[i]]$data[[j]]$value <- rev(vals)
+          }, silent = TRUE)
+        } else {
+          try({
+            vals <- e$x$opts$series[[i]]$data[[j]]
+            e$x$opts$series[[i]]$data[[j]] <- rev(vals)
+          }, silent = TRUE)
+        }
       }
     }
   } else {
@@ -1058,4 +1066,76 @@ e_arrange <- function(..., rows = NULL, cols = NULL, width = "xs", title = NULL)
       tg
     }
   }
+}
+
+#' Dimensions
+#' 
+#' Sets the dimensions of the chart _internally._
+#' This will only affect the dimensions of the
+#' chart within its parent container.
+#' Use the `height` and `width` arguments of 
+#' [e_charts] if you want to change the dimensions
+#' of said parent (recommended).
+#' 
+#' @inheritParams e_bar
+#' @param height,width Dimensions in pixels, percentage or string.
+#' 
+#' @export 
+e_dims <- function(e, height = "auto", width = "auto") {
+  e$x$mainOpts$width <- width
+  e$x$mainOpts$height <- height
+  return(e)
+}
+
+#' Locale
+#' 
+#' Change the locale to auto-translate
+#' days of the week, etc.
+#' 
+#' @section Locales:
+#' - CS
+#' - DE
+#' - EN
+#' - ES
+#' - FI
+#' - FR
+#' - JA
+#' - PT (brazil)
+#' - SI
+#' - TH
+#' - ZH
+#' 
+#' @examples
+#' # top right corner zoom is in 
+#' # Portuguese
+#' cars |> 
+#'  e_charts(speed) |> 
+#'  e_scatter(dist) |> 
+#'  e_datazoom() |> 
+#'  e_locale("PT")
+#' 
+#' @inheritParams e_bar
+#' @param locale Locale to set to.
+#' 
+#' @export 
+e_locale <- function(e, locale){
+  if(missing(locale))
+    stop("Missing locale", call. = FALSE)
+
+  locale <- toupper(locale)
+
+  if(!locale %in% c("ZH", "EN")){
+    dep <- htmltools::htmlDependency(
+      name = sprintf("%s-echarts4r-locale", locale),
+      version = utils::packageVersion("echarts4r"),
+      src = "htmlwidgets/lib/echarts-4.8.0/i18n",
+      package = "echarts4r",
+      script = sprintf("lang%s.js", locale)
+    )
+
+    e$dependencies <- append(e$dependencies, list(dep))
+  }
+
+  e$x$mainOpts$locale <- locale
+  return(e)
 }

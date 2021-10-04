@@ -1,3 +1,23 @@
+# echarts4r 0.4.2
+
+- Added proxy method on `e_color`, see 
+[#347](https://github.com/JohnCoene/echarts4r/issues/347)
+- Added `.serie` argument to `e_add` to allow adding data to
+a specific serie.
+- Added `.data` argument to `e_add`.
+- Added `value` and `size` arguments to `e_graph_edges`.
+- Add note in documentation to clarify x axis type for `e_bar`
+see [#357](https://github.com/JohnCoene/echarts4r/issues/357)
+- Update all themes in an attempt to fix [#363](https://github.com/JohnCoene/echarts4r/issues/363)
+- Update base JavaScript version of Echarts.js to v 5.1.2
+- Fix [#365](https://github.com/JohnCoene/echarts4r/issues/365)
+`e_flip_coords` works with all data formats.
+- Deprecate `e_add` in favour of `e_add_nested` and `e_add_unnested`
+see `?nesting`, see [#371](https://github.com/JohnCoene/echarts4r/issues/371)
+- Allow passing multiple names (vector) to `e_lm`, one for each group.
+- Bring support for locales [#372](https://github.com/JohnCoene/echarts4r/issues/372) so one can automatically translate part
+of plots.
+
 # echarts4r 0.4.1
 
 - Apply mark to all series in timeline, fixes [#290](https://github.com/JohnCoene/echarts4r/issues/290)
@@ -6,7 +26,7 @@
 - Replaced magrittr pipe `%>%` to R native's `|>`.
 - Fix `e_map` when used with no data, map was not displayed
 - Fix `e_flip_coords` with boxplots (and other single column series) see [#336](https://github.com/JohnCoene/echarts4r/issues/336)
-- Fix `e_add` applied to timeline, see [338](https://github.com/JohnCoene/echarts4r/issues/338)
+- Fix `e_add` applied to timeline, see [#338](https://github.com/JohnCoene/echarts4r/issues/338)
 
 # echarts4r 0.4.0
 

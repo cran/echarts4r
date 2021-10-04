@@ -11,6 +11,12 @@
 #' @param ... Any other option to pass, check See Also section.
 #' @param x_index,y_index Indexes of x and y axis.
 #' @param coord_system Coordinate system to plot against.
+#' 
+#' @note The bar serie expects the data on the x axis to be
+#' \code{categorical} in R this means a \code{factor} or 
+#' \code{character}. If the data on the x axis is numeric
+#' everything should work well in most cases but strange
+#' behaviour may be observed.
 #'
 #' @examples
 #' library(dplyr)
@@ -1069,8 +1075,8 @@ e_sankey.echarts4rProxy <- function(e, source, target, value, layout = "none", r
 #' @param name Name of graph.
 #' @param nodes Data.frame of nodes.
 #' @param names Names of nodes, unique.
-#' @param value values of nodes.
-#' @param size Size of nodes.
+#' @param value Values of nodes or edges.
+#' @param size Sizes of nodes or edges.
 #' @param symbol Symbols of nodes.
 #' @param legend Whether to add serie to legend.
 #' @param category Group of nodes (i.e.: group membership).
@@ -1094,16 +1100,20 @@ e_sankey.echarts4rProxy <- function(e, source, target, value, layout = "none", r
 #'   stringsAsFactors = FALSE
 #' )
 #'
+#' value_edges <- sample(1:100, 20, replace = TRUE)
 #' edges <- data.frame(
 #'   source = sample(nodes$name, 20, replace = TRUE),
 #'   target = sample(nodes$name, 20, replace = TRUE),
+#'   value = value_edges,
+#'   size = ceiling(value_edges/20),
 #'   stringsAsFactors = FALSE
 #' )
 #'
 #' e_charts() |>
 #'   e_graph() |>
 #'   e_graph_nodes(nodes, name, value, size, grp, symbol) |>
-#'   e_graph_edges(edges, source, target)
+#'   e_graph_edges(edges, source, target, value, size) |>
+#'   e_tooltip()
 #'
 #' # Use graphGL for larger networks
 #' nodes <- data.frame(
@@ -1324,22 +1334,34 @@ e_graph_nodes.echarts4rProxy <- function(e, nodes, names, value, size, category,
 
 #' @rdname graph
 #' @export
-e_graph_edges <- function(e, edges, source, target) UseMethod("e_graph_edges")
+e_graph_edges <- function(e, edges, source, target, value, size) UseMethod("e_graph_edges")
 
 #' @method e_graph_edges echarts4r
 #' @export
-e_graph_edges.echarts4r <- function(e, edges, source, target) {
+e_graph_edges.echarts4r <- function(e, edges, source, target, value, size) {
   if (missing(edges) || missing(source) || missing(target)) {
     stop("must pass edges, source and target", call. = FALSE)
   }
-
+  
+  if (missing(size)) {
+    size <- NULL
+  }
+  
+  if (missing(value)) {
+    value <- NULL
+  }
+  
   source <- dplyr::enquo(source)
   target <- dplyr::enquo(target)
-
+  value <- dplyr::enquo(value)
+  size <- dplyr::enquo(size)
+  
   data <- .build_graph_edges(
     edges,
     source,
-    target
+    target,
+    value,
+    size
   )
 
   # build JSON data
@@ -1350,18 +1372,26 @@ e_graph_edges.echarts4r <- function(e, edges, source, target) {
 
 #' @method e_graph_edges echarts4rProxy
 #' @export
-e_graph_edges.echarts4rProxy <- function(e, edges, source, target) {
+e_graph_edges.echarts4rProxy <- function(e, edges, source, target, value, size) {
   if (missing(edges) || missing(source) || missing(target)) {
     stop("must pass edges, source and target", call. = FALSE)
   }
-
+  
+  if (missing(size)) {
+    size <- NULL
+  }
+  
   source <- dplyr::enquo(source)
   target <- dplyr::enquo(target)
-
+  value <- dplyr::enquo(value)
+  size <- dplyr::enquo(size)
+  
   data <- .build_graph_edges(
     edges,
     source,
-    target
+    target,
+    value,
+    size
   )
 
   # build JSON data
@@ -2031,6 +2061,15 @@ e_tree.echarts4rProxy <- function(e, rm_x = TRUE, rm_y = TRUE, ...) {
 #' @examples
 #' e_charts() |>
 #'   e_gauge(57, "PERCENT")
+#' 
+#' # timeline 
+#' data.frame(time = 2015:2017) |> 
+#'   group_by(time) |> 
+#'   e_charts(timeline = TRUE) |>
+#'     e_gauge(
+#'       c(57, 23, 65),
+#'       c("percent", "percentage", "cases")
+#'     )
 #' @seealso \href{https://echarts.apache.org/en/option.html#series-gauge}{Additional arguments}
 #'
 #' @rdname e_gauge
@@ -2044,9 +2083,8 @@ e_gauge.echarts4r <- function(e, value, name, rm_x = TRUE, rm_y = TRUE, ...) {
     stop("missing e, name, or value", call. = FALSE)
   }
 
-  if (!inherits(value, "numeric")) {
+  if (!inherits(value, "numeric"))
     stop("must pass numeric or integer", call. = FALSE)
-  }
 
   # remove axis
   e <- .rm_axis(e, rm_x, "x")
@@ -2067,8 +2105,11 @@ e_gauge.echarts4r <- function(e, value, name, rm_x = TRUE, rm_y = TRUE, ...) {
       e$x$opts$series <- append(e$x$opts$series, list(lst))
     } else {
       e$x$opts$options[[i]]$series <- append(e$x$opts$options[[i]]$series, list(serie))
-      e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(opts))
     }
+  }
+
+  if(e$x$tl){
+    e$x$opts$baseOption$series <- append(e$x$opts$baseOption$series, list(opts))
   }
   e
 }
@@ -3536,6 +3577,9 @@ e_lm <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth
 e_lm.echarts4r <- function(e, formula, name = NULL, legend = TRUE, symbol = "none", smooth = TRUE, model_args = list(), ...) {
   form <- as.formula(formula)
 
+  if(!is.null(name) && length(name) != length(e$x$data))
+    stop("More groups than names", call. = FALSE)
+
   for (i in seq_along(e$x$data)) {
     e$x$data[[i]] <- e$x$data[[i]][stats::complete.cases(e$x$data[[i]]), ]
 
@@ -3569,7 +3613,7 @@ e_lm.echarts4r <- function(e, formula, name = NULL, legend = TRUE, symbol = "non
         if (is.null(name)) {
           nm <- paste0(names(e$x$data[[i]])[i], "-lm")
         } else {
-          nm <- name
+          nm <- name[i]
         }
 
         l$name <- nm

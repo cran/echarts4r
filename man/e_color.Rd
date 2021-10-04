@@ -2,9 +2,15 @@
 % Please edit documentation in R/color.R
 \name{e_color}
 \alias{e_color}
+\alias{e_color.echarts4r}
+\alias{e_color.echarts4rProxy}
 \title{Color}
 \usage{
-e_color(e, color = NULL, background = NULL)
+e_color(e, color = NULL, background = NULL, append = TRUE)
+
+\method{e_color}{echarts4r}(e, color = NULL, background = NULL, append = TRUE)
+
+\method{e_color}{echarts4rProxy}(e, color = NULL, background = NULL, append = TRUE)
 }
 \arguments{
 \item{e}{An \code{echarts4r} object as returned by \code{\link{e_charts}} or
@@ -13,6 +19,10 @@ a proxy as returned by \code{\link{echarts4rProxy}}.}
 \item{color}{Vector of colors.}
 
 \item{background}{Background color.}
+
+\item{append}{Only applicable to `echarts4rProxy`.
+Whether to append the `color` to the existing
+array (vector) or colors or to replace it.}
 }
 \description{
 Customise chart and background colors.
