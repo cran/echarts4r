@@ -1,3 +1,8 @@
+# echarts4r 0.4.3.9000
+
+- Better checks on theme names [#407](https://github.com/JohnCoene/echarts4r/issues/407)
+- Update to echarts.js 5.3.2
+
 # echarts4r 0.4.3
 
 - Bump echarts.js to version 5.2.2
@@ -99,7 +104,7 @@ This greatly improves the performances of echarts4r which now loads much faster.
 
 Bumped echarts JavaScript library to `4.6.0`, [PR #121](https://github.com/JohnCoene/echarts4r/pull/121), also bumped echarts gl to `1.2.1`.
 
-Every function that adds a serie to chart (e.g.: `e_bar`) have been turned into methods that now can be applied to proxies (`echarts4rProxy`), see the [development vignette](https://echarts4r.john-coene.com/articles/development.html) for more. This implies some minute changes to the `echarts4rProxy`: nothing broken though.
+Every function that adds a serie to chart (e.g.: `e_bar`) have been turned into methods that now can be applied to proxies (`echarts4rProxy`), see the [development vignette](https://echarts4r.john-coene.com/articles/proxies.html) for more. This implies some minute changes to the `echarts4rProxy`: nothing broken though.
 
 - Warning in `e_axis_fomatter` if user uses RStudio, relates to [#100](https://github.com/JohnCoene/echarts4r/issues/100)
 - Fixed [#98](https://github.com/JohnCoene/echarts4r/issues/98) where a bug was introduced in `e_radar_opts` when the timeline component was added.
