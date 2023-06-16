@@ -123,7 +123,7 @@ e_visual_map_ <- function(e, serie = NULL, calculable = TRUE, type = c("continuo
 #' Customise tooltip
 #'
 #' @inheritParams e_bar
-#' @param trigger What triggers the tooltip, one of \code{item} or \code{item}.
+#' @param trigger What triggers the tooltip, one of \code{item} or \code{axis}.
 #' @param formatter Item and Pointer formatter as returned
 #' by \code{\link{e_tooltip_item_formatter}}, \code{\link{e_tooltip_pointer_formatter}},
 #' \code{\link{e_tooltip_pie_formatter}}.
@@ -381,7 +381,10 @@ e_legend <- function(e, show = TRUE, type = c("plain", "scroll"), icons = NULL, 
   }
 
   if (!is.null(icons)) {
-    if (length(icons) < length(e$x$opts$legend$data)) {
+    if (length(icons) == 1) {
+      e$x$opts$legend$icon <- icons
+      icons <- NULL
+    } else if (length(icons) < length(e$x$opts$legend$data)) {
       stop(
         "invalid number of icons; ",
         length(icons),
@@ -391,6 +394,7 @@ e_legend <- function(e, show = TRUE, type = c("plain", "scroll"), icons = NULL, 
       )
     }
 
+    
     for (i in seq_along(e$x$opts$legend$data)) {
       e$x$opts$legend$data[[i]] <- list(name = e$x$opts$legend$data[[i]])
       e$x$opts$legend$data[[i]]$icon <- icons[[i]]
@@ -1107,16 +1111,24 @@ e_dims <- function(e, height = "auto", width = "auto") {
 #' 
 #' @examples
 #' # top right corner zoom is in 
-#' # Portuguese
+#' # French
 #' cars |> 
 #'  e_charts(speed) |> 
 #'  e_scatter(dist) |> 
 #'  e_datazoom() |> 
-#'  e_locale("PT")
+#'  e_locale("FR")
 #' 
 #' @inheritParams e_bar
 #' @param locale Locale to set to.
+#' @param path Path to the local file to use.
 #' 
+#' @details The "manual" function expects a file
+#' to use for translations.
+#' You can browse the `.js` files
+#' [here](https://github.com/apache/echarts/tree/master/i18n)
+#' to have an idea of what they should look like.
+#' 
+#' @name e_locale
 #' @export 
 e_locale <- function(e, locale){
   if(missing(locale))
@@ -1135,6 +1147,35 @@ e_locale <- function(e, locale){
 
     e$dependencies <- append(e$dependencies, list(dep))
   }
+
+  e$x$mainOpts$locale <- locale
+  return(e)
+}
+
+#' @rdname e_locale
+#' @export 
+e_locale_manual <- function(e, locale, path){
+  if(missing(locale))
+    stop("Missing locale", call. = FALSE)
+
+  if(missing(path))
+    stop("Missing path", call. = FALSE)
+
+  path <- normalizePath(path)
+
+  file <- basename(path)
+  dir <- gsub(sprintf("%s$", file), "", path)
+
+  dep <- htmltools::htmlDependency(
+    name = sprintf("%s-manual-echarts4r-locale", locale),
+    version = utils::packageVersion("echarts4r"),
+    src = c(
+      file = dir
+    ),
+    script = file
+  )
+
+  e$dependencies <- append(e$dependencies, list(dep))
 
   e$x$mainOpts$locale <- locale
   return(e)

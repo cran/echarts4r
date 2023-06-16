@@ -168,7 +168,9 @@ e_line.echarts4rProxy <- function(
 
 #' Area
 #'
-#' Add area serie.
+#' Add area serie. Note that this is NOT an unique series type. Rather, this
+#' function is a shorthand for using `e_bar()` with `areaStyle = list()`
+#' enabled.
 #'
 #' @inheritParams e_bar
 #'
@@ -1067,6 +1069,8 @@ e_sankey.echarts4rProxy <- function(e, source, target, value, layout = "none", r
   return(e)
 }
 
+
+
 #' Graph
 #'
 #' Create a graph.
@@ -1398,6 +1402,7 @@ e_graph_edges.echarts4rProxy <- function(e, edges, source, target, value, size) 
   e$chart$x$opts$series[[length(e$chart$x$opts$series)]]$links <- data
   e
 }
+
 
 #' Heatmap
 #'

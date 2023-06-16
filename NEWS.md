@@ -1,7 +1,22 @@
-# echarts4r 0.4.3.9000
+# echarts4r 0.4.5
+
+- Fix error dependency with country code [#527](https://github.com/JohnCoene/echarts4r/issues/527)
+
+- Fix e_candle min max inverted [#529](https://github.com/JohnCoene/echarts4r/pull/529)
+
+- Extended Functionnality of e_facet [#481](https://github.com/JohnCoene/echarts4r/pull/481)
+
+- Fix broken .build_edges [#545](https://github.com/JohnCoene/echarts4r/issues/545)
+
+- Update CI depreciation [#540](https://github.com/JohnCoene/echarts4r/issues/540)
+
+- Update dependencies to `5.4.2`
+
+# echarts4r 0.4.4
 
 - Better checks on theme names [#407](https://github.com/JohnCoene/echarts4r/issues/407)
 - Update to echarts.js 5.3.2
+- Added `e_morph`
 
 # echarts4r 0.4.3
 

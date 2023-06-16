@@ -4,7 +4,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
   vect <- data[[x]]
 
   if (reorder) {
-    if (inherits(vect, "numeric") || inherits(vect, "integer")) {
+    if (any(c(inherits(vect, "numeric"),inherits(vect, "integer")))) {
       data <- data[order(data[[x]]), ]
     }
   }
@@ -17,7 +17,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
   for (i in 1:length(data)) {
     if (reorder) {
-      if (inherits(vect, "numeric") || inherits(vect, "integer")) {
+      if (any(c(inherits(vect, "numeric"), inherits(vect, "integer")))) {
         data[[i]] <- data[[i]][order(data[[i]][[x]]), ]
       }
     }
@@ -29,7 +29,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 .assign_axis <- function(x, data) {
   x$mapping$include_x <- FALSE
   cl <- x$mapping$x_class
-  if (cl == "character" || cl == "factor") {
+  if (any(c("factor", "character") %in% cl)) {
     labs <- unique(data[[x$mapping$x]])
 
     if (length(labs) == 1) {
@@ -37,7 +37,7 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
     }
 
     x$opts$xAxis <- list(list(data = labs, type = "category", boundaryGap = TRUE))
-  } else if (cl == "POSIXct" || cl == "POSIXlt" || cl == "Date") {
+  } else if (any(c("POSIXct", "POSIXlt", "Date") %in% cl)) {
     labs <- unique(data[[x$mapping$x]])
 
     if (length(labs) == 1) {
@@ -66,9 +66,9 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 }
 
 .build_data <- function(e, ...) {
-  data <- e$x$data[[1]] |>
-    dplyr::select(...)
-  
+  data <- e$x$data[[1]] # |>
+    # dplyr::select(...)
+  data <- data[, c(...), drop = FALSE]
   data <- unname(data)
 
   apply(data, 1, function(x) {
@@ -131,9 +131,9 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 
 .build_data2 <- function(data, ...) {
   row.names(data) <- NULL
-  data <- data |>
-    dplyr::select(...)
-  
+  # data <- data |>
+  #  dplyr::select(...)
+  data <- data[, c(...), drop = FALSE]
   data <- unname(data)
 
   apply(data, 1, function(x) {
@@ -443,9 +443,9 @@ globalVariables(c("x", "e", ".", "acc", "epoch", "loss", "size", "val_acc", "val
 .get_type <- function(e, serie) {
   cl <- .get_class(e, serie)
 
-  if (cl == "character" || cl == "factor") {
+  if (any(c("character", "factor") %in% cl)) {
     "category"
-  } else if (cl == "POSIXct" || cl == "POSIXlt" || cl == "Date") {
+  } else if (any(c("POSIXct", "POSIXlt", "Date") %in% cl)) {
     "time"
   } else {
     "value"
